@@ -8,7 +8,7 @@ export default function HeroShowcase() {
   const shouldReduceMotion = useReducedMotion()
   const titleLines = profile.home.heroTitle.split('\n')
   const withBase = (path: string) =>
-    `${import.meta.env.BASE_URL}${path.replace(/^\\/+/, '')}`
+    `${import.meta.env.BASE_URL}${path.replace(/^\/+/, '')}`
 
   return (
     <section className="relative overflow-hidden rounded-3xl border border-white/10 bg-base-900/70 p-6 shadow-soft backdrop-blur md:p-10">
