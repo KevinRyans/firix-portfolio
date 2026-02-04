@@ -234,7 +234,7 @@ export const profile = {
       {
         label: 'Discord',
         href: 'https://discord.com/users/337288161094795294',
-        value: '337288161094795294',
+        value: 'onyxnor',
       },
       {
         label: 'Email',
@@ -284,6 +284,17 @@ export const profile = {
   },
   pinnedProjects: [
     {
+      repo: 'ONYXportifolio',
+      displayName: 'ONYX Portfolio',
+      description:
+        'Premium dark developer portfolio built with Vite, React, Tailwind, and Framer Motion.',
+      tags: ['Frontend', 'React', 'Vite', 'Tailwind'],
+      category: 'Frontend',
+      openSource: false,
+      featured: true,
+      status: 'In progress',
+    },
+    {
       repo: 'huben',
       displayName: 'Huben',
       description:
@@ -320,6 +331,21 @@ export const profile = {
     },
   ] satisfies ProjectOverride[],
   sampleProjects: [
+    {
+      id: 4,
+      name: 'ONYXportifolio',
+      full_name: 'KevinRyans/ONYXportifolio',
+      html_url: 'https://github.com/KevinRyans/ONYXportifolio',
+      description:
+        'Premium dark developer portfolio built with Vite, React, Tailwind, and Framer Motion.',
+      language: 'TypeScript',
+      stargazers_count: 0,
+      forks_count: 0,
+      updated_at: '2026-02-03T12:00:00Z',
+      topics: ['frontend', 'portfolio', 'react', 'tailwind', 'vite'],
+      homepage: '',
+      license: null,
+    },
     {
       id: 1,
       name: 'huben',
