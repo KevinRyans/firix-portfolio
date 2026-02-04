@@ -76,9 +76,9 @@ const networkLinks = [
 const accentNodes = new Set([2, 5, 9, 15, 20, 21])
 
 function NetworkSvg({ accent = false }: { accent?: boolean }) {
-  const lineColor = accent ? 'rgba(56, 189, 248, 0.55)' : 'rgba(148, 163, 184, 0.35)'
-  const dotColor = accent ? 'rgba(45, 212, 191, 0.85)' : 'rgba(148, 163, 184, 0.6)'
-  const strokeWidth = accent ? 1.6 : 1.1
+  const lineColor = accent ? 'rgba(56, 189, 248, 0.32)' : 'rgba(148, 163, 184, 0.25)'
+  const dotColor = accent ? 'rgba(45, 212, 191, 0.55)' : 'rgba(148, 163, 184, 0.45)'
+  const strokeWidth = accent ? 1.0 : 0.8
 
   return (
     <svg
@@ -122,39 +122,37 @@ export default function AnimatedBackground() {
       <div className="absolute inset-0 geo-grid opacity-45 animate-gridShift motion-reduce:animate-none" />
       <div className="absolute inset-0 geo-grid-soft opacity-30 animate-gridShift motion-reduce:animate-none" />
       <motion.div
-        className="absolute inset-0 opacity-60 mix-blend-screen"
+        className="absolute inset-0 opacity-35"
         animate={
           shouldReduceMotion
             ? undefined
             : {
-                x: [0, -22, 0],
-                y: [0, 18, 0],
+                x: [0, -14, 0],
+                y: [0, 10, 0],
               }
         }
-        transition={{ duration: 28, repeat: Infinity, ease: 'easeInOut' }}
+        transition={{ duration: 30, repeat: Infinity, ease: 'easeInOut' }}
       >
         <NetworkSvg />
       </motion.div>
       <motion.div
-        className="absolute inset-0 opacity-45 mix-blend-screen"
+        className="absolute inset-0 opacity-20"
         animate={
           shouldReduceMotion
             ? undefined
             : {
-                x: [0, 20, 0],
-                y: [0, -16, 0],
+                x: [0, 12, 0],
+                y: [0, -8, 0],
               }
         }
-        transition={{ duration: 36, repeat: Infinity, ease: 'easeInOut' }}
+        transition={{ duration: 38, repeat: Infinity, ease: 'easeInOut' }}
       >
         <NetworkSvg accent />
       </motion.div>
-      <div className="absolute inset-0 opacity-60">
-        <div className="absolute left-[10%] top-[16%] h-48 w-48 rounded-[26px] border border-accent-500/25 bg-accent-500/10 animate-spinSlower motion-reduce:animate-none" />
-        <div className="absolute right-[12%] top-[28%] h-64 w-64 rounded-full border border-teal-400/25 bg-teal-400/10 animate-orbit motion-reduce:animate-none" />
-        <div className="absolute bottom-[14%] left-[18%] h-28 w-28 rotate-12 rounded-2xl border border-white/20 bg-white/10 animate-drift motion-reduce:animate-none" />
-        <div className="absolute bottom-[22%] right-[22%] h-32 w-32 rounded-[30%] border border-accent-300/25 bg-accent-300/10 animate-drift motion-reduce:animate-none" />
-        <div className="absolute left-[45%] top-[10%] h-16 w-16 rotate-45 rounded-xl border border-teal-300/30 bg-teal-300/10 animate-spinSlower motion-reduce:animate-none" />
+      <div className="absolute inset-0 opacity-35">
+        <div className="absolute left-[10%] top-[16%] h-48 w-48 rounded-[26px] border border-accent-500/20 bg-accent-500/8 animate-spinSlower motion-reduce:animate-none" />
+        <div className="absolute right-[12%] top-[28%] h-64 w-64 rounded-full border border-teal-400/20 bg-teal-400/8 animate-orbit motion-reduce:animate-none" />
+        <div className="absolute bottom-[14%] left-[18%] h-28 w-28 rotate-12 rounded-2xl border border-white/15 bg-white/8 animate-drift motion-reduce:animate-none" />
       </div>
       <motion.div
         className={cn(blobBase, 'left-[12%] top-[20%] h-72 w-72 bg-accent-500/25')}

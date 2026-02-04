@@ -49,18 +49,18 @@
 
   .geo-grid {
     background-image:
-      linear-gradient(rgba(148, 163, 184, 0.16) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(148, 163, 184, 0.16) 1px, transparent 1px);
+      linear-gradient(rgba(148, 163, 184, 0.08) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(148, 163, 184, 0.08) 1px, transparent 1px);
     background-size: 140px 140px;
-    mask-image: radial-gradient(circle at 50% 30%, black 0%, black 45%, transparent 78%);
+    mask-image: radial-gradient(circle at 50% 30%, black 0%, black 38%, transparent 78%);
   }
 
   .geo-grid-soft {
     background-image:
-      linear-gradient(rgba(56, 189, 248, 0.12) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(45, 212, 191, 0.12) 1px, transparent 1px);
+      linear-gradient(rgba(56, 189, 248, 0.06) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(45, 212, 191, 0.06) 1px, transparent 1px);
     background-size: 220px 220px;
-    mask-image: radial-gradient(circle at 80% 60%, black 0%, black 40%, transparent 82%);
+    mask-image: radial-gradient(circle at 80% 60%, black 0%, black 32%, transparent 82%);
   }
 
   .line-clamp-2 {
