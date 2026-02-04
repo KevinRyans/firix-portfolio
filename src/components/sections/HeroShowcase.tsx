@@ -7,6 +7,8 @@ import Badge from '../ui/Badge'
 export default function HeroShowcase() {
   const shouldReduceMotion = useReducedMotion()
   const titleLines = profile.home.heroTitle.split('\n')
+  const withBase = (path: string) =>
+    `${import.meta.env.BASE_URL}${path.replace(/^\\/+/, '')}`
 
   return (
     <section className="relative overflow-hidden rounded-3xl border border-white/10 bg-base-900/70 p-6 shadow-soft backdrop-blur md:p-10">
@@ -63,7 +65,7 @@ export default function HeroShowcase() {
           <div className="relative overflow-hidden rounded-[32px] border border-white/10 bg-base-950/70 shadow-glow">
             <div className="relative aspect-[4/5]">
               <img
-                src={profile.media.profileImage}
+                src={withBase(profile.media.profileImage)}
                 alt={profile.media.profileAlt}
                 className="absolute inset-x-0 bottom-0 h-full w-full object-contain"
                 style={{
@@ -71,7 +73,7 @@ export default function HeroShowcase() {
                 }}
                 loading="lazy"
                 onError={(event) => {
-                  event.currentTarget.src = '/images/profile-placeholder.png'
+                  event.currentTarget.src = withBase('images/profile-placeholder.png')
                 }}
               />
             </div>

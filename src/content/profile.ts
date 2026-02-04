@@ -86,11 +86,11 @@ export const profile = {
     latestWorksCount: 6,
   },
   media: {
-    profileImage: '/images/profile.png',
+    profileImage: 'images/profile.png',
     profileAlt: 'Portrait of me',
     profileLabel: 'Profile',
     profileNote: 'Self-taught · Hobby',
-    memojiImage: '/images/memoji.png',
+    memojiImage: 'images/memoji.png',
     memojiAlt: 'Apple Memoji',
     profileScale: 1.06,
     profileOffsetY: 14,
@@ -387,3 +387,4 @@ export const profile = {
 }
 
 export type Profile = typeof profile
+
