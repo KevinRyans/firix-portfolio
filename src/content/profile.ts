@@ -230,7 +230,7 @@ export const profile = {
       messageLabel: 'Message',
       sendLabel: 'Send request',
       sendingLabel: 'Sending...',
-      successMessage: 'Delivered! I will reply soon.',
+      successMessage: "Sent! I'll reply to the email you provided.",
       errorMessage: 'Something went wrong. Please try again or email me directly.',
       note: 'This form sends a message directly to my inbox.',
     },

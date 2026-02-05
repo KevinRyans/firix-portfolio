@@ -1,5 +1,6 @@
-import { useState } from 'react'
-import { Mail, MessageCircle, Github, Phone } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import { Mail, Github, Phone, Check } from 'lucide-react'
+import { AnimatePresence, motion } from 'framer-motion'
 import { profile } from '../content/profile'
 import SectionHeader from '../components/ui/SectionHeader'
 import Card from '../components/ui/Card'
@@ -7,9 +8,25 @@ import Button from '../components/ui/Button'
 import CopyButton from '../components/ui/CopyButton'
 import Reveal from '../components/sections/Reveal'
 
+function DiscordIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      className={className}
+      viewBox="0 0 256 199"
+      aria-hidden="true"
+      focusable="false"
+    >
+      <path
+        fill="currentColor"
+        d="M216.9 16.5A208.4 208.4 0 0 0 164.5 0c-2.3 4.2-4.9 9.9-6.7 14.4a191 191 0 0 0-57.7 0c-1.8-4.5-4.5-10.2-6.8-14.4a208.4 208.4 0 0 0-52.4 16.5C7.7 65.6-4.8 113.3 1.5 160.2c26.6 19.7 52.4 31.7 77.8 39.5 6.3-8.6 11.9-17.8 16.9-27.5a135.6 135.6 0 0 1-26.7-12.8c2.2-1.6 4.4-3.3 6.5-5 51.5 24.2 107.5 24.2 158.4 0 2.1 1.7 4.3 3.4 6.5 5a168.4 168.4 0 0 1-26.8 12.8 181 181 0 0 0 16.9 27.5c25.4-7.8 51.2-19.8 77.8-39.5 7.7-57.1-12.5-104.6-39.1-143.7ZM86.3 134.6c-13.3 0-24.2-12.2-24.2-27.2 0-15 10.7-27.2 24.2-27.2 13.4 0 24.3 12.2 24.2 27.2 0 15-10.7 27.2-24.2 27.2Zm83.4 0c-13.3 0-24.2-12.2-24.2-27.2 0-15 10.7-27.2 24.2-27.2 13.4 0 24.3 12.2 24.2 27.2 0 15-10.7 27.2-24.2 27.2Z"
+      />
+    </svg>
+  )
+}
+
 const iconMap = {
   GitHub: Github,
-  Discord: MessageCircle,
+  Discord: DiscordIcon,
   Email: Mail,
   Phone: Phone,
 }
@@ -19,7 +36,15 @@ export default function Contact() {
   const [status, setStatus] = useState<'idle' | 'sending' | 'success' | 'error'>(
     'idle',
   )
+  const [showToast, setShowToast] = useState(false)
   const accessKey = import.meta.env.VITE_WEB3FORMS_KEY as string | undefined
+
+  useEffect(() => {
+    if (status !== 'success') return
+    setShowToast(true)
+    const timer = window.setTimeout(() => setShowToast(false), 4200)
+    return () => window.clearTimeout(timer)
+  }, [status])
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
@@ -140,11 +165,22 @@ export default function Contact() {
                   ? profile.contact.form.sendingLabel
                   : profile.contact.form.sendLabel}
               </Button>
-              {status === 'success' ? (
-                <p className="text-xs text-teal-300">
-                  {profile.contact.form.successMessage}
-                </p>
-              ) : null}
+              <AnimatePresence>
+                {showToast ? (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10, scale: 0.98 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: 8, scale: 0.98 }}
+                    transition={{ duration: 0.25, ease: 'easeOut' }}
+                    className="mt-3 flex items-center gap-3 rounded-xl border border-teal-400/30 bg-teal-500/10 px-4 py-3 text-sm text-teal-100"
+                  >
+                    <span className="flex h-8 w-8 items-center justify-center rounded-full bg-teal-400/20 text-teal-200">
+                      <Check size={16} />
+                    </span>
+                    <span>{profile.contact.form.successMessage}</span>
+                  </motion.div>
+                ) : null}
+              </AnimatePresence>
               {status === 'error' ? (
                 <p className="text-xs text-rose-300">
                   {profile.contact.form.errorMessage}
