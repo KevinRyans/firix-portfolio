@@ -16,15 +16,44 @@ const iconMap = {
 
 export default function Contact() {
   const [form, setForm] = useState({ name: '', email: '', phone: '', message: '' })
+  const [status, setStatus] = useState<'idle' | 'sending' | 'success' | 'error'>(
+    'idle',
+  )
+  const accessKey = import.meta.env.VITE_WEB3FORMS_KEY as string | undefined
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
-    const subject = encodeURIComponent(profile.contact.form.subject)
-    const body = encodeURIComponent(
-      `${profile.contact.form.nameLabel}: ${form.name}\n${profile.contact.form.emailLabel}: ${form.email}\n${profile.contact.form.phoneLabel}: ${form.phone}\n\n${form.message}`,
-    )
-    const email = profile.links.email.replace('mailto:', '')
-    window.location.href = `mailto:${email}?subject=${subject}&body=${body}`
+    if (!accessKey) {
+      setStatus('error')
+      return
+    }
+
+    setStatus('sending')
+    const payload = {
+      access_key: accessKey,
+      subject: profile.contact.form.subject,
+      name: form.name,
+      email: form.email,
+      phone: form.phone,
+      message: form.message,
+    }
+
+    fetch('https://api.web3forms.com/submit', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+      },
+      body: JSON.stringify(payload),
+    })
+      .then((response) => {
+        if (!response.ok) throw new Error('submit_failed')
+        setStatus('success')
+        setForm({ name: '', email: '', phone: '', message: '' })
+      })
+      .catch(() => {
+        setStatus('error')
+      })
   }
 
   return (
@@ -106,7 +135,21 @@ export default function Contact() {
                   required
                 />
               </label>
-              <Button type="submit">{profile.contact.form.sendLabel}</Button>
+              <Button type="submit" disabled={status === 'sending'}>
+                {status === 'sending'
+                  ? profile.contact.form.sendingLabel
+                  : profile.contact.form.sendLabel}
+              </Button>
+              {status === 'success' ? (
+                <p className="text-xs text-teal-300">
+                  {profile.contact.form.successMessage}
+                </p>
+              ) : null}
+              {status === 'error' ? (
+                <p className="text-xs text-rose-300">
+                  {profile.contact.form.errorMessage}
+                </p>
+              ) : null}
               <p className="text-xs text-slate-400">{profile.contact.form.note}</p>
             </form>
           </Card>

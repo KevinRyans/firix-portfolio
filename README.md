@@ -44,6 +44,20 @@ Repos are fetched from:
 - Results are cached in memory
 - If rate limited, the UI falls back to `sampleProjects` from config
 
+## Contact form email
+
+The contact form submits to Web3Forms and requires a public access key.
+
+1. Create an access key at Web3Forms and link it to `michael@firix.no`.
+2. Add an environment variable:
+
+```bash
+VITE_WEB3FORMS_KEY=your_access_key_here
+```
+
+3. For GitHub Pages, add the same key as a repo secret named `VITE_WEB3FORMS_KEY`.
+4. Rebuild and redeploy so the key is included in the build.
+
 ## Deploy
 
 Vercel:

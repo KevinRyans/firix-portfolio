@@ -229,7 +229,10 @@ export const profile = {
       phonePlaceholder: '+47 93 01 02 75',
       messageLabel: 'Message',
       sendLabel: 'Send request',
-      note: 'This form opens a mailto link. Connect an API endpoint later if needed.',
+      sendingLabel: 'Sending...',
+      successMessage: 'Delivered! I will reply soon.',
+      errorMessage: 'Something went wrong. Please try again or email me directly.',
+      note: 'This form sends a message directly to my inbox.',
     },
     links: [
       {
