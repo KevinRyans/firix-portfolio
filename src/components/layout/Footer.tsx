@@ -1,5 +1,12 @@
-import { Github, Mail, MessageCircle } from 'lucide-react'
+import { Github, Mail, MessageCircle, Phone } from 'lucide-react'
 import { profile } from '../../content/profile'
+
+const iconMap = {
+  GitHub: Github,
+  Discord: MessageCircle,
+  Email: Mail,
+  Phone: Phone,
+}
 
 export default function Footer() {
   return (
@@ -12,7 +19,7 @@ export default function Footer() {
         </div>
         <div className="flex flex-wrap items-center gap-4 text-sm text-slate-300">
           {profile.contact.links.map((link) => {
-            const Icon = link.label === 'GitHub' ? Github : link.label === 'Discord' ? MessageCircle : Mail
+            const Icon = iconMap[link.label as keyof typeof iconMap] ?? Mail
             return (
               <a
                 key={link.label}

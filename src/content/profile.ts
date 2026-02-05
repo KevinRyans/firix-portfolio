@@ -225,6 +225,8 @@ export const profile = {
       messagePlaceholder: 'Tell me a bit about your project...',
       nameLabel: 'Name',
       emailLabel: 'Email',
+      phoneLabel: 'Phone (NO)',
+      phonePlaceholder: '+47 93 01 02 75',
       messageLabel: 'Message',
       sendLabel: 'Send request',
       note: 'This form opens a mailto link. Connect an API endpoint later if needed.',
@@ -239,6 +241,11 @@ export const profile = {
         label: 'Discord',
         href: 'https://discord.com/users/337288161094795294',
         value: 'onyxnor',
+      },
+      {
+        label: 'Phone',
+        href: 'tel:+4793010275',
+        value: '+47 93 01 02 75',
       },
       {
         label: 'Email',

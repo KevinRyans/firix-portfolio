@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Mail, MessageCircle, Github } from 'lucide-react'
+import { Mail, MessageCircle, Github, Phone } from 'lucide-react'
 import { profile } from '../content/profile'
 import SectionHeader from '../components/ui/SectionHeader'
 import Card from '../components/ui/Card'
@@ -11,16 +11,17 @@ const iconMap = {
   GitHub: Github,
   Discord: MessageCircle,
   Email: Mail,
+  Phone: Phone,
 }
 
 export default function Contact() {
-  const [form, setForm] = useState({ name: '', email: '', message: '' })
+  const [form, setForm] = useState({ name: '', email: '', phone: '', message: '' })
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     const subject = encodeURIComponent(profile.contact.form.subject)
     const body = encodeURIComponent(
-      `${profile.contact.form.nameLabel}: ${form.name}\n${profile.contact.form.emailLabel}: ${form.email}\n\n${form.message}`,
+      `${profile.contact.form.nameLabel}: ${form.name}\n${profile.contact.form.emailLabel}: ${form.email}\n${profile.contact.form.phoneLabel}: ${form.phone}\n\n${form.message}`,
     )
     const email = profile.links.email.replace('mailto:', '')
     window.location.href = `mailto:${email}?subject=${subject}&body=${body}`
@@ -83,6 +84,16 @@ export default function Contact() {
                   onChange={(event) => setForm({ ...form, email: event.target.value })}
                   className="focus-ring mt-2 w-full rounded-xl border border-white/10 bg-base-950/70 px-4 py-2 text-sm text-white"
                   required
+                />
+              </label>
+              <label className="block text-sm text-slate-300">
+                {profile.contact.form.phoneLabel}
+                <input
+                  type="tel"
+                  value={form.phone}
+                  onChange={(event) => setForm({ ...form, phone: event.target.value })}
+                  placeholder={profile.contact.form.phonePlaceholder}
+                  className="focus-ring mt-2 w-full rounded-xl border border-white/10 bg-base-950/70 px-4 py-2 text-sm text-white"
                 />
               </label>
               <label className="block text-sm text-slate-300">
