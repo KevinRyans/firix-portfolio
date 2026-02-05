@@ -16,14 +16,8 @@ export default function Navbar() {
   return (
     <header className="fixed top-0 z-50 w-full border-b border-white/5 bg-base-950/70 backdrop-blur-xl">
       <div className="mx-auto flex w-full max-w-6xl items-center justify-between px-6 py-4">
-        <Link to="/" className="focus-ring flex items-center gap-3 rounded-full">
-          <div className="relative h-9 w-9">
-            <div className="absolute inset-0 rounded-full bg-accent-500/20 blur-xl" />
-            <div className="relative flex h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-white/5 text-sm font-semibold text-accent-300">
-              {brandMark}
-            </div>
-          </div>
-          <div className="hidden text-sm font-semibold tracking-wide text-slate-100 sm:block">
+        <Link to="/" className="focus-ring flex items-center rounded-full">
+          <div className="hidden text-base font-semibold tracking-[0.22em] text-slate-100 sm:block">
             {brandName}
           </div>
         </Link>
