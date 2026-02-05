@@ -11,7 +11,6 @@ export default function Navbar() {
   const [open, setOpen] = useState(false)
   const shouldReduceMotion = useReducedMotion()
   const brandName = profile.brand?.name ?? profile.name
-  const brandMark = profile.brand?.mark ?? profile.name.slice(0, 1)
 
   return (
     <header className="fixed top-0 z-50 w-full border-b border-white/5 bg-base-950/70 backdrop-blur-xl">
