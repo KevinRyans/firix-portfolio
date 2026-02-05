@@ -52,9 +52,9 @@ export const profile = {
   role: 'Fullstack Developer',
   tagline: 'Extremely passionate about development and I love seeing real results.',
   intro:
-    'I am 24 years old, self-taught, and have been building websites and apps for about 6 years as a hobby.',
+    'I am 24 years old, self-taught, and have been building projects for about 6 years as a hobby.',
   bio:
-    'I love clean, premium UI and build fullstack solutions with structured code and strong user experience. I am extremely passionate about general development and I love to see results. I have also built solid experience in game server development, spending a lot of time with FiveM servers and other game server stacks.',
+    'I am based in Norway and I love clean, premium UI with strong structure and user experience. A lot of my work was built for myself in gaming-related contexts, and many of those projects lived locally instead of on GitHub. Some of that work is gone, but the knowledge and experience remain. I am extremely passionate about development and I love to see real results. I have also built solid experience in game server development, spending a lot of time with FiveM servers and other game server stacks.',
   links: {
     github: 'https://github.com/KevinRyans',
     discord: 'https://discord.com/users/337288161094795294',
@@ -170,7 +170,7 @@ export const profile = {
   about: {
     title: 'About',
     subtitle:
-      'Self-taught fullstack developer, 24 years old, with about 6 years of experience and a love for premium UI.',
+      'Self-taught fullstack developer from Norway, 24 years old, with about 6 years of experience and a love for premium UI.',
     timelineTitle: 'Milestones',
     toolboxTitle: 'Toolbox',
     workStyleTitle: 'How I work',
