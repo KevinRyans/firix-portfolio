@@ -342,7 +342,7 @@ export const profile = {
       status: 'In progress',
     },
     {
-      repo: 'Mafiaspill-1',
+      repo: 'Mafiaspill',
       displayName: 'Mafiaspill',
       description:
         'Text-based crime RPG inspired by classic MMO progression, with economy systems, factions, and turn-based combat.',
