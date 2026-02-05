@@ -62,6 +62,7 @@ export const profile = {
     linkedin: 'https://www.linkedin.com/in/your-handle/',
   },
   githubUsername: 'KevinRyans',
+  hiddenProjects: ['ONYXportifolio'],
   ctas: {
     primaryLabel: 'View projects',
     secondaryLabel: 'Contact me',
@@ -356,11 +357,11 @@ export const profile = {
   sampleProjects: [
     {
       id: 4,
-      name: 'ONYXportifolio',
-      full_name: 'KevinRyans/ONYXportifolio',
-      html_url: 'https://github.com/KevinRyans/ONYXportifolio',
+      name: 'firix-portfolio',
+      full_name: 'KevinRyans/firix-portfolio',
+      html_url: 'https://github.com/KevinRyans/firix-portfolio',
       description:
-        'Premium dark developer portfolio built with Vite, React, Tailwind, and Framer Motion.',
+        'Personal developer portfolio showcasing premium dark UI, smooth motion, and a GitHub-driven projects list.',
       language: 'TypeScript',
       stargazers_count: 0,
       forks_count: 0,

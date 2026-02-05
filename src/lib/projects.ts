@@ -46,6 +46,9 @@ const TTL = 1000 * 60 * 5
 
 const pinnedProjects = profile.pinnedProjects as ProjectOverride[]
 const projectOverrides = profile.projectOverrides as ProjectOverride[]
+const hiddenProjects = new Set(
+  (profile.hiddenProjects ?? []).map((name) => name.toLowerCase()),
+)
 
 const pinnedOrder = new Map(
   pinnedProjects.map((project, index) => [project.repo, index]),
@@ -71,6 +74,11 @@ function mergeMissingRepos(repos: GitHubRepo[], fallback: GitHubRepo[]) {
 
 function normalizeTopics(topics?: string[]) {
   return (topics ?? []).map((topic) => topic.toLowerCase())
+}
+
+function filterHidden(repos: GitHubRepo[]) {
+  if (hiddenProjects.size === 0) return repos
+  return repos.filter((repo) => !hiddenProjects.has(repo.name.toLowerCase()))
 }
 
 function titleize(value: string) {
@@ -193,8 +201,8 @@ export function useProjects() {
       setState((prev) => ({ ...prev, status: 'loading' }))
 
       try {
-        const repos = await fetchGithubRepos(profile.githubUsername)
-        const fallbackRepos = profile.sampleProjects as GitHubRepo[]
+        const repos = filterHidden(await fetchGithubRepos(profile.githubUsername))
+        const fallbackRepos = filterHidden(profile.sampleProjects as GitHubRepo[])
         const mergedRepos = mergeMissingRepos(repos, fallbackRepos)
         const mapped = mergedRepos.map(mapRepo)
         const sorted = sortWithPinned(mapped, 'updated')
@@ -204,7 +212,7 @@ export function useProjects() {
         if (!active) return
         setState({ status: 'success', source: 'github', projects: sorted })
       } catch (error) {
-        const fallbackRepos = profile.sampleProjects as GitHubRepo[]
+        const fallbackRepos = filterHidden(profile.sampleProjects as GitHubRepo[])
         const mapped = fallbackRepos.map(mapRepo)
         const sorted = sortWithPinned(mapped, 'updated')
         const next = { data: sorted, source: 'sample' as ProjectsSource, fetchedAt: Date.now() }
