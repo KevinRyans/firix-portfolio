@@ -298,10 +298,10 @@ export const profile = {
   },
   pinnedProjects: [
     {
-      repo: 'ONYXportifolio',
-      displayName: 'FIRIX Portfolio',
+      repo: 'firix-portfolio',
+      displayName: 'Firix Portfolio',
       description:
-        'Premium dark developer portfolio built with Vite, React, Tailwind, and Framer Motion.',
+        'Personal developer portfolio showcasing premium dark UI, smooth motion, and a GitHub-driven projects list.',
       tags: ['Frontend', 'React', 'Vite', 'Tailwind'],
       category: 'Frontend',
       openSource: false,
@@ -332,15 +332,6 @@ export const profile = {
     },
   ] satisfies ProjectOverride[],
   projectOverrides: [
-    {
-      repo: 'firix-portfolio',
-      displayName: 'Firix Portfolio',
-      description:
-        'Personal developer portfolio showcasing premium dark UI, smooth motion, and a GitHub-driven projects list.',
-      tags: ['Frontend', 'React', 'Vite', 'Tailwind'],
-      category: 'Frontend',
-      status: 'In progress',
-    },
     {
       repo: 'Mafiaspill',
       displayName: 'Mafiaspill',
