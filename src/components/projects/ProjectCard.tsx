@@ -17,7 +17,7 @@ function useTilt(enabled: boolean) {
 
     let raf = 0
 
-    const handleMove = (event: PointerEvent) => {
+    const handleMove = (event: MouseEvent) => {
       const rect = element.getBoundingClientRect()
       const x = (event.clientX - rect.left) / rect.width - 0.5
       const y = (event.clientY - rect.top) / rect.height - 0.5
@@ -26,7 +26,7 @@ function useTilt(enabled: boolean) {
 
       cancelAnimationFrame(raf)
       raf = requestAnimationFrame(() => {
-        element.style.transform = `perspective(900px) translate3d(0,0,0) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-4px)`
+        element.style.transform = `perspective(900px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-4px)`
       })
     }
 
@@ -35,12 +35,12 @@ function useTilt(enabled: boolean) {
       element.style.transform = 'perspective(900px) rotateX(0deg) rotateY(0deg) translateY(0)'
     }
 
-    element.addEventListener('pointermove', handleMove)
-    element.addEventListener('pointerleave', handleLeave)
+    element.addEventListener('mousemove', handleMove)
+    element.addEventListener('mouseleave', handleLeave)
 
     return () => {
-      element.removeEventListener('pointermove', handleMove)
-      element.removeEventListener('pointerleave', handleLeave)
+      element.removeEventListener('mousemove', handleMove)
+      element.removeEventListener('mouseleave', handleLeave)
       cancelAnimationFrame(raf)
     }
   }, [enabled])
@@ -66,10 +66,9 @@ export default function ProjectCard({
       <div
         ref={tiltRef}
         className={cn(
-          'relative h-full rounded-2xl border border-white/10 bg-white/5 p-6 shadow-soft transition-[box-shadow,border-color,background-color] duration-200 group-hover:border-white/20 group-hover:shadow-lift',
+          'relative h-full rounded-2xl border border-white/10 bg-white/5 p-6 shadow-soft transition-all duration-300 group-hover:border-white/20 group-hover:shadow-lift',
           variant === 'featured' && 'bg-gradient-to-br from-white/10 via-white/5 to-transparent',
         )}
-        style={{ willChange: 'transform' }}
       >
         <div className="flex items-start justify-between gap-4">
           <div>

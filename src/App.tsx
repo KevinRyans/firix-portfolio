@@ -42,7 +42,7 @@ export default function App() {
       } catch {
         // ignore storage failures
       }
-      const duration = shouldReduceMotion ? 350 : 1500
+      const duration = shouldReduceMotion ? 700 : 3500
       const timer = window.setTimeout(() => setShowBoot(false), duration)
       return () => window.clearTimeout(timer)
     }

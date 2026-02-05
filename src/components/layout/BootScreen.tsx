@@ -53,7 +53,7 @@ export default function BootScreen() {
               initial={{ width: '0%' }}
               animate={{ width: '100%' }}
               transition={{
-                duration: shouldReduceMotion ? 0.4 : 1.4,
+                duration: shouldReduceMotion ? 0.7 : 3.5,
                 ease: 'easeInOut',
               }}
             />
