@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { GitFork, Star } from 'lucide-react'
 import { useReducedMotion } from 'framer-motion'
-import { profile } from '../../content/profile'
+import { useProfile } from '../../lib/i18n'
 import { type Project } from '../../lib/projects'
 import { getStatusTone, getTagBadgeClass } from '../../lib/badgeStyles'
 import { cn, formatNumber } from '../../lib/utils'
@@ -56,6 +56,7 @@ export default function ProjectCard({
   project: Project
   variant?: 'default' | 'featured'
 }) {
+  const profile = useProfile()
   const shouldReduceMotion = useReducedMotion()
   const tiltRef = useTilt(!shouldReduceMotion)
 

@@ -2,8 +2,8 @@ import { useEffect, useMemo, useState } from 'react'
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
 import { Command, Search } from 'lucide-react'
-import { profile } from '../../content/profile'
 import { useProjects } from '../../lib/projects'
+import { useProfile } from '../../lib/i18n'
 import { cn } from '../../lib/utils'
 
 type CommandItem = {
@@ -18,7 +18,8 @@ export default function CommandPalette() {
   const [query, setQuery] = useState('')
   const navigate = useNavigate()
   const shouldReduceMotion = useReducedMotion()
-  const { projects } = useProjects()
+  const profile = useProfile()
+  const { projects } = useProjects(profile)
 
   const commands = useMemo<CommandItem[]>(() => {
     const navItems = profile.navigation.map((item) => ({

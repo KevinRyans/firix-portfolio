@@ -1,11 +1,12 @@
 import { motion, useReducedMotion } from 'framer-motion'
 import { Link } from 'react-router-dom'
-import { profile } from '../../content/profile'
+import { useProfile } from '../../lib/i18n'
 import { buttonStyles } from '../ui/buttonStyles'
 import Badge from '../ui/Badge'
 
 export default function HeroShowcase() {
   const shouldReduceMotion = useReducedMotion()
+  const profile = useProfile()
   const titleLines = profile.home.heroTitle.split('\n')
   const withBase = (path: string) =>
     `${import.meta.env.BASE_URL}${path.replace(/^\/+/, '')}`

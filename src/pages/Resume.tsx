@@ -1,4 +1,4 @@
-import { profile } from '../content/profile'
+import { useProfile } from '../lib/i18n'
 import SectionHeader from '../components/ui/SectionHeader'
 import Card from '../components/ui/Card'
 import Badge from '../components/ui/Badge'
@@ -6,7 +6,9 @@ import Button from '../components/ui/Button'
 import Reveal from '../components/sections/Reveal'
 
 export default function Resume() {
+  const profile = useProfile()
   const resume = profile.resume
+  const phone = profile.contact.links.find((link) => link.type === 'phone')?.value
 
   return (
     <div className="mx-auto w-full max-w-5xl px-6 pb-20 print-area">
@@ -37,7 +39,7 @@ export default function Resume() {
                 {resume.location}
               </p>
               <p className="mt-1">{profile.links.email.replace('mailto:', '')}</p>
-              <p className="mt-1">{profile.contact.links.find((l) => l.label === 'Phone')?.value}</p>
+              <p className="mt-1">{phone}</p>
               <p className="mt-1">github.com/KevinRyans</p>
             </div>
           </div>

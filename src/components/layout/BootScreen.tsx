@@ -1,5 +1,5 @@
 import { motion, useReducedMotion } from 'framer-motion'
-import { profile } from '../../content/profile'
+import { useProfile } from '../../lib/i18n'
 
 const container = {
   hidden: { opacity: 0 },
@@ -16,8 +16,13 @@ const letter = {
 
 export default function BootScreen() {
   const shouldReduceMotion = useReducedMotion()
+  const profile = useProfile()
   const brandName = profile.brand?.name ?? profile.meta.title
   const brandMark = profile.brand?.mark ?? profile.name.slice(0, 1)
+  const bootCopy = profile.boot ?? {
+    loadingLabel: 'Assembling interface modules',
+    completeLabel: 'Complete',
+  }
   const letters = brandName.split('')
 
   return (
@@ -68,7 +73,7 @@ export default function BootScreen() {
             ))}
           </motion.div>
 
-          <p className="text-sm text-slate-400">Assembling interface modules</p>
+          <p className="text-sm text-slate-400">{bootCopy.loadingLabel}</p>
         </div>
 
         <motion.div
@@ -82,7 +87,7 @@ export default function BootScreen() {
           }}
         >
           <span className="h-2 w-2 rounded-full bg-teal-300" />
-          Complete
+          {bootCopy.completeLabel}
         </motion.div>
       </div>
     </motion.div>

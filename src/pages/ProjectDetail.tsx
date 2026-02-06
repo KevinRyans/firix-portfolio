@@ -1,16 +1,19 @@
 import { Link, useParams } from 'react-router-dom'
 import { ExternalLink, Github, ArrowLeft } from 'lucide-react'
-import { profile } from '../content/profile'
 import { useProjects } from '../lib/projects'
+import { useProfile } from '../lib/i18n'
 import { getStatusTone, getTagBadgeClass } from '../lib/badgeStyles'
 import { buttonStyles } from '../components/ui/buttonStyles'
 import Badge from '../components/ui/Badge'
 import Card from '../components/ui/Card'
 
 export default function ProjectDetail() {
+  const profile = useProfile()
   const { slug } = useParams()
-  const { status, bySlug } = useProjects()
+  const { status, bySlug } = useProjects(profile)
   const project = slug ? bySlug.get(slug) : undefined
+  const categoryLabel =
+    project ? profile.projects.categoryLabels[project.category] ?? project.category : null
 
   if (status === 'loading') {
     return (
@@ -48,7 +51,7 @@ export default function ProjectDetail() {
       </Link>
 
       <div className="mt-6 space-y-4">
-        <Badge tone="accent">{project.category}</Badge>
+        <Badge tone="accent">{categoryLabel}</Badge>
         <h1 className="text-3xl font-semibold text-white md:text-4xl">
           {project.displayName}
         </h1>

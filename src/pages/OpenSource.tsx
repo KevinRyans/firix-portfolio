@@ -1,5 +1,5 @@
-import { profile } from '../content/profile'
 import { useProjects } from '../lib/projects'
+import { useProfile } from '../lib/i18n'
 import SectionHeader from '../components/ui/SectionHeader'
 import Card from '../components/ui/Card'
 import Badge from '../components/ui/Badge'
@@ -8,7 +8,8 @@ import ProjectCardSkeleton from '../components/projects/ProjectCardSkeleton'
 import Reveal from '../components/sections/Reveal'
 
 export default function OpenSource() {
-  const { projects, status } = useProjects()
+  const profile = useProfile()
+  const { projects, status } = useProjects(profile)
   const openSourceProjects = projects.filter((project) => project.openSource)
 
   return (

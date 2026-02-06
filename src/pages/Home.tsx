@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom'
 import { Layout, Server, Palette, Shield } from 'lucide-react'
-import { profile } from '../content/profile'
 import { useProjects } from '../lib/projects'
+import { useProfile } from '../lib/i18n'
 import { buttonStyles } from '../components/ui/buttonStyles'
 import Card from '../components/ui/Card'
 import Badge from '../components/ui/Badge'
@@ -16,7 +16,8 @@ const iconMap = { Layout, Server, Palette, Shield }
 type IconName = keyof typeof iconMap
 
 export default function Home() {
-  const { projects, status, source } = useProjects()
+  const profile = useProfile()
+  const { projects, status, source } = useProjects(profile)
   const latestWorks = projects.slice(0, profile.home.latestWorksCount)
 
   return (

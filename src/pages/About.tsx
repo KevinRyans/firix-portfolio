@@ -1,10 +1,12 @@
-import { profile } from '../content/profile'
+import { useProfile } from '../lib/i18n'
 import SectionHeader from '../components/ui/SectionHeader'
 import Card from '../components/ui/Card'
 import Badge from '../components/ui/Badge'
 import Reveal from '../components/sections/Reveal'
 
 export default function About() {
+  const profile = useProfile()
+
   return (
     <div className="mx-auto w-full max-w-6xl px-6 pb-20">
       <SectionHeader title={profile.about.title} subtitle={profile.about.subtitle} />

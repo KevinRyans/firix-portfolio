@@ -3,7 +3,7 @@ import { Mail, Github, Phone, Check } from 'lucide-react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faDiscord } from '@fortawesome/free-brands-svg-icons'
 import { AnimatePresence, motion } from 'framer-motion'
-import { profile } from '../content/profile'
+import { useProfile } from '../lib/i18n'
 import SectionHeader from '../components/ui/SectionHeader'
 import Card from '../components/ui/Card'
 import Button from '../components/ui/Button'
@@ -28,13 +28,14 @@ function DiscordIcon({
 }
 
 const iconMap = {
-  GitHub: Github,
-  Discord: DiscordIcon,
-  Email: Mail,
-  Phone: Phone,
+  github: Github,
+  discord: DiscordIcon,
+  email: Mail,
+  phone: Phone,
 }
 
 export default function Contact() {
+  const profile = useProfile()
   const [form, setForm] = useState({ name: '', email: '', phone: '', message: '' })
   const [status, setStatus] = useState<'idle' | 'sending' | 'success' | 'error'>(
     'idle',
@@ -95,7 +96,7 @@ export default function Contact() {
             <p className="mt-2 text-sm text-slate-400">{profile.contact.cardSubtitle}</p>
             <div className="mt-6 space-y-4">
               {profile.contact.links.map((link) => {
-                const Icon = iconMap[link.label as keyof typeof iconMap] ?? Mail
+                const Icon = iconMap[link.type as keyof typeof iconMap] ?? Mail
                 return (
                   <div
                     key={link.label}

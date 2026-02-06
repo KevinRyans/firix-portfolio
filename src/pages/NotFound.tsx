@@ -1,8 +1,9 @@
 import { Link } from 'react-router-dom'
-import { profile } from '../content/profile'
+import { useProfile } from '../lib/i18n'
 import { buttonStyles } from '../components/ui/buttonStyles'
 
 export default function NotFound() {
+  const profile = useProfile()
   return (
     <div className="mx-auto w-full max-w-3xl px-6 pb-20 text-center">
       <h1 className="text-3xl font-semibold text-white">{profile.labels.notFoundTitle}</h1>

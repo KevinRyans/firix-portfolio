@@ -1,7 +1,8 @@
 import { useMemo, useState } from 'react'
 import { Filter, ArrowUpDown } from 'lucide-react'
-import { profile, type ProjectCategory } from '../content/profile'
+import { type ProjectCategory } from '../content/profile'
 import { filterProjects, sortProjects, useProjects } from '../lib/projects'
+import { useProfile } from '../lib/i18n'
 import { cn } from '../lib/utils'
 import ProjectCard from '../components/projects/ProjectCard'
 import ProjectCardSkeleton from '../components/projects/ProjectCardSkeleton'
@@ -9,16 +10,19 @@ import SectionHeader from '../components/ui/SectionHeader'
 import Reveal from '../components/sections/Reveal'
 
 export default function Projects() {
-  const { projects, status, source } = useProjects()
-  const [filter, setFilter] = useState<ProjectCategory>(profile.projects.filters[0])
+  const profile = useProfile()
+  const { projects, status, source, pinnedOrder } = useProjects(profile)
+  const [filter, setFilter] = useState<ProjectCategory>(
+    profile.projects.filters[0].value,
+  )
   const [sort, setSort] = useState<'stars' | 'updated'>(
     profile.projects.sortOptions[0].value as 'stars' | 'updated',
   )
 
   const filtered = useMemo(() => {
     const next = filterProjects(projects, filter)
-    return sortProjects(next, sort)
-  }, [projects, filter, sort])
+    return sortProjects(next, sort, pinnedOrder)
+  }, [projects, filter, sort, pinnedOrder])
 
   return (
     <div className="mx-auto w-full max-w-6xl px-6 pb-20">
@@ -34,15 +38,16 @@ export default function Projects() {
           </div>
           {profile.projects.filters.map((option) => (
             <button
-              key={option}
+              key={option.value}
               type="button"
-              onClick={() => setFilter(option)}
+              onClick={() => setFilter(option.value)}
               className={cn(
                 'focus-ring rounded-full border border-white/10 px-4 py-2 text-xs font-medium text-slate-300 transition',
-                filter === option && 'border-accent-400/40 bg-accent-500/10 text-accent-200',
+                filter === option.value &&
+                  'border-accent-400/40 bg-accent-500/10 text-accent-200',
               )}
             >
-              {option}
+              {option.label}
             </button>
           ))}
 

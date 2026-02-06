@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useState } from 'react'
-import { profile, type ProjectCategory, type ProjectOverride } from '../content/profile'
+import { useCallback, useEffect, useMemo, useState } from 'react'
+import { type Profile, type ProjectCategory, type ProjectOverride } from '../content/profile'
 import { fetchGithubRepos, type GitHubRepo } from './github'
 import { formatDate, slugify } from './utils'
 
@@ -44,23 +44,6 @@ type CachedProjects = {
 const cache: { current: CachedProjects | null } = { current: null }
 const TTL = 1000 * 60 * 5
 
-const pinnedProjects = profile.pinnedProjects as ProjectOverride[]
-const projectOverrides = profile.projectOverrides as ProjectOverride[]
-const hiddenProjects = new Set(
-  (profile.hiddenProjects ?? []).map((name) => name.toLowerCase()),
-)
-
-const pinnedOrder = new Map(
-  pinnedProjects.map((project, index) => [project.repo, index]),
-)
-
-const overrideMap = new Map<string, ProjectOverride>(
-  [...pinnedProjects, ...projectOverrides].map((override) => [
-    override.repo,
-    override,
-  ]),
-)
-
 const frontTags = ['frontend', 'ui', 'react', 'web', 'landing', 'design']
 const backTags = ['backend', 'api', 'server', 'database', 'ops']
 const fullTags = ['fullstack', 'full-stack', 'platform']
@@ -74,11 +57,6 @@ function mergeMissingRepos(repos: GitHubRepo[], fallback: GitHubRepo[]) {
 
 function normalizeTopics(topics?: string[]) {
   return (topics ?? []).map((topic) => topic.toLowerCase())
-}
-
-function filterHidden(repos: GitHubRepo[]) {
-  if (hiddenProjects.size === 0) return repos
-  return repos.filter((repo) => !hiddenProjects.has(repo.name.toLowerCase()))
 }
 
 function titleize(value: string) {
@@ -119,38 +97,11 @@ function buildTags(override: ProjectOverride | undefined, repo: GitHubRepo, topi
   return []
 }
 
-function mapRepo(repo: GitHubRepo): Project {
-  const override = overrideMap.get(repo.name)
-  const topics = normalizeTopics(repo.topics)
-  const category = override?.category ?? inferCategory(topics, repo)
-  const openSource = override?.openSource ?? inferOpenSource(topics, repo)
-  const pinnedIndex = pinnedOrder.get(repo.name)
-
-  return {
-    id: repo.id,
-    name: repo.name,
-    displayName: override?.displayName ?? repo.name,
-    description: override?.description ?? repo.description ?? profile.labels.noDescription,
-    longDescription: override?.longDescription,
-    url: repo.html_url,
-    demoUrl: override?.demoUrl ?? (repo.homepage || undefined),
-    language: repo.language ?? undefined,
-    stars: repo.stargazers_count ?? 0,
-    forks: repo.forks_count ?? 0,
-    updatedAt: repo.updated_at,
-    updatedLabel: formatDate(repo.updated_at),
-    topics,
-    tags: buildTags(override, repo, topics),
-    category,
-    openSource,
-    pinned: pinnedIndex !== undefined,
-    featured: override?.featured ?? false,
-    status: override?.status,
-    slug: override?.displayName ? slugify(override.displayName) : slugify(repo.name),
-  }
-}
-
-function sortWithPinned(projects: Project[], sortBy: 'stars' | 'updated') {
+function sortWithPinned(
+  projects: Project[],
+  sortBy: 'stars' | 'updated',
+  pinnedOrder: Map<string, number>,
+) {
   const sorted = [...projects].sort((a, b) => {
     const aPinned = pinnedOrder.get(a.name)
     const bPinned = pinnedOrder.get(b.name)
@@ -174,11 +125,85 @@ export function filterProjects(projects: Project[], filter: ProjectCategory) {
   return projects.filter((project) => project.category === filter)
 }
 
-export function sortProjects(projects: Project[], sortBy: 'stars' | 'updated') {
-  return sortWithPinned(projects, sortBy)
+export function sortProjects(
+  projects: Project[],
+  sortBy: 'stars' | 'updated',
+  pinnedOrder: Map<string, number>,
+) {
+  return sortWithPinned(projects, sortBy, pinnedOrder)
 }
 
-export function useProjects() {
+export function useProjects(profile: Profile) {
+  const pinnedProjects = useMemo(
+    () => profile.pinnedProjects as ProjectOverride[],
+    [profile],
+  )
+  const projectOverrides = useMemo(
+    () => profile.projectOverrides as ProjectOverride[],
+    [profile],
+  )
+  const hiddenProjects = useMemo(
+    () => new Set((profile.hiddenProjects ?? []).map((name) => name.toLowerCase())),
+    [profile],
+  )
+
+  const pinnedOrder = useMemo(
+    () => new Map(pinnedProjects.map((project, index) => [project.repo, index])),
+    [pinnedProjects],
+  )
+
+  const overrideMap = useMemo(
+    () =>
+      new Map<string, ProjectOverride>(
+        [...pinnedProjects, ...projectOverrides].map((override) => [
+          override.repo,
+          override,
+        ]),
+      ),
+    [pinnedProjects, projectOverrides],
+  )
+
+  const filterHidden = useCallback(
+    (repos: GitHubRepo[]) => {
+      if (hiddenProjects.size === 0) return repos
+      return repos.filter((repo) => !hiddenProjects.has(repo.name.toLowerCase()))
+    },
+    [hiddenProjects],
+  )
+
+  const mapRepo = useCallback(
+    (repo: GitHubRepo): Project => {
+      const override = overrideMap.get(repo.name)
+      const topics = normalizeTopics(repo.topics)
+      const category = override?.category ?? inferCategory(topics, repo)
+      const openSource = override?.openSource ?? inferOpenSource(topics, repo)
+      const pinnedIndex = pinnedOrder.get(repo.name)
+
+      return {
+        id: repo.id,
+        name: repo.name,
+        displayName: override?.displayName ?? repo.name,
+        description: override?.description ?? repo.description ?? profile.labels.noDescription,
+        longDescription: override?.longDescription,
+        url: repo.html_url,
+        demoUrl: override?.demoUrl ?? (repo.homepage || undefined),
+        language: repo.language ?? undefined,
+        stars: repo.stargazers_count ?? 0,
+        forks: repo.forks_count ?? 0,
+        updatedAt: repo.updated_at,
+        updatedLabel: formatDate(repo.updated_at),
+        topics,
+        tags: buildTags(override, repo, topics),
+        category,
+        openSource,
+        pinned: pinnedIndex !== undefined,
+        featured: override?.featured ?? false,
+        status: override?.status,
+        slug: override?.displayName ? slugify(override.displayName) : slugify(repo.name),
+      }
+    },
+    [overrideMap, pinnedOrder, profile.labels.noDescription],
+  )
   const [state, setState] = useState<ProjectsState>(() => {
     if (cache.current && Date.now() - cache.current.fetchedAt < TTL) {
       return {
@@ -205,7 +230,7 @@ export function useProjects() {
         const fallbackRepos = filterHidden(profile.sampleProjects as GitHubRepo[])
         const mergedRepos = mergeMissingRepos(repos, fallbackRepos)
         const mapped = mergedRepos.map(mapRepo)
-        const sorted = sortWithPinned(mapped, 'updated')
+        const sorted = sortWithPinned(mapped, 'updated', pinnedOrder)
         const next = { data: sorted, source: 'github' as ProjectsSource, fetchedAt: Date.now() }
         cache.current = next
 
@@ -214,7 +239,7 @@ export function useProjects() {
       } catch (error) {
         const fallbackRepos = filterHidden(profile.sampleProjects as GitHubRepo[])
         const mapped = fallbackRepos.map(mapRepo)
-        const sorted = sortWithPinned(mapped, 'updated')
+        const sorted = sortWithPinned(mapped, 'updated', pinnedOrder)
         const next = { data: sorted, source: 'sample' as ProjectsSource, fetchedAt: Date.now() }
         cache.current = next
 
@@ -239,5 +264,5 @@ export function useProjects() {
     return new Map(state.projects.map((project) => [project.slug, project]))
   }, [state.projects])
 
-  return { ...state, bySlug }
+  return { ...state, bySlug, pinnedOrder }
 }

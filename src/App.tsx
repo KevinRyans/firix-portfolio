@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Route, Routes, useLocation } from 'react-router-dom'
 import { AnimatePresence, useReducedMotion, motion } from 'framer-motion'
-import { profile } from './content/profile'
+import { useProfile } from './lib/i18n'
 import Navbar from './components/layout/Navbar'
 import Footer from './components/layout/Footer'
 import AnimatedBackground from './components/layout/AnimatedBackground'
@@ -21,6 +21,7 @@ import NotFound from './pages/NotFound'
 
 export default function App() {
   const location = useLocation()
+  const profile = useProfile()
   const shouldReduceMotion = useReducedMotion()
   const [showBoot, setShowBoot] = useState(true)
   const [bootReady, setBootReady] = useState(false)
@@ -69,7 +70,7 @@ export default function App() {
     if (metaDescription) {
       metaDescription.setAttribute('content', profile.meta.description)
     }
-  }, [])
+  }, [profile.meta.description, profile.meta.title])
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-base-950 text-slate-100">

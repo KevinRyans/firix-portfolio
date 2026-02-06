@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { NavLink, Link } from 'react-router-dom'
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
 import { Menu, X } from 'lucide-react'
-import { profile } from '../../content/profile'
+import { useLanguage, useProfile } from '../../lib/i18n'
 import { cn } from '../../lib/utils'
 import Button from '../ui/Button'
 import { buttonStyles } from '../ui/buttonStyles'
@@ -10,6 +10,8 @@ import { buttonStyles } from '../ui/buttonStyles'
 export default function Navbar() {
   const [open, setOpen] = useState(false)
   const shouldReduceMotion = useReducedMotion()
+  const profile = useProfile()
+  const { language, setLanguage } = useLanguage()
   const brandName = profile.brand?.name ?? profile.name
 
   return (
@@ -37,14 +39,33 @@ export default function Navbar() {
               {item.label}
             </NavLink>
           ))}
-          <a
-            href={profile.links.github}
-            className={buttonStyles({ variant: 'secondary', size: 'sm' })}
-            target="_blank"
-            rel="noreferrer"
-          >
-            {profile.labels.githubLabel}
-          </a>
+          <div className="flex items-center gap-2">
+            <div className="flex items-center rounded-full border border-white/10 bg-white/5 p-1">
+              {(['en', 'no'] as const).map((option) => (
+                <button
+                  key={option}
+                  type="button"
+                  onClick={() => setLanguage(option)}
+                  className={cn(
+                    'focus-ring rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-wide transition',
+                    language === option
+                      ? 'bg-accent-500/20 text-accent-200'
+                      : 'text-slate-300 hover:text-white',
+                  )}
+                >
+                  {option}
+                </button>
+              ))}
+            </div>
+            <a
+              href={profile.links.github}
+              className={buttonStyles({ variant: 'secondary', size: 'sm' })}
+              target="_blank"
+              rel="noreferrer"
+            >
+              {profile.labels.githubLabel}
+            </a>
+          </div>
         </nav>
 
         <div className="md:hidden">
@@ -86,14 +107,33 @@ export default function Navbar() {
                     {item.label}
                   </NavLink>
                 ))}
-                <a
-                  href={profile.links.github}
-                  target="_blank"
-                  rel="noreferrer"
-                  className={buttonStyles({ variant: 'secondary', size: 'sm' })}
-                >
-                  {profile.labels.githubLabel}
-                </a>
+                <div className="flex items-center gap-2">
+                  <div className="flex items-center rounded-full border border-white/10 bg-white/5 p-1">
+                    {(['en', 'no'] as const).map((option) => (
+                      <button
+                        key={option}
+                        type="button"
+                        onClick={() => setLanguage(option)}
+                        className={cn(
+                          'focus-ring rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-wide transition',
+                          language === option
+                            ? 'bg-accent-500/20 text-accent-200'
+                            : 'text-slate-300 hover:text-white',
+                        )}
+                      >
+                        {option}
+                      </button>
+                    ))}
+                  </div>
+                  <a
+                    href={profile.links.github}
+                    target="_blank"
+                    rel="noreferrer"
+                    className={buttonStyles({ variant: 'secondary', size: 'sm' })}
+                  >
+                    {profile.labels.githubLabel}
+                  </a>
+                </div>
               </div>
             </div>
           </motion.div>
