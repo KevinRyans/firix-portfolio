@@ -22,10 +22,11 @@ import NotFound from './pages/NotFound'
 export default function App() {
   const location = useLocation()
   const profile = useProfile()
-  const { language } = useLanguage()
+  const { language, displayLanguage, setDisplayLanguage } = useLanguage()
   const shouldReduceMotion = useReducedMotion()
   const [showBoot, setShowBoot] = useState(true)
   const [bootReady, setBootReady] = useState(false)
+  const [isLangTransition, setIsLangTransition] = useState(false)
 
   useEffect(() => {
     const key = 'firix_boot_at'
@@ -73,6 +74,12 @@ export default function App() {
     }
   }, [profile.meta.description, profile.meta.title])
 
+  useEffect(() => {
+    if (showBoot) return
+    if (language === displayLanguage) return
+    setIsLangTransition(true)
+  }, [language, displayLanguage, showBoot])
+
   return (
     <div className="relative min-h-screen overflow-hidden bg-base-950 text-slate-100">
       <AnimatedBackground />
@@ -95,19 +102,29 @@ export default function App() {
       >
         <main className="flex-1 pt-24">
           {bootReady ? (
-            <AnimatePresence mode="wait">
-              <PageTransition key={`${location.pathname}-${language}`}>
-                <Routes location={location}>
-                  <Route path="/" element={<Home />} />
-                  <Route path="/projects" element={<Projects />} />
+            <AnimatePresence
+              mode="wait"
+              onExitComplete={() => {
+                if (language !== displayLanguage) {
+                  setDisplayLanguage(language)
+                }
+                setIsLangTransition(false)
+              }}
+            >
+              {!isLangTransition ? (
+                <PageTransition key={`${location.pathname}-${displayLanguage}`}>
+                  <Routes location={location}>
+                    <Route path="/" element={<Home />} />
+                    <Route path="/projects" element={<Projects />} />
                 <Route path="/projects/:slug" element={<ProjectDetail />} />
                 <Route path="/open-source" element={<OpenSource />} />
                 <Route path="/about" element={<About />} />
                 <Route path="/resume" element={<Resume />} />
                 <Route path="/contact" element={<Contact />} />
-                  <Route path="*" element={<NotFound />} />
-                </Routes>
-              </PageTransition>
+                    <Route path="*" element={<NotFound />} />
+                  </Routes>
+                </PageTransition>
+              ) : null}
             </AnimatePresence>
           ) : null}
         </main>

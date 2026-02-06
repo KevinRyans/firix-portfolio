@@ -3,7 +3,9 @@ import { profiles, type Language, type Profile } from '../content/profile'
 
 type LanguageContextValue = {
   language: Language
+  displayLanguage: Language
   setLanguage: (language: Language) => void
+  setDisplayLanguage: (language: Language) => void
 }
 
 const LanguageContext = createContext<LanguageContextValue | undefined>(undefined)
@@ -24,6 +26,7 @@ function getInitialLanguage(): Language {
 
 export function LanguageProvider({ children }: { children: React.ReactNode }) {
   const [language, setLanguage] = useState<Language>(getInitialLanguage)
+  const [displayLanguage, setDisplayLanguage] = useState<Language>(language)
 
   useEffect(() => {
     try {
@@ -31,10 +34,16 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     } catch {
       // ignore storage errors
     }
-    document.documentElement.lang = language === 'no' ? 'nb' : 'en'
   }, [language])
 
-  const value = useMemo(() => ({ language, setLanguage }), [language])
+  useEffect(() => {
+    document.documentElement.lang = displayLanguage === 'no' ? 'nb' : 'en'
+  }, [displayLanguage])
+
+  const value = useMemo(
+    () => ({ language, displayLanguage, setLanguage, setDisplayLanguage }),
+    [language, displayLanguage],
+  )
 
   return <LanguageContext.Provider value={value}>{children}</LanguageContext.Provider>
 }
@@ -48,6 +57,6 @@ export function useLanguage() {
 }
 
 export function useProfile(): Profile {
-  const { language } = useLanguage()
-  return profiles[language]
+  const { displayLanguage } = useLanguage()
+  return profiles[displayLanguage]
 }

@@ -39,7 +39,7 @@ export default function Navbar() {
               {item.label}
             </NavLink>
           ))}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-4">
             <a
               href={profile.links.github}
               className={buttonStyles({ variant: 'secondary', size: 'sm' })}
@@ -107,7 +107,7 @@ export default function Navbar() {
                     {item.label}
                   </NavLink>
                 ))}
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-4">
                   <a
                     href={profile.links.github}
                     target="_blank"
