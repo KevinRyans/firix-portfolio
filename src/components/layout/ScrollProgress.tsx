@@ -9,7 +9,7 @@ export default function ScrollProgress() {
 
   return (
     <motion.div
-      className="fixed left-0 top-0 z-50 h-[2px] w-full origin-left bg-gradient-to-r from-accent-500 via-teal-400 to-accent-300"
+      className="no-print fixed left-0 top-0 z-50 h-[2px] w-full origin-left bg-gradient-to-r from-accent-500 via-teal-400 to-accent-300"
       style={{ scaleX }}
       aria-hidden="true"
     />

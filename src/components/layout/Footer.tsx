@@ -10,7 +10,7 @@ const iconMap = {
 
 export default function Footer() {
   return (
-    <footer className="border-t border-white/10 bg-base-950/60">
+    <footer className="no-print border-t border-white/10 bg-base-950/60">
       <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-6 py-10 md:flex-row md:items-center md:justify-between">
         <div className="space-y-2">
           <p className="text-sm font-semibold text-white">{profile.footer.title}</p>

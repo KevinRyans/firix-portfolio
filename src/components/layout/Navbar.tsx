@@ -13,7 +13,7 @@ export default function Navbar() {
   const brandName = profile.brand?.name ?? profile.name
 
   return (
-    <header className="fixed top-0 z-50 w-full border-b border-white/5 bg-base-950/70 backdrop-blur-xl">
+    <header className="no-print fixed top-0 z-50 w-full border-b border-white/5 bg-base-950/70 backdrop-blur-xl">
       <div className="mx-auto flex w-full max-w-6xl items-center justify-between px-6 py-4">
         <Link to="/" className="focus-ring flex items-center rounded-full">
           <div className="hidden text-base font-semibold tracking-[0.22em] text-slate-100 sm:block">

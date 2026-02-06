@@ -32,6 +32,14 @@
     @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-400 focus-visible:ring-offset-2 focus-visible:ring-offset-base-950;
   }
 
+  .no-print {
+    display: initial;
+  }
+
+  .print-only {
+    display: none;
+  }
+
   .glass {
     @apply border border-white/10 bg-white/5 backdrop-blur-xl;
   }
@@ -77,5 +85,49 @@
     animation-iteration-count: 1 !important;
     transition-duration: 0.001ms !important;
     scroll-behavior: auto !important;
+  }
+}
+
+@media print {
+  :root {
+    color-scheme: light;
+  }
+
+  body {
+    background: #ffffff !important;
+    color: #0b0f19 !important;
+  }
+
+  * {
+    box-shadow: none !important;
+    text-shadow: none !important;
+  }
+
+  .no-print {
+    display: none !important;
+  }
+
+  .print-only {
+    display: block !important;
+  }
+
+  .print-area {
+    max-width: none !important;
+    padding: 0 !important;
+  }
+
+  .print-section {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  .glass {
+    background: transparent !important;
+    border-color: #e2e8f0 !important;
+  }
+
+  a {
+    color: inherit !important;
+    text-decoration: none !important;
   }
 }

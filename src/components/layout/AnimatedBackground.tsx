@@ -8,7 +8,7 @@ export default function AnimatedBackground() {
   const shouldReduceMotion = useReducedMotion()
 
   return (
-    <div className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
+    <div className="no-print pointer-events-none fixed inset-0 -z-10 overflow-hidden">
       <div className="absolute inset-0 bg-hero-glow" />
       <div className="absolute inset-0 geo-grid opacity-45 animate-gridShift motion-reduce:animate-none" />
       <div className="absolute inset-0 geo-grid-soft opacity-30 animate-gridShift motion-reduce:animate-none" />

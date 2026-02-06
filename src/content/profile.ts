@@ -72,6 +72,7 @@ export const profile = {
     { label: 'Projects', to: '/projects' },
     { label: 'Open Source', to: '/open-source' },
     { label: 'About', to: '/about' },
+    { label: 'Resume', to: '/resume' },
     { label: 'Contact', to: '/contact' },
   ] satisfies NavItem[],
   home: {
@@ -175,6 +176,77 @@ export const profile = {
     timelineTitle: 'Milestones',
     toolboxTitle: 'Toolbox',
     workStyleTitle: 'How I work',
+  },
+  resume: {
+    title: 'Resume',
+    subtitle:
+      'A clean, print-ready overview for interviews or quick sharing.',
+    locationLabel: 'Location',
+    location: 'Norway',
+    summaryTitle: 'Summary',
+    summary:
+      'Self-taught fullstack developer with 6+ years of experience, focused on clean UI, strong structure, and practical results. Much of my work was built for personal gaming projects and community tooling, often stored locally rather than on GitHub.',
+    highlightsTitle: 'Highlights',
+    highlights: [
+      '6+ years of self-taught development experience',
+      'Hands-on game server development (FiveM and other stacks)',
+      'Focus on premium UI, clean structure, and reliable delivery',
+      'Built tools for gaming communities and internal workflows',
+    ],
+    experienceTitle: 'Experience',
+    experience: [
+      {
+        time: '2019 - 2021',
+        title: 'Foundations',
+        description:
+          'Built core skills in HTML, CSS, JavaScript, and modern frontend tooling through self-directed learning.',
+      },
+      {
+        time: '2021 - 2024',
+        title: 'Fullstack projects',
+        description:
+          'Created fullstack apps with React, APIs, and databases, plus gaming tools and server tooling.',
+      },
+      {
+        time: '2024 - Now',
+        title: 'Premium UI & systems',
+        description:
+          'Refining design systems, performance, and quality while building portfolio and client-ready experiences.',
+      },
+    ],
+    projectsTitle: 'Selected Projects',
+    projects: [
+      {
+        name: 'Firix Portfolio',
+        description:
+          'Premium dark developer portfolio with smooth motion, printable resume, and GitHub-driven projects list.',
+      },
+      {
+        name: 'Mafiaspill',
+        description:
+          'Text-based crime RPG with progression, economy systems, and multiplayer-focused features.',
+      },
+      {
+        name: 'Huben',
+        description:
+          'Lightweight fullstack app with React + Tailwind frontend and Express backend.',
+      },
+    ],
+    skillsTitle: 'Core Skills',
+    skills: [
+      'React',
+      'TypeScript',
+      'Node.js',
+      'Vite',
+      'Tailwind CSS',
+      'PostgreSQL',
+      'Framer Motion',
+      'Game server tooling',
+    ],
+    contactTitle: 'Contact',
+    printLabel: 'Print resume',
+    printHint:
+      'Tip: use your browser print dialog to save as PDF or print a clean copy.',
   },
   milestones: [
     {

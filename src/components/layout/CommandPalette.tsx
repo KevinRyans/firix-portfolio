@@ -86,11 +86,11 @@ export default function CommandPalette() {
 
   return (
     <>
-        <button
-          type="button"
-          onClick={() => setOpen(true)}
-          className="focus-ring fixed bottom-6 right-6 z-40 hidden items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs text-slate-300 shadow-soft transition hover:border-white/20 hover:text-white md:flex"
-        >
+      <button
+        type="button"
+        onClick={() => setOpen(true)}
+        className="no-print focus-ring fixed bottom-6 right-6 z-40 hidden items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs text-slate-300 shadow-soft transition hover:border-white/20 hover:text-white md:flex"
+      >
         <Command size={14} />
         {profile.labels.commandHint}
       </button>
@@ -102,7 +102,7 @@ export default function CommandPalette() {
             animate={{ opacity: 1 }}
             exit={shouldReduceMotion ? { opacity: 0 } : { opacity: 0 }}
             transition={{ duration: 0.2 }}
-            className="fixed inset-0 z-50 flex items-center justify-center bg-base-950/80 px-4 py-10 backdrop-blur"
+            className="no-print fixed inset-0 z-50 flex items-center justify-center bg-base-950/80 px-4 py-10 backdrop-blur"
             onClick={closePalette}
           >
             <motion.div

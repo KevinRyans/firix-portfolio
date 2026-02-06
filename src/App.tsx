@@ -15,6 +15,7 @@ import Projects from './pages/Projects'
 import ProjectDetail from './pages/ProjectDetail'
 import OpenSource from './pages/OpenSource'
 import About from './pages/About'
+import Resume from './pages/Resume'
 import Contact from './pages/Contact'
 import NotFound from './pages/NotFound'
 
@@ -97,10 +98,11 @@ export default function App() {
                 <Routes location={location}>
                   <Route path="/" element={<Home />} />
                   <Route path="/projects" element={<Projects />} />
-                  <Route path="/projects/:slug" element={<ProjectDetail />} />
-                  <Route path="/open-source" element={<OpenSource />} />
-                  <Route path="/about" element={<About />} />
-                  <Route path="/contact" element={<Contact />} />
+                <Route path="/projects/:slug" element={<ProjectDetail />} />
+                <Route path="/open-source" element={<OpenSource />} />
+                <Route path="/about" element={<About />} />
+                <Route path="/resume" element={<Resume />} />
+                <Route path="/contact" element={<Contact />} />
                   <Route path="*" element={<NotFound />} />
                 </Routes>
               </PageTransition>
