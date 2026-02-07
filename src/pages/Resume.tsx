@@ -1,7 +1,6 @@
 import { useProfile } from '../lib/i18n'
 import SectionHeader from '../components/ui/SectionHeader'
 import Card from '../components/ui/Card'
-import Badge from '../components/ui/Badge'
 import Button from '../components/ui/Button'
 import Reveal from '../components/sections/Reveal'
 
@@ -9,6 +8,7 @@ export default function Resume() {
   const profile = useProfile()
   const resume = profile.resume
   const phone = profile.contact.links.find((link) => link.type === 'phone')?.value
+  const github = profile.links.github.replace(/^https?:\/\/(www\.)?/, '')
 
   return (
     <div className="resume-page mx-auto w-full max-w-5xl px-6 pb-24 print-area">
@@ -19,7 +19,7 @@ export default function Resume() {
       />
       <p className="no-print mt-4 text-sm text-slate-400">{resume.printHint}</p>
 
-      <Reveal className="mt-8">
+      <Reveal className="resume-section mt-8">
         <Card className="print-section resume-card resume-identity">
           <div className="flex flex-wrap items-start justify-between gap-6">
             <div>
@@ -38,35 +38,37 @@ export default function Resume() {
               </p>
               <p className="mt-1">{profile.links.email.replace('mailto:', '')}</p>
               <p className="mt-1">{phone}</p>
-              <p className="mt-1">github.com/KevinRyans</p>
+              <p className="mt-1">{github}</p>
             </div>
           </div>
         </Card>
       </Reveal>
 
-      <Reveal className="mt-10">
+      <Reveal className="resume-section mt-10">
         <SectionHeader title={resume.summaryTitle} className="resume-block-title" />
         <Card className="mt-4 print-section resume-card">
           <p className="text-sm text-slate-300 md:text-base">{resume.summary}</p>
         </Card>
       </Reveal>
 
-      <Reveal className="mt-10">
+      <Reveal className="resume-section mt-10">
         <SectionHeader title={resume.highlightsTitle} className="resume-block-title" />
-        <div className="mt-4 grid gap-4 md:grid-cols-2">
-          {resume.highlights.map((item) => (
-            <Card key={item} className="print-section resume-card resume-tight-card">
-              <p className="text-sm text-slate-300">{item}</p>
-            </Card>
-          ))}
-        </div>
+        <Card className="mt-4 print-section resume-card">
+          <ul className="resume-list space-y-2 text-sm text-slate-300">
+            {resume.highlights.map((item) => (
+              <li key={item} className="resume-list-item">
+                {item}
+              </li>
+            ))}
+          </ul>
+        </Card>
       </Reveal>
 
-      <Reveal className="mt-10">
+      <Reveal className="resume-section mt-10">
         <SectionHeader title={resume.experienceTitle} className="resume-block-title" />
         <div className="mt-4 space-y-4">
           {resume.experience.map((item) => (
-            <Card key={item.title} className="print-section resume-card">
+            <Card key={item.title} className="print-section resume-card resume-entry">
               <div className="text-xs font-semibold uppercase tracking-[0.2em] text-accent-300">
                 {item.time}
               </div>
@@ -87,11 +89,11 @@ export default function Resume() {
         </div>
       </Reveal>
 
-      <Reveal className="mt-10">
+      <Reveal className="resume-section mt-10">
         <SectionHeader title={resume.educationTitle} className="resume-block-title" />
         <div className="mt-4 space-y-4">
           {resume.education.map((item) => (
-            <Card key={item.title} className="print-section resume-card">
+            <Card key={item.title} className="print-section resume-card resume-entry">
               <div className="text-xs font-semibold uppercase tracking-[0.2em] text-accent-300">
                 {item.time}
               </div>
@@ -102,55 +104,51 @@ export default function Resume() {
         </div>
       </Reveal>
 
-      <Reveal className="mt-10">
+      <Reveal className="resume-section mt-10">
         <SectionHeader title={resume.projectsTitle} className="resume-block-title" />
-        <div className="mt-4 grid gap-4 md:grid-cols-2">
-          {resume.projects.map((project) => (
-            <Card key={project.name} className="print-section resume-card">
-              <h3 className="text-lg font-semibold text-white">{project.name}</h3>
-              <p className="mt-2 text-sm text-slate-300">{project.description}</p>
-            </Card>
-          ))}
-        </div>
+        <Card className="mt-4 print-section resume-card">
+          <div className="space-y-4">
+            {resume.projects.map((project) => (
+              <div key={project.name}>
+                <h3 className="text-base font-semibold text-white">{project.name}</h3>
+                <p className="mt-1 text-sm text-slate-300">{project.description}</p>
+              </div>
+            ))}
+          </div>
+        </Card>
       </Reveal>
 
-      <Reveal className="mt-10">
+      <Reveal className="resume-section mt-10">
         <SectionHeader title={resume.skillsTitle} className="resume-block-title" />
-        <div className="resume-badge-wrap mt-4 flex flex-wrap gap-2">
-          {resume.skills.map((skill) => (
-            <Badge key={skill} className="resume-badge">
-              {skill}
-            </Badge>
-          ))}
-        </div>
+        <Card className="mt-4 print-section resume-card resume-tight-card">
+          <p className="text-sm text-slate-300">{resume.skills.join(' • ')}</p>
+        </Card>
       </Reveal>
 
-      <Reveal className="mt-10">
+      <Reveal className="resume-section mt-10">
         <SectionHeader title={resume.interestsTitle} className="resume-block-title" />
-        <div className="resume-badge-wrap mt-4 flex flex-wrap gap-2">
-          {resume.interests.map((item) => (
-            <Badge key={item} className="resume-badge">
-              {item}
-            </Badge>
-          ))}
-        </div>
+        <Card className="mt-4 print-section resume-card resume-tight-card">
+          <p className="text-sm text-slate-300">{resume.interests.join(' • ')}</p>
+        </Card>
       </Reveal>
 
-      <Reveal className="mt-10">
+      <Reveal className="resume-section mt-10">
         <SectionHeader title={resume.contactTitle} className="resume-block-title" />
-        <div className="mt-4 grid gap-4 md:grid-cols-2">
-          {profile.contact.links.map((link) => (
-            <Card key={link.label} className="print-section resume-card resume-tight-card">
-              <p className="text-xs uppercase tracking-[0.2em] text-slate-500">
-                {link.label}
-              </p>
-              <p className="mt-2 text-sm text-slate-300">{link.value}</p>
-            </Card>
-          ))}
-        </div>
+        <Card className="mt-4 print-section resume-card resume-tight-card">
+          <div className="grid gap-3 sm:grid-cols-2">
+            {profile.contact.links.map((link) => (
+              <div key={link.label} className="resume-contact-row">
+                <p className="text-xs uppercase tracking-[0.18em] text-slate-500">
+                  {link.label}
+                </p>
+                <p className="mt-1 text-sm text-slate-300">{link.value}</p>
+              </div>
+            ))}
+          </div>
+        </Card>
       </Reveal>
 
-      <div className="no-print mt-14 flex justify-center">
+      <div className="resume-print-action no-print mt-16 mb-4 flex w-full justify-center pt-6">
         <Button onClick={() => window.print()} className="min-w-[180px] justify-center">
           {resume.printLabel}
         </Button>
