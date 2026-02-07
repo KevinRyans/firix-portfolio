@@ -11,18 +11,16 @@ export default function Resume() {
   const phone = profile.contact.links.find((link) => link.type === 'phone')?.value
 
   return (
-    <div className="mx-auto w-full max-w-5xl px-6 pb-20 print-area">
-      <SectionHeader title={resume.title} subtitle={resume.subtitle} />
-
-      <div className="mt-6 flex flex-wrap items-center justify-between gap-4 no-print">
-        <div className="text-sm text-slate-400">
-          {resume.printHint}
-        </div>
-        <Button onClick={() => window.print()}>{resume.printLabel}</Button>
-      </div>
+    <div className="resume-page mx-auto w-full max-w-5xl px-6 pb-24 print-area">
+      <SectionHeader
+        title={resume.title}
+        subtitle={resume.subtitle}
+        className="resume-page-title"
+      />
+      <p className="no-print mt-4 text-sm text-slate-400">{resume.printHint}</p>
 
       <Reveal className="mt-8">
-        <Card className="print-section">
+        <Card className="print-section resume-card resume-identity">
           <div className="flex flex-wrap items-start justify-between gap-6">
             <div>
               <p className="text-sm uppercase tracking-[0.3em] text-slate-500">
@@ -47,17 +45,17 @@ export default function Resume() {
       </Reveal>
 
       <Reveal className="mt-10">
-        <SectionHeader title={resume.summaryTitle} />
-        <Card className="mt-4 print-section">
+        <SectionHeader title={resume.summaryTitle} className="resume-block-title" />
+        <Card className="mt-4 print-section resume-card">
           <p className="text-sm text-slate-300 md:text-base">{resume.summary}</p>
         </Card>
       </Reveal>
 
       <Reveal className="mt-10">
-        <SectionHeader title={resume.highlightsTitle} />
+        <SectionHeader title={resume.highlightsTitle} className="resume-block-title" />
         <div className="mt-4 grid gap-4 md:grid-cols-2">
           {resume.highlights.map((item) => (
-            <Card key={item} className="print-section">
+            <Card key={item} className="print-section resume-card resume-tight-card">
               <p className="text-sm text-slate-300">{item}</p>
             </Card>
           ))}
@@ -65,10 +63,10 @@ export default function Resume() {
       </Reveal>
 
       <Reveal className="mt-10">
-        <SectionHeader title={resume.experienceTitle} />
+        <SectionHeader title={resume.experienceTitle} className="resume-block-title" />
         <div className="mt-4 space-y-4">
           {resume.experience.map((item) => (
-            <Card key={item.title} className="print-section">
+            <Card key={item.title} className="print-section resume-card">
               <div className="text-xs font-semibold uppercase tracking-[0.2em] text-accent-300">
                 {item.time}
               </div>
@@ -90,10 +88,10 @@ export default function Resume() {
       </Reveal>
 
       <Reveal className="mt-10">
-        <SectionHeader title={resume.educationTitle} />
+        <SectionHeader title={resume.educationTitle} className="resume-block-title" />
         <div className="mt-4 space-y-4">
           {resume.education.map((item) => (
-            <Card key={item.title} className="print-section">
+            <Card key={item.title} className="print-section resume-card">
               <div className="text-xs font-semibold uppercase tracking-[0.2em] text-accent-300">
                 {item.time}
               </div>
@@ -105,10 +103,10 @@ export default function Resume() {
       </Reveal>
 
       <Reveal className="mt-10">
-        <SectionHeader title={resume.projectsTitle} />
+        <SectionHeader title={resume.projectsTitle} className="resume-block-title" />
         <div className="mt-4 grid gap-4 md:grid-cols-2">
           {resume.projects.map((project) => (
-            <Card key={project.name} className="print-section">
+            <Card key={project.name} className="print-section resume-card">
               <h3 className="text-lg font-semibold text-white">{project.name}</h3>
               <p className="mt-2 text-sm text-slate-300">{project.description}</p>
             </Card>
@@ -117,28 +115,32 @@ export default function Resume() {
       </Reveal>
 
       <Reveal className="mt-10">
-        <SectionHeader title={resume.skillsTitle} />
-        <div className="mt-4 flex flex-wrap gap-2">
+        <SectionHeader title={resume.skillsTitle} className="resume-block-title" />
+        <div className="resume-badge-wrap mt-4 flex flex-wrap gap-2">
           {resume.skills.map((skill) => (
-            <Badge key={skill}>{skill}</Badge>
+            <Badge key={skill} className="resume-badge">
+              {skill}
+            </Badge>
           ))}
         </div>
       </Reveal>
 
       <Reveal className="mt-10">
-        <SectionHeader title={resume.interestsTitle} />
-        <div className="mt-4 flex flex-wrap gap-2">
+        <SectionHeader title={resume.interestsTitle} className="resume-block-title" />
+        <div className="resume-badge-wrap mt-4 flex flex-wrap gap-2">
           {resume.interests.map((item) => (
-            <Badge key={item}>{item}</Badge>
+            <Badge key={item} className="resume-badge">
+              {item}
+            </Badge>
           ))}
         </div>
       </Reveal>
 
       <Reveal className="mt-10">
-        <SectionHeader title={resume.contactTitle} />
+        <SectionHeader title={resume.contactTitle} className="resume-block-title" />
         <div className="mt-4 grid gap-4 md:grid-cols-2">
           {profile.contact.links.map((link) => (
-            <Card key={link.label} className="print-section">
+            <Card key={link.label} className="print-section resume-card resume-tight-card">
               <p className="text-xs uppercase tracking-[0.2em] text-slate-500">
                 {link.label}
               </p>
@@ -147,6 +149,12 @@ export default function Resume() {
           ))}
         </div>
       </Reveal>
+
+      <div className="no-print mt-14 flex justify-center">
+        <Button onClick={() => window.print()} className="min-w-[180px] justify-center">
+          {resume.printLabel}
+        </Button>
+      </div>
     </div>
   )
 }

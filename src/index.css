@@ -89,13 +89,23 @@
 }
 
 @media print {
+  @page {
+    size: A4;
+    margin: 12mm;
+  }
+
   :root {
     color-scheme: light;
+  }
+
+  html {
+    font-size: 11.2pt;
   }
 
   body {
     background: #ffffff !important;
     color: #0b0f19 !important;
+    line-height: 1.45 !important;
   }
 
   * {
@@ -116,9 +126,88 @@
     padding: 0 !important;
   }
 
+  .resume-page {
+    margin: 0 !important;
+    width: 100% !important;
+  }
+
+  .resume-page-title {
+    margin-bottom: 0.2rem !important;
+  }
+
+  .resume-page-title h2 {
+    font-size: 1.9rem !important;
+    line-height: 1.15 !important;
+    letter-spacing: -0.02em !important;
+    color: #0b1220 !important;
+  }
+
+  .resume-page-title p {
+    max-width: 100% !important;
+    color: #334155 !important;
+  }
+
+  .resume-block-title {
+    margin-top: 0 !important;
+  }
+
+  .resume-block-title h2 {
+    font-size: 1.22rem !important;
+    line-height: 1.25 !important;
+    color: #0b1220 !important;
+    margin: 0 !important;
+  }
+
   .print-section {
     break-inside: avoid;
     page-break-inside: avoid;
+  }
+
+  .resume-card {
+    background: #ffffff !important;
+    border: 1px solid #dbe3ee !important;
+    border-radius: 10px !important;
+    padding: 0.95rem 1rem !important;
+  }
+
+  .resume-tight-card {
+    padding: 0.75rem 0.9rem !important;
+  }
+
+  .resume-identity {
+    border-top: 3px solid #0f172a !important;
+  }
+
+  .resume-badge-wrap {
+    gap: 0.38rem !important;
+  }
+
+  .resume-badge {
+    border: 1px solid #d4deea !important;
+    background: #f8fbff !important;
+    color: #1e293b !important;
+    font-weight: 600 !important;
+    padding: 0.22rem 0.52rem !important;
+  }
+
+  .print-area .text-white,
+  .print-area .text-slate-100 {
+    color: #0b1220 !important;
+  }
+
+  .print-area .text-slate-300,
+  .print-area .text-slate-400,
+  .print-area .text-slate-500,
+  .print-area .text-accent-300 {
+    color: #334155 !important;
+  }
+
+  .print-area ul {
+    margin: 0.5rem 0 0 0 !important;
+  }
+
+  .print-area li {
+    line-height: 1.4 !important;
   }
 
   .glass {
