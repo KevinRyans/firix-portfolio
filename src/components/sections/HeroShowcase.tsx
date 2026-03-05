@@ -36,7 +36,7 @@ export default function HeroShowcase() {
 
           {/* Heading */}
           <motion.h1
-            className="font-display text-4xl font-extrabold leading-[1.05] tracking-tight text-white md:text-5xl lg:text-6xl"
+            className="font-display text-4xl font-extrabold leading-[0.93] tracking-tight text-white md:text-5xl lg:text-6xl"
             initial={shouldReduceMotion ? false : { opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, ease: 'easeOut' }}
@@ -72,7 +72,7 @@ export default function HeroShowcase() {
 
           {/* Stats */}
           <motion.div
-            className="flex flex-wrap gap-8 pt-2"
+            className="flex flex-wrap gap-8 border-t border-[#1c1c28] pt-5"
             initial={shouldReduceMotion ? false : { opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.6, delay: 0.35 }}

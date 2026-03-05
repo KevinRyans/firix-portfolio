@@ -1,0 +1,839 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>FIRIX.NO — Michael</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Mono:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --bg: #09090e;
+      --surface: #111118;
+      --border: #1c1c28;
+      --border2: #242434;
+      --accent: #7fffb2;
+      --accent2: #5b8cff;
+      --accent3: #ff7eb3;
+      --text: #e2e2ee;
+      --muted: #63637a;
+      --card: #0e0e18;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'DM Mono', monospace;
+      overflow-x: hidden;
+      cursor: none;
+    }
+
+    /* CURSOR */
+    .cursor { position:fixed; width:10px; height:10px; background:var(--accent); border-radius:50%; pointer-events:none; z-index:9999; transform:translate(-50%,-50%); mix-blend-mode:difference; transition:width .15s,height .15s; }
+    .cursor-ring { position:fixed; width:32px; height:32px; border:1px solid var(--accent); border-radius:50%; pointer-events:none; z-index:9998; transform:translate(-50%,-50%); opacity:.4; transition:width .2s,height .2s,opacity .2s; }
+
+    /* NOISE */
+    body::after { content:''; position:fixed; inset:0; background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E"); opacity:.25; pointer-events:none; z-index:1; }
+
+    /* NAV */
+    nav {
+      position:fixed; top:0; width:100%;
+      display:flex; justify-content:space-between; align-items:center;
+      padding:1.2rem 3rem;
+      background:rgba(9,9,14,0.88);
+      backdrop-filter:blur(16px);
+      border-bottom:1px solid var(--border);
+      z-index:100;
+      animation:slideDown .6s ease both;
+    }
+    @keyframes slideDown { from{opacity:0;transform:translateY(-18px)} to{opacity:1;transform:none} }
+
+    .nav-logo { font-family:'Syne',sans-serif; font-weight:800; font-size:1rem; color:var(--accent); letter-spacing:.02em; }
+    .nav-links { display:flex; gap:2rem; list-style:none; }
+    .nav-links a { font-size:.68rem; color:var(--muted); text-decoration:none; letter-spacing:.14em; text-transform:uppercase; transition:color .2s; position:relative; cursor:none; }
+    .nav-links a::after { content:''; position:absolute; bottom:-3px; left:0; width:0; height:1px; background:var(--accent); transition:width .25s; }
+    .nav-links a:hover { color:var(--accent); }
+    .nav-links a:hover::after { width:100%; }
+    .nav-status { display:flex; align-items:center; gap:.5rem; font-size:.65rem; color:var(--muted); letter-spacing:.08em; }
+    .status-dot { width:6px; height:6px; border-radius:50%; background:var(--accent); box-shadow:0 0 6px var(--accent); animation:pulse 2s infinite; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+
+    /* HERO */
+    .hero {
+      min-height:100vh; display:flex; flex-direction:column; justify-content:center;
+      padding:8rem 3rem 5rem; position:relative; overflow:hidden;
+    }
+    .hero-grid { position:absolute; inset:0; background-image:linear-gradient(var(--border) 1px,transparent 1px),linear-gradient(90deg,var(--border) 1px,transparent 1px); background-size:64px 64px; opacity:.25; }
+    .hero-glow1 { position:absolute; width:600px; height:600px; background:radial-gradient(circle,rgba(127,255,178,.07) 0%,transparent 70%); top:-100px; right:-150px; pointer-events:none; }
+    .hero-glow2 { position:absolute; width:400px; height:400px; background:radial-gradient(circle,rgba(91,140,255,.05) 0%,transparent 70%); bottom:0; left:-100px; pointer-events:none; }
+
+    .hero-eyebrow { font-size:.68rem; letter-spacing:.22em; text-transform:uppercase; color:var(--accent); margin-bottom:1.2rem; opacity:0; animation:fadeUp .7s .2s ease both; }
+    .hero h1 { font-family:'Syne',sans-serif; font-size:clamp(3.2rem,8.5vw,7.5rem); font-weight:800; line-height:.92; letter-spacing:-.04em; max-width:1000px; opacity:0; animation:fadeUp .8s .4s ease both; }
+    .hero h1 em { font-style:normal; color:var(--accent); }
+    .hero-sub { margin-top:1.8rem; max-width:500px; color:var(--muted); line-height:1.8; font-size:.88rem; opacity:0; animation:fadeUp .8s .6s ease both; }
+
+    .hero-stats { display:flex; gap:3rem; margin-top:2.5rem; opacity:0; animation:fadeUp .8s .7s ease both; }
+    .stat { display:flex; flex-direction:column; }
+    .stat-val { font-family:'Syne',sans-serif; font-size:1.8rem; font-weight:800; color:var(--text); line-height:1; }
+    .stat-lbl { font-size:.65rem; color:var(--muted); letter-spacing:.1em; text-transform:uppercase; margin-top:.25rem; }
+
+    .hero-cta { display:flex; gap:1rem; margin-top:2.5rem; opacity:0; animation:fadeUp .8s .85s ease both; }
+    .btn { display:inline-flex; align-items:center; gap:.5rem; padding:.7rem 1.5rem; border-radius:4px; font-family:'DM Mono',monospace; font-size:.75rem; letter-spacing:.06em; cursor:none; text-decoration:none; transition:all .22s; border:none; }
+    .btn-primary { background:var(--accent); color:#09090e; font-weight:500; }
+    .btn-primary:hover { background:#a5ffcc; transform:translateY(-2px); box-shadow:0 8px 28px rgba(127,255,178,.22); }
+    .btn-outline { border:1px solid var(--border2); color:var(--text); background:transparent; }
+    .btn-outline:hover { border-color:var(--accent); color:var(--accent); transform:translateY(-2px); }
+    @keyframes fadeUp { from{opacity:0;transform:translateY(22px)} to{opacity:1;transform:none} }
+
+    /* SECTIONS */
+    section { padding:6rem 3rem; position:relative; z-index:2; }
+    .section-tag { font-size:.65rem; letter-spacing:.22em; text-transform:uppercase; color:var(--accent); margin-bottom:.6rem; }
+    .section-title { font-family:'Syne',sans-serif; font-size:clamp(1.8rem,3.5vw,2.8rem); font-weight:800; letter-spacing:-.03em; line-height:1; margin-bottom:2.5rem; }
+    .section-sub { font-size:.85rem; color:var(--muted); line-height:1.8; margin-top:.5rem; margin-bottom:2.5rem; max-width:560px; }
+    .max-w { max-width:1200px; }
+
+    /* DIVIDER */
+    .divider { border:none; border-top:1px solid var(--border); margin:0; }
+
+    /* WHAT I DO */
+    .wid-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:1px; border:1px solid var(--border); border-radius:10px; overflow:hidden; }
+    .wid-card { background:var(--card); padding:1.8rem; transition:background .25s; }
+    .wid-card:hover { background:var(--surface); }
+    .wid-icon { width:36px; height:36px; border:1px solid var(--border2); border-radius:8px; display:flex; align-items:center; justify-content:center; margin-bottom:1.2rem; color:var(--accent); }
+    .wid-card h3 { font-family:'Syne',sans-serif; font-weight:700; font-size:1rem; margin-bottom:.5rem; letter-spacing:-.01em; }
+    .wid-card p { font-size:.78rem; color:var(--muted); line-height:1.75; }
+
+    /* STACK */
+    .stack-chips { display:flex; flex-wrap:wrap; gap:.6rem; }
+    .chip { padding:.35rem .85rem; border:1px solid var(--border2); border-radius:100px; font-size:.72rem; color:var(--muted); letter-spacing:.05em; transition:all .2s; cursor:default; }
+    .chip:hover { border-color:var(--accent); color:var(--accent); }
+
+    /* NOW */
+    .now-card { background:var(--card); border:1px solid var(--border); border-radius:10px; padding:1.8rem 2rem; border-left:2px solid var(--accent); max-width:700px; }
+    .now-card p { font-size:.88rem; color:var(--muted); line-height:1.85; }
+
+    /* PROJECTS */
+    .alt-bg { background:var(--surface); border-top:1px solid var(--border); border-bottom:1px solid var(--border); }
+    .projects-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(320px,1fr)); gap:1.2rem; }
+    .project-card { background:var(--card); border:1px solid var(--border); border-radius:10px; padding:1.6rem; transition:border-color .3s,transform .3s,box-shadow .3s; position:relative; overflow:hidden; cursor:none; }
+    .project-card::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; background:linear-gradient(90deg,var(--accent),var(--accent2)); opacity:0; transition:opacity .3s; }
+    .project-card:hover { border-color:transparent; transform:translateY(-5px); box-shadow:0 20px 48px rgba(0,0,0,.45); }
+    .project-card:hover::before { opacity:1; }
+    .project-top { display:flex; align-items:center; justify-content:space-between; margin-bottom:1rem; }
+    .project-lang { font-size:.62rem; letter-spacing:.12em; text-transform:uppercase; color:var(--accent2); background:rgba(91,140,255,.1); padding:.22rem .6rem; border-radius:4px; }
+    .project-status { font-size:.62rem; letter-spacing:.1em; color:var(--muted); border:1px solid var(--border2); padding:.2rem .6rem; border-radius:100px; }
+    .project-status.done { color:var(--accent); border-color:rgba(127,255,178,.25); }
+    .project-card h3 { font-family:'Syne',sans-serif; font-size:1.1rem; font-weight:700; margin-bottom:.5rem; letter-spacing:-.02em; }
+    .project-card p { font-size:.8rem; color:var(--muted); line-height:1.75; margin-bottom:1.4rem; }
+    .project-tags { display:flex; flex-wrap:wrap; gap:.4rem; margin-bottom:1.2rem; }
+    .tag { font-size:.62rem; padding:.2rem .6rem; border-radius:4px; background:rgba(255,255,255,.04); color:var(--muted); border:1px solid var(--border); }
+    .project-links { display:flex; gap:.6rem; }
+    .project-link { display:inline-flex; align-items:center; gap:.35rem; font-size:.7rem; color:var(--muted); text-decoration:none; border:1px solid var(--border); padding:.3rem .75rem; border-radius:4px; transition:all .2s; cursor:none; }
+    .project-link:hover { color:var(--accent); border-color:var(--accent); }
+    .project-link svg { width:11px; height:11px; flex-shrink:0; }
+
+    /* ABOUT */
+    .about-grid { display:grid; grid-template-columns:1.4fr 1fr; gap:4rem; align-items:start; }
+    .bio-card { background:var(--card); border:1px solid var(--border); border-radius:10px; padding:1.8rem; margin-bottom:1.5rem; }
+    .bio-card p { font-size:.86rem; color:var(--muted); line-height:1.9; }
+    .milestones { display:flex; flex-direction:column; gap:.8rem; }
+    .milestone { background:var(--card); border:1px solid var(--border); border-radius:8px; padding:1.2rem 1.4rem; display:flex; gap:1.5rem; align-items:flex-start; transition:border-color .25s; }
+    .milestone:hover { border-color:var(--border2); }
+    .milestone-time { font-size:.65rem; letter-spacing:.12em; color:var(--accent); text-transform:uppercase; white-space:nowrap; padding-top:.2rem; min-width:90px; }
+    .milestone h4 { font-family:'Syne',sans-serif; font-size:.95rem; font-weight:700; margin-bottom:.3rem; }
+    .milestone p { font-size:.78rem; color:var(--muted); line-height:1.7; }
+    .work-style { display:grid; grid-template-columns:1fr 1fr; gap:.8rem; margin-top:1.5rem; }
+    .ws-card { background:var(--card); border:1px solid var(--border); border-radius:8px; padding:1rem 1.2rem; }
+    .ws-card p { font-size:.78rem; color:var(--muted); line-height:1.7; }
+    .ws-card::before { content:'→'; display:block; color:var(--accent); font-size:.75rem; margin-bottom:.4rem; }
+
+    /* RESUME */
+    .resume-identity { background:var(--card); border:1px solid var(--border); border-radius:10px; padding:2rem; display:flex; justify-content:space-between; gap:2rem; flex-wrap:wrap; margin-bottom:2rem; }
+    .resume-name-role h2 { font-family:'Syne',sans-serif; font-size:1.6rem; font-weight:800; letter-spacing:-.03em; }
+    .resume-name-role p { font-size:.82rem; color:var(--muted); margin-top:.3rem; }
+    .resume-contact-info { text-align:right; }
+    .resume-contact-info p { font-size:.78rem; color:var(--muted); margin-bottom:.3rem; }
+    .resume-contact-info span { color:var(--accent); }
+    .resume-section { margin-bottom:2rem; }
+    .resume-card { background:var(--card); border:1px solid var(--border); border-radius:8px; padding:1.5rem; margin-bottom:.8rem; }
+    .resume-card-time { font-size:.65rem; letter-spacing:.14em; color:var(--accent); text-transform:uppercase; margin-bottom:.4rem; }
+    .resume-card h3 { font-family:'Syne',sans-serif; font-size:1rem; font-weight:700; margin-bottom:.3rem; }
+    .resume-card p { font-size:.8rem; color:var(--muted); line-height:1.75; }
+    .resume-card ul { margin-top:.6rem; padding-left:0; list-style:none; }
+    .resume-card ul li { font-size:.78rem; color:var(--muted); padding:.25rem 0; display:flex; gap:.5rem; }
+    .resume-card ul li::before { content:'—'; color:var(--border2); flex-shrink:0; }
+    .resume-summary { background:var(--card); border:1px solid var(--border); border-radius:8px; padding:1.5rem; margin-bottom:2rem; }
+    .resume-summary p { font-size:.84rem; color:var(--muted); line-height:1.9; }
+    .resume-highlights ul { list-style:none; padding:0; }
+    .resume-highlights li { font-size:.8rem; color:var(--muted); padding:.35rem 0; border-bottom:1px solid var(--border); display:flex; gap:.5rem; }
+    .resume-highlights li:last-child { border-bottom:none; }
+    .resume-highlights li::before { content:'✦'; color:var(--accent); font-size:.6rem; flex-shrink:0; padding-top:.15rem; }
+    .print-btn { display:inline-flex; align-items:center; gap:.5rem; margin-bottom:2rem; }
+
+    /* CONTACT */
+    .contact-grid { display:grid; grid-template-columns:1fr 1fr; gap:3rem; align-items:start; }
+    .contact-card { background:var(--card); border:1px solid var(--border); border-radius:10px; overflow:hidden; }
+    .contact-card-header { padding:1.2rem 1.5rem; border-bottom:1px solid var(--border); }
+    .contact-card-header p { font-size:.68rem; letter-spacing:.12em; color:var(--muted); text-transform:uppercase; }
+    .contact-card-header h3 { font-family:'Syne',sans-serif; font-size:1rem; font-weight:700; margin-top:.2rem; }
+    .contact-links-list { padding:.5rem 0; }
+    .contact-link-row { display:flex; align-items:center; justify-content:space-between; padding:.9rem 1.5rem; border-bottom:1px solid var(--border); transition:background .2s; }
+    .contact-link-row:last-child { border-bottom:none; }
+    .contact-link-row:hover { background:rgba(255,255,255,.02); }
+    .contact-link-label { font-size:.68rem; letter-spacing:.12em; color:var(--muted); text-transform:uppercase; }
+    .contact-link-val { font-size:.8rem; color:var(--text); }
+    .contact-link-actions { display:flex; align-items:center; gap:.5rem; }
+    .copy-btn { font-size:.65rem; color:var(--muted); background:none; border:1px solid var(--border); padding:.2rem .6rem; border-radius:4px; cursor:none; transition:all .2s; }
+    .copy-btn:hover { color:var(--accent); border-color:var(--accent); }
+    .ext-link { color:var(--muted); text-decoration:none; transition:color .2s; }
+    .ext-link:hover { color:var(--accent); }
+    .form-group { margin-bottom:1.1rem; }
+    .form-group label { display:block; font-size:.65rem; letter-spacing:.14em; text-transform:uppercase; color:var(--muted); margin-bottom:.45rem; }
+    .form-group input, .form-group textarea {
+      width:100%; background:var(--card); border:1px solid var(--border); color:var(--text);
+      font-family:'DM Mono',monospace; font-size:.82rem; padding:.8rem 1rem;
+      border-radius:6px; outline:none; transition:border-color .2s,box-shadow .2s; resize:vertical;
+    }
+    .form-group input:focus, .form-group textarea:focus { border-color:var(--accent); box-shadow:0 0 0 3px rgba(127,255,178,.07); }
+    .form-group textarea { min-height:120px; }
+    .form-row { display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
+    .form-note { font-size:.7rem; color:var(--muted); margin-top:.8rem; }
+    .form-status { font-size:.75rem; color:var(--accent); margin-top:.6rem; min-height:1rem; }
+
+    /* FOOTER */
+    footer { padding:2.5rem 3rem; border-top:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; z-index:2; position:relative; }
+    .footer-left p:first-child { font-family:'Syne',sans-serif; font-weight:800; font-size:.9rem; color:var(--accent); }
+    .footer-left p:last-child { font-size:.72rem; color:var(--muted); margin-top:.3rem; }
+    .footer-right { display:flex; gap:1.5rem; }
+    .footer-right a { font-size:.7rem; color:var(--muted); text-decoration:none; transition:color .2s; cursor:none; }
+    .footer-right a:hover { color:var(--accent); }
+
+    /* PAGE TABS */
+    .page-tabs { display:flex; gap:.5rem; margin-bottom:2.5rem; flex-wrap:wrap; }
+    .tab-btn { font-family:'DM Mono',monospace; font-size:.7rem; letter-spacing:.08em; padding:.4rem 1rem; border-radius:100px; border:1px solid var(--border); background:transparent; color:var(--muted); cursor:none; transition:all .2s; text-transform:uppercase; }
+    .tab-btn.active, .tab-btn:hover { border-color:var(--accent); color:var(--accent); background:rgba(127,255,178,.06); }
+
+    /* PAGES */
+    .page { display:none; }
+    .page.active { display:block; }
+
+    /* SCROLL REVEAL */
+    .reveal { opacity:0; transform:translateY(26px); transition:opacity .65s ease,transform .65s ease; }
+    .reveal.visible { opacity:1; transform:none; }
+
+    /* SCROLL PROGRESS */
+    .progress-bar { position:fixed; top:0; left:0; height:2px; background:linear-gradient(90deg,var(--accent),var(--accent2)); z-index:200; transition:width .1s; }
+
+    @media(max-width:900px) {
+      nav { padding:1rem 1.5rem; }
+      .nav-links { gap:1.2rem; }
+      .nav-status { display:none; }
+      section { padding:4rem 1.5rem; }
+      .hero { padding:7rem 1.5rem 4rem; }
+      .about-grid { grid-template-columns:1fr; }
+      .contact-grid { grid-template-columns:1fr; }
+      .resume-identity { flex-direction:column; }
+      .resume-contact-info { text-align:left; }
+      .work-style { grid-template-columns:1fr; }
+      footer { flex-direction:column; gap:1rem; text-align:center; }
+      .form-row { grid-template-columns:1fr; }
+      .hero-stats { gap:2rem; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+<div class="progress-bar" id="progressBar"></div>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">FIRIX.NO</div>
+  <ul class="nav-links">
+    <li><a href="#" onclick="showPage('home');return false;">Hjem</a></li>
+    <li><a href="#" onclick="showPage('projects');return false;">Prosjekter</a></li>
+    <li><a href="#" onclick="showPage('about');return false;">Om</a></li>
+    <li><a href="#" onclick="showPage('resume');return false;">CV</a></li>
+    <li><a href="#" onclick="showPage('contact');return false;">Kontakt</a></li>
+  </ul>
+  <div class="nav-status">
+    <span class="status-dot"></span>
+    <span>Tilgjengelig</span>
+  </div>
+</nav>
+
+<!-- ===================== HOME PAGE ===================== -->
+<div id="page-home" class="page active">
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-grid"></div>
+    <div class="hero-glow1"></div>
+    <div class="hero-glow2"></div>
+    <p class="hero-eyebrow">// Fullstack-utvikler</p>
+    <h1>Hei, jeg er<br/><em>Michael</em></h1>
+    <p class="hero-sub">Selvlært fullstack-utvikler (hobby) som bygger moderne webopplevelser, ved siden av en fulltidsrolle i teknisk drift.</p>
+    <div class="hero-stats">
+      <div class="stat"><span class="stat-val">24</span><span class="stat-lbl">År gammel</span></div>
+      <div class="stat"><span class="stat-val">6+</span><span class="stat-lbl">År læring</span></div>
+      <div class="stat"><span class="stat-val">Results</span><span class="stat-lbl">Driven</span></div>
+    </div>
+    <div class="hero-cta">
+      <a href="#" onclick="showPage('projects');return false;" class="btn btn-primary">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+        Se prosjekter
+      </a>
+      <a href="#" onclick="showPage('contact');return false;" class="btn btn-outline">Kontakt meg</a>
+    </div>
+  </section>
+
+  <hr class="divider"/>
+
+  <!-- WHAT I DO -->
+  <section>
+    <div class="max-w">
+      <p class="section-tag reveal">// Hva jeg gjør</p>
+      <h2 class="section-title reveal">Jeg kombinerer moderne<br/>utvikling med drift</h2>
+      <div class="wid-grid reveal">
+        <div class="wid-card">
+          <div class="wid-icon">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
+          </div>
+          <h3>Frontend</h3>
+          <p>React, moderne komponenter og smidige interaksjoner med fokus på tilgjengelighet.</p>
+        </div>
+        <div class="wid-card">
+          <div class="wid-icon">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+          </div>
+          <h3>Backend</h3>
+          <p>API-er, auth og dataflyt som er robuste, raske og enkle å vedlikeholde – inkludert game server-backends.</p>
+        </div>
+        <div class="wid-card">
+          <div class="wid-icon">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
+          </div>
+          <h3>UI/UX</h3>
+          <p>Rent, premium design med god kontrast, typografi og gjennomtenkte brukerflater.</p>
+        </div>
+        <div class="wid-card">
+          <div class="wid-icon">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          </div>
+          <h3>Teknisk drift</h3>
+          <p>Facility management, etterlevelse og stabile tekniske systemer i daglig drift.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <hr class="divider"/>
+
+  <!-- STACK -->
+  <section>
+    <div class="max-w">
+      <p class="section-tag reveal">// Stack</p>
+      <h2 class="section-title reveal">Verktøyene jeg bruker</h2>
+      <p class="section-sub reveal">Teknologiene jeg bygger moderne webprodukter med.</p>
+      <div class="stack-chips reveal">
+        <span class="chip">React</span>
+        <span class="chip">TypeScript</span>
+        <span class="chip">Node.js</span>
+        <span class="chip">Vite</span>
+        <span class="chip">Tailwind CSS</span>
+        <span class="chip">Framer Motion</span>
+        <span class="chip">PostgreSQL</span>
+        <span class="chip">Docker</span>
+        <span class="chip">GitHub Actions</span>
+        <span class="chip">GraphQL</span>
+        <span class="chip">Cloudflare</span>
+        <span class="chip">Figma</span>
+        <span class="chip">Microsoft Azure</span>
+      </div>
+    </div>
+  </section>
+
+  <hr class="divider"/>
+
+  <!-- LATEST WORK -->
+  <section class="alt-bg">
+    <div class="max-w">
+      <p class="section-tag reveal">// Siste arbeid</p>
+      <h2 class="section-title reveal">Utvalgte prosjekter</h2>
+      <p class="section-sub reveal">Et kuratert utvalg hentet fra GitHub.</p>
+      <div class="projects-grid">
+        <div class="project-card reveal">
+          <div class="project-top">
+            <span class="project-lang">TypeScript · React</span>
+            <span class="project-status">Pågår</span>
+          </div>
+          <h3>Firix Portfolio</h3>
+          <p>Personlig utviklerportefølje med premium dark UI, myke animasjoner og GitHub-drevet prosjektliste.</p>
+          <div class="project-tags"><span class="tag">Frontend</span><span class="tag">Vite</span><span class="tag">Tailwind</span></div>
+          <div class="project-links">
+            <a href="https://github.com/KevinRyans/firix-portfolio" target="_blank" class="project-link">
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.44 9.8 8.2 11.37.6.1.82-.26.82-.57v-2.02c-3.34.73-4.04-1.6-4.04-1.6-.54-1.38-1.33-1.75-1.33-1.75-1.09-.74.08-.73.08-.73 1.2.09 1.84 1.24 1.84 1.24 1.07 1.83 2.8 1.3 3.48.99.11-.78.42-1.3.76-1.6-2.67-.3-5.47-1.33-5.47-5.93 0-1.31.47-2.38 1.24-3.22-.13-.3-.54-1.52.12-3.18 0 0 1.01-.32 3.3 1.23a11.5 11.5 0 013-.4c1.02.004 2.05.14 3 .4 2.28-1.55 3.29-1.23 3.29-1.23.66 1.66.25 2.88.12 3.18.77.84 1.24 1.91 1.24 3.22 0 4.61-2.81 5.62-5.48 5.92.43.37.81 1.1.81 2.22v3.29c0 .32.22.68.83.57C20.57 21.8 24 17.3 24 12c0-6.63-5.37-12-12-12z"/></svg>
+              GitHub
+            </a>
+            <a href="https://firix.no" target="_blank" class="project-link">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+              Live demo
+            </a>
+          </div>
+        </div>
+
+        <div class="project-card reveal">
+          <div class="project-top">
+            <span class="project-lang">TypeScript · Fullstack</span>
+            <span class="project-status">Pågår</span>
+          </div>
+          <h3>Mafiaspill</h3>
+          <p>Tekstbasert crime RPG inspirert av klassisk MMO-progresjon, med økonomisystemer, fraksjoner og turbasert kamp.</p>
+          <div class="project-tags"><span class="tag">Fastify</span><span class="tag">PostgreSQL</span><span class="tag">Socket.IO</span></div>
+          <div class="project-links">
+            <a href="https://github.com/KevinRyans/Mafiaspill" target="_blank" class="project-link">
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.44 9.8 8.2 11.37.6.1.82-.26.82-.57v-2.02c-3.34.73-4.04-1.6-4.04-1.6-.54-1.38-1.33-1.75-1.33-1.75-1.09-.74.08-.73.08-.73 1.2.09 1.84 1.24 1.84 1.24 1.07 1.83 2.8 1.3 3.48.99.11-.78.42-1.3.76-1.6-2.67-.3-5.47-1.33-5.47-5.93 0-1.31.47-2.38 1.24-3.22-.13-.3-.54-1.52.12-3.18 0 0 1.01-.32 3.3 1.23a11.5 11.5 0 013-.4c1.02.004 2.05.14 3 .4 2.28-1.55 3.29-1.23 3.29-1.23.66 1.66.25 2.88.12 3.18.77.84 1.24 1.91 1.24 3.22 0 4.61-2.81 5.62-5.48 5.92.43.37.81 1.1.81 2.22v3.29c0 .32.22.68.83.57C20.57 21.8 24 17.3 24 12c0-6.63-5.37-12-12-12z"/></svg>
+              GitHub
+            </a>
+          </div>
+        </div>
+
+        <div class="project-card reveal">
+          <div class="project-top">
+            <span class="project-lang">TypeScript · Fullstack</span>
+            <span class="project-status">Pågår</span>
+          </div>
+          <h3>Huben</h3>
+          <p>Lettvekt fullstack-app med React + Tailwind frontend og Express backend.</p>
+          <div class="project-tags"><span class="tag">React</span><span class="tag">Express</span><span class="tag">Open Source</span></div>
+          <div class="project-links">
+            <a href="https://github.com/KevinRyans/huben" target="_blank" class="project-link">
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.44 9.8 8.2 11.37.6.1.82-.26.82-.57v-2.02c-3.34.73-4.04-1.6-4.04-1.6-.54-1.38-1.33-1.75-1.33-1.75-1.09-.74.08-.73.08-.73 1.2.09 1.84 1.24 1.84 1.24 1.07 1.83 2.8 1.3 3.48.99.11-.78.42-1.3.76-1.6-2.67-.3-5.47-1.33-5.47-5.93 0-1.31.47-2.38 1.24-3.22-.13-.3-.54-1.52.12-3.18 0 0 1.01-.32 3.3 1.23a11.5 11.5 0 013-.4c1.02.004 2.05.14 3 .4 2.28-1.55 3.29-1.23 3.29-1.23.66 1.66.25 2.88.12 3.18.77.84 1.24 1.91 1.24 3.22 0 4.61-2.81 5.62-5.48 5.92.43.37.81 1.1.81 2.22v3.29c0 .32.22.68.83.57C20.57 21.8 24 17.3 24 12c0-6.63-5.37-12-12-12z"/></svg>
+              GitHub
+            </a>
+          </div>
+        </div>
+
+        <div class="project-card reveal">
+          <div class="project-top">
+            <span class="project-lang">JavaScript · Frontend</span>
+            <span class="project-status done">Fullført</span>
+          </div>
+          <h3>Vaktliste</h3>
+          <p>Webapp som leser vakter fra Google Sheets og viser en filtrerbar tabell.</p>
+          <div class="project-tags"><span class="tag">Google Sheets</span><span class="tag">SheetJS</span><span class="tag">Open Source</span></div>
+          <div class="project-links">
+            <a href="https://github.com/KevinRyans/vaktliste" target="_blank" class="project-link">
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.44 9.8 8.2 11.37.6.1.82-.26.82-.57v-2.02c-3.34.73-4.04-1.6-4.04-1.6-.54-1.38-1.33-1.75-1.33-1.75-1.09-.74.08-.73.08-.73 1.2.09 1.84 1.24 1.84 1.24 1.07 1.83 2.8 1.3 3.48.99.11-.78.42-1.3.76-1.6-2.67-.3-5.47-1.33-5.47-5.93 0-1.31.47-2.38 1.24-3.22-.13-.3-.54-1.52.12-3.18 0 0 1.01-.32 3.3 1.23a11.5 11.5 0 013-.4c1.02.004 2.05.14 3 .4 2.28-1.55 3.29-1.23 3.29-1.23.66 1.66.25 2.88.12 3.18.77.84 1.24 1.91 1.24 3.22 0 4.61-2.81 5.62-5.48 5.92.43.37.81 1.1.81 2.22v3.29c0 .32.22.68.83.57C20.57 21.8 24 17.3 24 12c0-6.63-5.37-12-12-12z"/></svg>
+              GitHub
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <hr class="divider"/>
+
+  <!-- NOW -->
+  <section>
+    <div class="max-w">
+      <p class="section-tag reveal">// Nå</p>
+      <h2 class="section-title reveal">Hva jeg fokuserer på</h2>
+      <div class="now-card reveal">
+        <p>Leder teknisk drift som Maintenance Manager samtidig som jeg videreutvikler porteføljen, designsystemet og game server-verktøy på siden.</p>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- ===================== PROJECTS PAGE ===================== -->
+<div id="page-projects" class="page">
+  <section style="padding-top:8rem;">
+    <div class="max-w">
+      <p class="section-tag">// Prosjekter</p>
+      <h2 class="section-title">Live oversikt</h2>
+      <p class="section-sub">Filtrer og sorter for å finne det mest relevante arbeidet.</p>
+      <div class="page-tabs">
+        <button class="tab-btn active" onclick="filterProjects('all',this)">Alle</button>
+        <button class="tab-btn" onclick="filterProjects('Frontend',this)">Frontend</button>
+        <button class="tab-btn" onclick="filterProjects('Backend',this)">Backend</button>
+        <button class="tab-btn" onclick="filterProjects('Fullstack',this)">Fullstack</button>
+        <button class="tab-btn" onclick="filterProjects('Open Source',this)">Open Source</button>
+      </div>
+      <div class="projects-grid" id="projects-grid">
+        <div class="project-card" data-cat="Frontend">
+          <div class="project-top"><span class="project-lang">TypeScript · React</span><span class="project-status">Pågår</span></div>
+          <h3>Firix Portfolio</h3>
+          <p>Personlig utviklerportefølje med premium dark UI, myke animasjoner og GitHub-drevet prosjektliste.</p>
+          <div class="project-tags"><span class="tag">Frontend</span><span class="tag">Vite</span><span class="tag">Tailwind</span></div>
+          <div class="project-links">
+            <a href="https://github.com/KevinRyans/firix-portfolio" target="_blank" class="project-link"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.44 9.8 8.2 11.37.6.1.82-.26.82-.57v-2.02c-3.34.73-4.04-1.6-4.04-1.6-.54-1.38-1.33-1.75-1.33-1.75-1.09-.74.08-.73.08-.73 1.2.09 1.84 1.24 1.84 1.24 1.07 1.83 2.8 1.3 3.48.99.11-.78.42-1.3.76-1.6-2.67-.3-5.47-1.33-5.47-5.93 0-1.31.47-2.38 1.24-3.22-.13-.3-.54-1.52.12-3.18 0 0 1.01-.32 3.3 1.23a11.5 11.5 0 013-.4c1.02.004 2.05.14 3 .4 2.28-1.55 3.29-1.23 3.29-1.23.66 1.66.25 2.88.12 3.18.77.84 1.24 1.91 1.24 3.22 0 4.61-2.81 5.62-5.48 5.92.43.37.81 1.1.81 2.22v3.29c0 .32.22.68.83.57C20.57 21.8 24 17.3 24 12c0-6.63-5.37-12-12-12z"/></svg>GitHub</a>
+            <a href="https://firix.no" target="_blank" class="project-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>Live demo</a>
+          </div>
+        </div>
+        <div class="project-card" data-cat="Fullstack">
+          <div class="project-top"><span class="project-lang">TypeScript · Fullstack</span><span class="project-status">Pågår</span></div>
+          <h3>Mafiaspill</h3>
+          <p>Tekstbasert crime RPG med progresjon, økonomisystemer, fraksjoner og turbasert kamp. Bygget som monorepo med React, Fastify og PostgreSQL.</p>
+          <div class="project-tags"><span class="tag">Fullstack</span><span class="tag">Fastify</span><span class="tag">PostgreSQL</span><span class="tag">Socket.IO</span></div>
+          <div class="project-links">
+            <a href="https://github.com/KevinRyans/Mafiaspill" target="_blank" class="project-link"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.44 9.8 8.2 11.37.6.1.82-.26.82-.57v-2.02c-3.34.73-4.04-1.6-4.04-1.6-.54-1.38-1.33-1.75-1.33-1.75-1.09-.74.08-.73.08-.73 1.2.09 1.84 1.24 1.84 1.24 1.07 1.83 2.8 1.3 3.48.99.11-.78.42-1.3.76-1.6-2.67-.3-5.47-1.33-5.47-5.93 0-1.31.47-2.38 1.24-3.22-.13-.3-.54-1.52.12-3.18 0 0 1.01-.32 3.3 1.23a11.5 11.5 0 013-.4c1.02.004 2.05.14 3 .4 2.28-1.55 3.29-1.23 3.29-1.23.66 1.66.25 2.88.12 3.18.77.84 1.24 1.91 1.24 3.22 0 4.61-2.81 5.62-5.48 5.92.43.37.81 1.1.81 2.22v3.29c0 .32.22.68.83.57C20.57 21.8 24 17.3 24 12c0-6.63-5.37-12-12-12z"/></svg>GitHub</a>
+          </div>
+        </div>
+        <div class="project-card" data-cat="Fullstack Open Source">
+          <div class="project-top"><span class="project-lang">TypeScript · Fullstack</span><span class="project-status">Pågår</span></div>
+          <h3>Huben</h3>
+          <p>Lettvekt fullstack-app med React + Tailwind frontend og Express backend.</p>
+          <div class="project-tags"><span class="tag">Fullstack</span><span class="tag">React</span><span class="tag">Express</span><span class="tag">Open Source</span></div>
+          <div class="project-links">
+            <a href="https://github.com/KevinRyans/huben" target="_blank" class="project-link"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.44 9.8 8.2 11.37.6.1.82-.26.82-.57v-2.02c-3.34.73-4.04-1.6-4.04-1.6-.54-1.38-1.33-1.75-1.33-1.75-1.09-.74.08-.73.08-.73 1.2.09 1.84 1.24 1.84 1.24 1.07 1.83 2.8 1.3 3.48.99.11-.78.42-1.3.76-1.6-2.67-.3-5.47-1.33-5.47-5.93 0-1.31.47-2.38 1.24-3.22-.13-.3-.54-1.52.12-3.18 0 0 1.01-.32 3.3 1.23a11.5 11.5 0 013-.4c1.02.004 2.05.14 3 .4 2.28-1.55 3.29-1.23 3.29-1.23.66 1.66.25 2.88.12 3.18.77.84 1.24 1.91 1.24 3.22 0 4.61-2.81 5.62-5.48 5.92.43.37.81 1.1.81 2.22v3.29c0 .32.22.68.83.57C20.57 21.8 24 17.3 24 12c0-6.63-5.37-12-12-12z"/></svg>GitHub</a>
+          </div>
+        </div>
+        <div class="project-card" data-cat="Frontend Open Source">
+          <div class="project-top"><span class="project-lang">JavaScript · Frontend</span><span class="project-status done">Fullført</span></div>
+          <h3>Vaktliste</h3>
+          <p>Webapp som leser vakter fra Google Sheets og viser en filtrerbar tabell.</p>
+          <div class="project-tags"><span class="tag">Frontend</span><span class="tag">Google Sheets</span><span class="tag">SheetJS</span><span class="tag">Open Source</span></div>
+          <div class="project-links">
+            <a href="https://github.com/KevinRyans/vaktliste" target="_blank" class="project-link"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.44 9.8 8.2 11.37.6.1.82-.26.82-.57v-2.02c-3.34.73-4.04-1.6-4.04-1.6-.54-1.38-1.33-1.75-1.33-1.75-1.09-.74.08-.73.08-.73 1.2.09 1.84 1.24 1.84 1.24 1.07 1.83 2.8 1.3 3.48.99.11-.78.42-1.3.76-1.6-2.67-.3-5.47-1.33-5.47-5.93 0-1.31.47-2.38 1.24-3.22-.13-.3-.54-1.52.12-3.18 0 0 1.01-.32 3.3 1.23a11.5 11.5 0 013-.4c1.02.004 2.05.14 3 .4 2.28-1.55 3.29-1.23 3.29-1.23.66 1.66.25 2.88.12 3.18.77.84 1.24 1.91 1.24 3.22 0 4.61-2.81 5.62-5.48 5.92.43.37.81 1.1.81 2.22v3.29c0 .32.22.68.83.57C20.57 21.8 24 17.3 24 12c0-6.63-5.37-12-12-12z"/></svg>GitHub</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- ===================== ABOUT PAGE ===================== -->
+<div id="page-about" class="page">
+  <section style="padding-top:8rem;">
+    <div class="max-w">
+      <p class="section-tag">// Om</p>
+      <h2 class="section-title">Michael Firing</h2>
+      <p class="section-sub">Selvlært fullstack-utvikler fra Norge, 24 år, med rundt 6 års erfaring og en fulltidsrolle i teknisk drift.</p>
+      <div class="about-grid">
+        <div>
+          <div class="bio-card">
+            <p>Jeg er basert i Tønsberg, Norge og jobber som Maintenance Manager på Quality Hotel, ansvarlig for teknisk drift, etterlevelse og leverandøroppfølging. Jeg elsker rent, premium UI med sterk struktur og brukeropplevelse, og bygger fullstack-prosjekter som hobby.</p>
+          </div>
+          <div class="bio-card">
+            <p>Mye av arbeidet mitt ble laget for gaming-communities og lagret lokalt i stedet for på GitHub, men kunnskapen og erfaringen er der fortsatt. Jeg har solid erfaring med game server-utvikling og har brukt mye tid på FiveM-servere og andre stacks.</p>
+          </div>
+
+          <p class="section-tag" style="margin-top:2rem;">// Slik jobber jeg</p>
+          <div class="work-style">
+            <div class="ws-card"><p>Starter med klare mål og scope slik at alle vet hva som skal leveres.</p></div>
+            <div class="ws-card"><p>Prototyper raskt og itererer tidlig på design og flyt.</p></div>
+            <div class="ws-card"><p>Holder kodekvalitet høy med struktur, linting og lett testdekning.</p></div>
+            <div class="ws-card"><p>Itererer ofte for å forbedre kvalitet, ytelse og detaljer.</p></div>
+          </div>
+        </div>
+
+        <div>
+          <p class="section-tag">// Milepæler</p>
+          <div class="milestones" style="margin-top:1rem;">
+            <div class="milestone">
+              <span class="milestone-time">2019–2021</span>
+              <div><h4>Selvlærte grunnlag</h4><p>Lærte det grunnleggende i HTML, CSS, JavaScript og moderne frontend-verktøy.</p></div>
+            </div>
+            <div class="milestone">
+              <span class="milestone-time">2021–2024</span>
+              <div><h4>Fullstack-prosjekter</h4><p>Bygde apper med React, API-er og databaser med fokus på UI og funksjonalitet.</p></div>
+            </div>
+            <div class="milestone">
+              <span class="milestone-time">2024–Nå</span>
+              <div><h4>Premium UI og kvalitet</h4><p>Videreutvikler design, komponenter og struktur på hobbyprosjekter.</p></div>
+            </div>
+          </div>
+
+          <p class="section-tag" style="margin-top:2rem;">// Verktøykasse</p>
+          <div class="stack-chips" style="margin-top:1rem;">
+            <span class="chip">React</span><span class="chip">TypeScript</span><span class="chip">Node.js</span>
+            <span class="chip">PostgreSQL</span><span class="chip">GraphQL</span><span class="chip">Docker</span>
+            <span class="chip">Vercel</span><span class="chip">Cloudflare</span><span class="chip">Figma</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- ===================== RESUME PAGE ===================== -->
+<div id="page-resume" class="page">
+  <section style="padding-top:8rem;">
+    <div class="max-w" style="max-width:860px;">
+      <p class="section-tag">// CV</p>
+      <h2 class="section-title">Curriculum Vitae</h2>
+      <p style="font-size:.78rem;color:var(--muted);margin-bottom:1.5rem;">Tips: bruk utskriftsdialogen for å lagre som PDF eller skrive ut en ryddig kopi.</p>
+      <button class="btn btn-outline print-btn" onclick="window.print()">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+        Skriv ut CV
+      </button>
+
+      <div class="resume-identity">
+        <div class="resume-name-role">
+          <p style="font-size:.65rem;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);">Michael Firing</p>
+          <h2>Fullstack Developer</h2>
+          <p>Ekstremt lidenskapelig for utvikling, og jeg elsker å se resultater.</p>
+        </div>
+        <div class="resume-contact-info">
+          <p><span>Sted:</span> Tønsberg, Norge</p>
+          <p>michael@firix.no</p>
+          <p>+47 93 01 02 75</p>
+          <p>github.com/KevinRyans</p>
+        </div>
+      </div>
+
+      <div class="resume-section">
+        <p class="section-tag">// Oppsummering</p>
+        <div class="resume-summary">
+          <p>Serviceinnstilt og løsningsorientert fullstack-utvikler fra Tønsberg med 6+ års selvlært erfaring og sterk interesse for cybersikkerhet, nettverk og serverutvikling. Jobber som Maintenance Manager og koordinerer teknisk drift, leverandører og etterlevelse. Kombinerer teknisk nysgjerrighet med strukturert gjennomføring og fokus på kvalitet.</p>
+        </div>
+      </div>
+
+      <div class="resume-section">
+        <p class="section-tag">// Høydepunkter</p>
+        <div class="resume-card" style="margin-top:.8rem;">
+          <div class="resume-highlights">
+            <ul>
+              <li>Maintenance Manager med ansvar for drift og etterlevelse</li>
+              <li>6+ års selvlært utviklingserfaring</li>
+              <li>Hands-on game server-utvikling (FiveM og andre stacks)</li>
+              <li>Høyere fagskoleutdanning i cybersikkerhet</li>
+              <li>Bygde verktøy for gaming-communities og interne arbeidsflyter</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="resume-section">
+        <p class="section-tag">// Erfaring</p>
+        <div class="resume-card" style="margin-top:.8rem;">
+          <div class="resume-card-time">Jun 2025 – Nå</div>
+          <h3>Maintenance Manager · Quality Hotel Tønsberg</h3>
+          <p>Ansvarlig for strategisk og operativ drift, tekniske systemer og leverandøroppfølging.</p>
+          <ul>
+            <li>Overordnet ansvar for FM-drift og etterlevelse</li>
+            <li>Oppfølging av serviceavtaler og eksterne leverandører</li>
+            <li>Sikrer stabil drift av ventilasjon, VVS, brannvern og adgangskontroll</li>
+            <li>Planlegger vedlikehold, reparasjoner og sikkerhetsrutiner</li>
+          </ul>
+        </div>
+        <div class="resume-card">
+          <div class="resume-card-time">Jul 2024 – Jun 2025</div>
+          <h3>Maintenance Assistant · Quality Hotel Tønsberg</h3>
+          <p>Daglig vedlikehold og praktiske oppgaver på eiendommen.</p>
+          <ul>
+            <li>Utførte løpende vedlikehold og mindre reparasjoner</li>
+            <li>Vedlikehold av uteområder og plen</li>
+            <li>Snømåking og trygging av inngangspartier</li>
+          </ul>
+        </div>
+        <div class="resume-card">
+          <div class="resume-card-time">Sep 2021 – Jul 2024</div>
+          <h3>Kurs & konferanse · Quality Hotel Tønsberg</h3>
+          <p>Planla og koordinerte kurs og konferanser for opptil 700 gjester.</p>
+          <ul>
+            <li>Kontaktpunkt for arrangører og kursledere</li>
+            <li>Samarbeid med eventbyråer og interne team</li>
+            <li>Sikret at teknikk, servering og logistikk fungerte sømløst</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="resume-section">
+        <p class="section-tag">// Utdanning</p>
+        <div class="resume-card" style="margin-top:.8rem;">
+          <div class="resume-card-time">Aug 2023 – Jun 2025</div>
+          <h3>Høyere fagskoleutdanning, Cybersikkerhet</h3>
+          <p>Gokstad Akademiet, Sandefjord.</p>
+        </div>
+        <div class="resume-card">
+          <div class="resume-card-time">Aug 2018 – Sep 2021</div>
+          <h3>Byggdrifter fagbrev</h3>
+          <p>Re videregående skole, Tønsberg.</p>
+        </div>
+        <div class="resume-card">
+          <div class="resume-card-time">Aug 2017 – Jun 2018</div>
+          <h3>Bygg og anleggsteknikk</h3>
+          <p>Re videregående skole, Tønsberg.</p>
+        </div>
+      </div>
+
+      <div class="resume-section">
+        <p class="section-tag">// Kjernekompetanse</p>
+        <div class="stack-chips" style="margin-top:.8rem;">
+          <span class="chip">Cybersikkerhet</span><span class="chip">Nettverk</span><span class="chip">React</span>
+          <span class="chip">TypeScript</span><span class="chip">Node.js</span><span class="chip">Microsoft Azure</span>
+          <span class="chip">Microsoft 365</span><span class="chip">Game server-verktøy</span>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- ===================== CONTACT PAGE ===================== -->
+<div id="page-contact" class="page">
+  <section style="padding-top:8rem;">
+    <div class="max-w">
+      <p class="section-tag">// Kontakt</p>
+      <h2 class="section-title">La oss snakke</h2>
+      <p class="section-sub">Vil du samarbeide eller dele et prosjekt? Send en melding, så svarer jeg snart.</p>
+      <div class="contact-grid">
+        <div>
+          <div class="contact-card" style="margin-bottom:1.5rem;">
+            <div class="contact-card-header">
+              <p>Kontaktkort</p>
+              <h3>Velg en kanal</h3>
+            </div>
+            <div class="contact-links-list">
+              <div class="contact-link-row">
+                <div><div class="contact-link-label">GitHub</div><div class="contact-link-val">github.com/KevinRyans</div></div>
+                <div class="contact-link-actions">
+                  <button class="copy-btn" onclick="copyText('github.com/KevinRyans',this)">Kopier</button>
+                  <a href="https://github.com/KevinRyans" target="_blank" class="ext-link">↗</a>
+                </div>
+              </div>
+              <div class="contact-link-row">
+                <div><div class="contact-link-label">Discord</div><div class="contact-link-val">onyxnor</div></div>
+                <div class="contact-link-actions">
+                  <button class="copy-btn" onclick="copyText('onyxnor',this)">Kopier</button>
+                  <a href="https://discord.com/users/337288161094795294" target="_blank" class="ext-link">↗</a>
+                </div>
+              </div>
+              <div class="contact-link-row">
+                <div><div class="contact-link-label">Telefon</div><div class="contact-link-val">+47 93 01 02 75</div></div>
+                <div class="contact-link-actions">
+                  <button class="copy-btn" onclick="copyText('+47 93 01 02 75',this)">Kopier</button>
+                  <a href="tel:+4793010275" class="ext-link">↗</a>
+                </div>
+              </div>
+              <div class="contact-link-row">
+                <div><div class="contact-link-label">E-post</div><div class="contact-link-val">michael@firix.no</div></div>
+                <div class="contact-link-actions">
+                  <button class="copy-btn" onclick="copyText('michael@firix.no',this)">Kopier</button>
+                  <a href="mailto:michael@firix.no" class="ext-link">↗</a>
+                </div>
+              </div>
+              <div class="contact-link-row">
+                <div><div class="contact-link-label">LinkedIn</div><div class="contact-link-val">michaelfiring</div></div>
+                <div class="contact-link-actions">
+                  <button class="copy-btn" onclick="copyText('linkedin.com/in/michaelfiring',this)">Kopier</button>
+                  <a href="https://www.linkedin.com/in/michaelfiring/" target="_blank" class="ext-link">↗</a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <div class="form-row">
+            <div class="form-group"><label>Navn</label><input type="text" id="c-name" placeholder="Ola Nordmann"/></div>
+            <div class="form-group"><label>E-post</label><input type="email" id="c-email" placeholder="ola@eksempel.no"/></div>
+          </div>
+          <div class="form-group"><label>Telefon (valgfritt)</label><input type="tel" id="c-phone" placeholder="+47 93 01 02 75"/></div>
+          <div class="form-group"><label>Melding</label><textarea id="c-msg" placeholder="Fortell litt om prosjektet ditt..."></textarea></div>
+          <button class="btn btn-primary" onclick="handleContact()">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+            Send forespørsel
+          </button>
+          <p class="form-note">Dette skjemaet sender en melding direkte til innboksen min.</p>
+          <p class="form-status" id="contact-status"></p>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-left">
+    <p>FIRIX.NO</p>
+    <p>Mørk, premium og moderne webutvikling.</p>
+  </div>
+  <div class="footer-right">
+    <a href="https://github.com/KevinRyans" target="_blank">GitHub</a>
+    <a href="https://www.linkedin.com/in/michaelfiring/" target="_blank">LinkedIn</a>
+    <a href="mailto:michael@firix.no">E-post</a>
+    <a href="https://discord.com/users/337288161094795294" target="_blank">Discord</a>
+  </div>
+</footer>
+
+<script>
+  // Cursor
+  const cur = document.getElementById('cursor');
+  const ring = document.getElementById('cursorRing');
+  let mx=0,my=0,rx=0,ry=0;
+  document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;cur.style.left=mx+'px';cur.style.top=my+'px';});
+  (function anim(){rx+=(mx-rx)*.13;ry+=(my-ry)*.13;ring.style.left=rx+'px';ring.style.top=ry+'px';requestAnimationFrame(anim);})();
+  document.querySelectorAll('a,button,.project-card,.wid-card,.milestone,.chip').forEach(el=>{
+    el.addEventListener('mouseenter',()=>{cur.style.width='18px';cur.style.height='18px';ring.style.width='46px';ring.style.height='46px';ring.style.opacity='.7';});
+    el.addEventListener('mouseleave',()=>{cur.style.width='10px';cur.style.height='10px';ring.style.width='32px';ring.style.height='32px';ring.style.opacity='.4';});
+  });
+
+  // Progress bar
+  window.addEventListener('scroll',()=>{
+    const p=document.getElementById('progressBar');
+    const pct=(window.scrollY/(document.body.scrollHeight-window.innerHeight))*100;
+    p.style.width=pct+'%';
+  });
+
+  // Page routing
+  function showPage(name){
+    document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+    document.getElementById('page-'+name).classList.add('active');
+    window.scrollTo({top:0,behavior:'smooth'});
+    initReveal();
+  }
+
+  // Scroll reveal
+  function initReveal(){
+    const reveals=document.querySelectorAll('.reveal');
+    const obs=new IntersectionObserver(entries=>{
+      entries.forEach((e,i)=>{if(e.isIntersecting){setTimeout(()=>e.target.classList.add('visible'),i*70);obs.unobserve(e.target);}});
+    },{threshold:.08});
+    reveals.forEach(el=>obs.observe(el));
+  }
+  initReveal();
+
+  // Project filter
+  function filterProjects(cat, btn){
+    document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    document.querySelectorAll('#projects-grid .project-card').forEach(card=>{
+      const cats=card.dataset.cat||'';
+      card.style.display=(cat==='all'||cats.includes(cat))?'':'none';
+    });
+  }
+
+  // Copy
+  function copyText(txt, btn){
+    navigator.clipboard.writeText(txt).then(()=>{
+      const orig=btn.textContent;
+      btn.textContent='Kopiert!';
+      btn.style.color='var(--accent)';
+      setTimeout(()=>{btn.textContent=orig;btn.style.color='';},2000);
+    });
+  }
+
+  // Contact form
+  function handleContact(){
+    const name=document.getElementById('c-name').value.trim();
+    const email=document.getElementById('c-email').value.trim();
+    const msg=document.getElementById('c-msg').value.trim();
+    const status=document.getElementById('contact-status');
+    if(!name||!email||!msg){status.style.color='#ff6b6b';status.textContent='⚠ Fyll ut navn, e-post og melding.';return;}
+    if(!/\S+@\S+\.\S+/.test(email)){status.style.color='#ff6b6b';status.textContent='⚠ Ugyldig e-postadresse.';return;}
+    status.style.color='var(--accent)';
+    status.textContent='✓ Sendt! Jeg svarer på e-posten du oppga.';
+    document.getElementById('c-name').value='';
+    document.getElementById('c-email').value='';
+    document.getElementById('c-phone').value='';
+    document.getElementById('c-msg').value='';
+  }
+</script>
+</body>
+</html>

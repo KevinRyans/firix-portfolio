@@ -1,39 +1,27 @@
-import { Github, Mail, MessageCircle, Phone } from 'lucide-react'
 import { useProfile } from '../../lib/i18n'
-
-const iconMap = {
-  github: Github,
-  discord: MessageCircle,
-  email: Mail,
-  phone: Phone,
-}
 
 export default function Footer() {
   const profile = useProfile()
 
   return (
-    <footer className="no-print border-t border-white/10 bg-base-950/60">
+    <footer className="no-print border-t border-[#1c1c28]">
       <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-6 py-10 md:flex-row md:items-center md:justify-between">
-        <div className="space-y-2">
-          <p className="text-sm font-semibold text-white">{profile.footer.title}</p>
-          <p className="text-sm text-slate-400">{profile.footer.subtitle}</p>
-          <p className="text-xs text-slate-500">{profile.footer.note}</p>
+        <div className="space-y-1">
+          <p className="font-display text-sm font-extrabold text-accent-400">{profile.footer.title}</p>
+          <p className="text-xs text-slate-500">{profile.footer.subtitle}</p>
         </div>
-        <div className="flex flex-wrap items-center gap-4 text-sm text-slate-300">
-          {profile.contact.links.map((link) => {
-            const Icon = iconMap[link.type as keyof typeof iconMap] ?? Mail
-            return (
-              <a
-                key={link.label}
-                className="focus-ring inline-flex items-center gap-2 rounded-full px-3 py-2 transition hover:text-white"
-                href={link.href}
-                target="_blank"
-                rel="noreferrer"
-              >
-                <Icon size={16} /> {link.label}
-              </a>
-            )
-          })}
+        <div className="flex flex-wrap items-center gap-6">
+          {profile.contact.links.map((link) => (
+            <a
+              key={link.label}
+              className="focus-ring text-xs text-slate-500 transition-colors hover:text-accent-400"
+              href={link.href}
+              target="_blank"
+              rel="noreferrer"
+            >
+              {link.label}
+            </a>
+          ))}
         </div>
       </div>
     </footer>

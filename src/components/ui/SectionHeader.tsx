@@ -18,21 +18,21 @@ export default function SectionHeader({
   return (
     <div
       className={cn(
-        'space-y-3',
+        'space-y-2',
         align === 'center' && 'text-center',
         className,
       )}
     >
       {eyebrow ? (
-        <p className="text-xs font-semibold uppercase tracking-[0.3em] text-accent-300">
-          {eyebrow}
+        <p className="text-[0.65rem] font-mono uppercase tracking-[0.22em] text-accent-400">
+          {'// '}{eyebrow}
         </p>
       ) : null}
-      <h2 className="text-2xl font-semibold text-slate-100 md:text-3xl">
+      <h2 className="font-display text-[1.9rem] font-extrabold leading-tight text-white md:text-[2.4rem]">
         {title}
       </h2>
       {subtitle ? (
-        <p className="max-w-2xl text-sm text-slate-300 md:text-base">
+        <p className="max-w-[540px] text-sm leading-relaxed text-slate-500">
           {subtitle}
         </p>
       ) : null}

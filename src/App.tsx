@@ -10,7 +10,6 @@ import PageTransition from './components/layout/PageTransition'
 import CommandPalette from './components/layout/CommandPalette'
 import ScrollToTop from './components/layout/ScrollToTop'
 import BootScreen from './components/layout/BootScreen'
-import CustomCursor from './components/layout/CustomCursor'
 import Home from './pages/Home'
 import Projects from './pages/Projects'
 import ProjectDetail from './pages/ProjectDetail'
@@ -84,7 +83,6 @@ export default function App() {
   return (
     <div className="relative min-h-screen overflow-hidden bg-base-950 text-slate-100">
       <AnimatedBackground />
-      <CustomCursor />
       <AnimatePresence>{showBoot ? <BootScreen /> : null}</AnimatePresence>
       <ScrollProgress />
       <Navbar />

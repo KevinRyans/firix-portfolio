@@ -68,15 +68,15 @@ export default function ProjectCard({
       <div
         ref={tiltRef}
         className={cn(
-          'relative h-full overflow-hidden rounded-2xl border border-white/10 bg-white/5 p-6 shadow-soft transition-all duration-300',
-          'before:absolute before:inset-x-0 before:top-0 before:h-[2px] before:origin-left before:scale-x-0 before:bg-gradient-to-r before:from-accent-400 before:to-teal-400 before:transition-transform before:duration-300',
-          'group-hover:-translate-y-1 group-hover:border-white/15 group-hover:shadow-lift group-hover:before:scale-x-100',
+          'relative h-full overflow-hidden rounded-xl border border-[#1c1c28] bg-base-900 p-6 shadow-soft transition-all duration-300',
+          'before:absolute before:inset-x-0 before:top-0 before:h-[2px] before:bg-gradient-to-r before:from-accent-400 before:to-teal-400 before:opacity-0 before:transition-opacity before:duration-300',
+          'group-hover:-translate-y-[5px] group-hover:border-transparent group-hover:shadow-[0_20px_48px_rgba(0,0,0,0.45)] group-hover:before:opacity-100',
           variant === 'featured' && 'bg-gradient-to-br from-white/8 via-white/5 to-transparent',
         )}
       >
         <div className="flex items-start justify-between gap-4">
           <div>
-            <h3 className="text-lg font-semibold text-white">{project.displayName}</h3>
+            <h3 className="font-display text-base font-bold text-white">{project.displayName}</h3>
             <p className="mt-2 text-sm text-slate-300 line-clamp-2">
               {project.description}
             </p>

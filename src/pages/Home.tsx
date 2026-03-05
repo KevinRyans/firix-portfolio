@@ -36,11 +36,11 @@ export default function Home() {
           title={profile.home.whatIDoTitle}
           subtitle={profile.home.whatIDoSubtitle}
         />
-        <div className="mt-8 grid gap-6 md:grid-cols-2">
+        <div className="mt-8 overflow-hidden rounded-xl border border-[#1c1c28] grid grid-cols-1 gap-px bg-[#1c1c28] md:grid-cols-2">
           {profile.whatIDo.map((item) => {
             const Icon = iconMap[item.icon as IconName] ?? Layout
             return (
-              <Card key={item.title} interactive>
+              <Card key={item.title} className="rounded-none border-0 shadow-none hover:-translate-y-0 hover:bg-base-800 transition-colors duration-200">
                 <div className="flex items-start gap-4">
                   <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-accent-400/10 text-accent-400">
                     <Icon size={22} />
