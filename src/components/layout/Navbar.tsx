@@ -5,7 +5,6 @@ import { Menu, X } from 'lucide-react'
 import { useLanguage, useProfile } from '../../lib/i18n'
 import { cn } from '../../lib/utils'
 import Button from '../ui/Button'
-import { buttonStyles } from '../ui/buttonStyles'
 
 export default function Navbar() {
   const [open, setOpen] = useState(false)
@@ -14,60 +13,65 @@ export default function Navbar() {
   const { language, setLanguage } = useLanguage()
   const brandName = profile.brand?.name ?? profile.name
 
+  const navLinkClass = ({ isActive }: { isActive: boolean }) =>
+    cn(
+      'focus-ring relative rounded-sm px-2 py-1 text-sm font-medium transition-colors',
+      isActive
+        ? 'text-accent-400 after:absolute after:bottom-0 after:left-2 after:right-2 after:h-px after:bg-accent-400/70'
+        : 'text-slate-400 hover:text-slate-100',
+    )
+
   return (
-    <header className="no-print fixed top-0 z-50 w-full border-b border-white/5 bg-base-950/70 backdrop-blur-xl">
+    <header className="no-print fixed top-0 z-50 w-full border-b border-white/5 bg-base-950/80 backdrop-blur-xl">
       <div className="mx-auto flex w-full max-w-6xl items-center justify-between px-6 py-4">
-        <Link to="/" className="focus-ring flex items-center rounded-full">
-          <div className="hidden text-base font-semibold tracking-[0.22em] text-slate-100 sm:block">
+        {/* Brand */}
+        <Link to="/" className="focus-ring flex items-center rounded-sm">
+          <span className="font-display text-sm font-bold tracking-[0.22em] text-slate-100">
             {brandName}
-          </div>
+          </span>
         </Link>
 
+        {/* Desktop nav */}
         <nav className="hidden items-center gap-6 md:flex">
           {profile.navigation.map((item) => (
-            <NavLink
-              key={item.to}
-              to={item.to}
-              end={item.to === '/'}
-              className={({ isActive }) =>
-                cn(
-                  'focus-ring rounded-full px-2 py-1 text-sm font-medium text-slate-300 transition-colors hover:text-white',
-                  isActive && 'text-white',
-                )
-              }
-            >
+            <NavLink key={item.to} to={item.to} end={item.to === '/'} className={navLinkClass}>
               {item.label}
             </NavLink>
           ))}
-          <div className="flex items-center gap-4">
-            <a
-              href={profile.links.github}
-              className={buttonStyles({ variant: 'secondary', size: 'sm' })}
-              target="_blank"
-              rel="noreferrer"
-            >
-              {profile.labels.githubLabel}
-            </a>
-            <div className="flex items-center rounded-full border border-white/10 bg-white/5 p-1">
-              {(['en', 'no'] as const).map((option) => (
-                <button
-                  key={option}
-                  type="button"
-                  onClick={() => setLanguage(option)}
-                  className={cn(
-                    'focus-ring rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-wide transition',
-                    language === option
-                      ? 'bg-accent-500/20 text-accent-200'
-                      : 'text-slate-300 hover:text-white',
-                  )}
-                >
-                  {option}
-                </button>
-              ))}
-            </div>
-          </div>
         </nav>
 
+        {/* Right side */}
+        <div className="hidden items-center gap-4 md:flex">
+          {/* Status badge */}
+          <div className="flex items-center gap-2 rounded-full border border-accent-400/20 bg-accent-400/5 px-3 py-1.5">
+            <span className="relative flex h-2 w-2">
+              <span className="animate-pulseRing absolute inline-flex h-full w-full rounded-full bg-accent-400 opacity-75" />
+              <span className="relative inline-flex h-2 w-2 rounded-full bg-accent-400" />
+            </span>
+            <span className="text-xs font-medium text-accent-400">Open to work</span>
+          </div>
+
+          {/* Language toggle */}
+          <div className="flex items-center rounded-full border border-white/10 bg-white/5 p-1">
+            {(['en', 'no'] as const).map((option) => (
+              <button
+                key={option}
+                type="button"
+                onClick={() => setLanguage(option)}
+                className={cn(
+                  'focus-ring rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-wide transition',
+                  language === option
+                    ? 'bg-accent-400/15 text-accent-400'
+                    : 'text-slate-400 hover:text-slate-100',
+                )}
+              >
+                {option}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Mobile toggle */}
         <div className="md:hidden">
           <Button
             variant="ghost"
@@ -80,17 +84,18 @@ export default function Navbar() {
         </div>
       </div>
 
+      {/* Mobile drawer */}
       <AnimatePresence>
         {open ? (
           <motion.div
-            initial={shouldReduceMotion ? { opacity: 1 } : { opacity: 0, y: -16 }}
+            initial={shouldReduceMotion ? { opacity: 1 } : { opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: -16 }}
-            transition={{ duration: 0.25, ease: 'easeOut' }}
+            exit={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: -10 }}
+            transition={{ duration: 0.2, ease: 'easeOut' }}
             className="md:hidden"
           >
-            <div className="mx-6 rounded-2xl border border-white/10 bg-base-950/95 p-5 shadow-soft">
-              <div className="flex flex-col gap-4">
+            <div className="mx-4 mb-4 rounded-2xl border border-white/10 bg-base-900/95 p-5 shadow-soft backdrop-blur-xl">
+              <div className="flex flex-col gap-1">
                 {profile.navigation.map((item) => (
                   <NavLink
                     key={item.to}
@@ -99,23 +104,24 @@ export default function Navbar() {
                     onClick={() => setOpen(false)}
                     className={({ isActive }) =>
                       cn(
-                        'focus-ring rounded-full px-2 py-1 text-sm font-medium text-slate-300 transition-colors hover:text-white',
-                        isActive && 'text-white',
+                        'rounded-lg px-3 py-2.5 text-sm font-medium transition-colors',
+                        isActive
+                          ? 'bg-accent-400/10 text-accent-400'
+                          : 'text-slate-400 hover:bg-white/5 hover:text-slate-100',
                       )
                     }
                   >
                     {item.label}
                   </NavLink>
                 ))}
-                <div className="flex items-center gap-4">
-                  <a
-                    href={profile.links.github}
-                    target="_blank"
-                    rel="noreferrer"
-                    className={buttonStyles({ variant: 'secondary', size: 'sm' })}
-                  >
-                    {profile.labels.githubLabel}
-                  </a>
+                <div className="mt-3 flex items-center justify-between border-t border-white/10 pt-3">
+                  <div className="flex items-center gap-2">
+                    <span className="relative flex h-2 w-2">
+                      <span className="animate-pulseRing absolute inline-flex h-full w-full rounded-full bg-accent-400 opacity-75" />
+                      <span className="relative inline-flex h-2 w-2 rounded-full bg-accent-400" />
+                    </span>
+                    <span className="text-xs text-accent-400">Open to work</span>
+                  </div>
                   <div className="flex items-center rounded-full border border-white/10 bg-white/5 p-1">
                     {(['en', 'no'] as const).map((option) => (
                       <button
@@ -125,8 +131,8 @@ export default function Navbar() {
                         className={cn(
                           'focus-ring rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-wide transition',
                           language === option
-                            ? 'bg-accent-500/20 text-accent-200'
-                            : 'text-slate-300 hover:text-white',
+                            ? 'bg-accent-400/15 text-accent-400'
+                            : 'text-slate-400 hover:text-slate-100',
                         )}
                       >
                         {option}

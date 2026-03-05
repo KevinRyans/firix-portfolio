@@ -42,7 +42,7 @@ export default function Home() {
             return (
               <Card key={item.title} interactive>
                 <div className="flex items-start gap-4">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-accent-500/10 text-accent-300">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-accent-400/10 text-accent-400">
                     <Icon size={22} />
                   </div>
                   <div>
@@ -93,7 +93,7 @@ export default function Home() {
         />
         <div className="mt-6 flex flex-wrap gap-3">
           {profile.stack.map((item) => (
-            <Badge key={item} className="bg-white/10 text-slate-200">
+            <Badge key={item} className="border-white/10 bg-white/5 text-slate-300 hover:border-accent-400/30 hover:text-accent-400">
               {item}
             </Badge>
           ))}
@@ -102,8 +102,8 @@ export default function Home() {
 
       <Reveal>
         <SectionHeader title={profile.home.nowTitle} subtitle={profile.home.nowSubtitle} />
-        <Card className="mt-6">
-          <p className="text-sm text-slate-300 md:text-base">{profile.now}</p>
+        <Card className="mt-6 border-l-2 border-l-accent-400">
+          <p className="text-sm leading-relaxed text-slate-400 md:text-base">{profile.now}</p>
         </Card>
       </Reveal>
     </div>

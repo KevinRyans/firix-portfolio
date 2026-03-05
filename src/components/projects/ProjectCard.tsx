@@ -68,8 +68,10 @@ export default function ProjectCard({
       <div
         ref={tiltRef}
         className={cn(
-          'relative h-full rounded-2xl border border-white/10 bg-white/5 p-6 shadow-soft transition-all duration-300 group-hover:border-white/20 group-hover:shadow-lift',
-          variant === 'featured' && 'bg-gradient-to-br from-white/10 via-white/5 to-transparent',
+          'relative h-full overflow-hidden rounded-2xl border border-white/10 bg-white/5 p-6 shadow-soft transition-all duration-300',
+          'before:absolute before:inset-x-0 before:top-0 before:h-[2px] before:origin-left before:scale-x-0 before:bg-gradient-to-r before:from-accent-400 before:to-teal-400 before:transition-transform before:duration-300',
+          'group-hover:-translate-y-1 group-hover:border-white/15 group-hover:shadow-lift group-hover:before:scale-x-100',
+          variant === 'featured' && 'bg-gradient-to-br from-white/8 via-white/5 to-transparent',
         )}
       >
         <div className="flex items-start justify-between gap-4">

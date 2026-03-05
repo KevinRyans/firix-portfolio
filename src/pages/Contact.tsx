@@ -4,7 +4,6 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faDiscord } from '@fortawesome/free-brands-svg-icons'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useProfile } from '../lib/i18n'
-import SectionHeader from '../components/ui/SectionHeader'
 import Card from '../components/ui/Card'
 import Button from '../components/ui/Button'
 import CopyButton from '../components/ui/CopyButton'
@@ -87,20 +86,20 @@ export default function Contact() {
 
   return (
     <div className="mx-auto w-full max-w-5xl px-6 pb-20">
-      <SectionHeader title={profile.contact.title} subtitle={profile.contact.subtitle} />
+      <div className="mb-12 pt-2"><p className="mb-3 flex items-center gap-3 font-mono text-xs uppercase tracking-[0.3em] text-accent-400"><span className="h-px w-6 bg-accent-400/50" />{profile.contact.title}</p><h1 className="font-display text-4xl font-bold text-white md:text-5xl">{profile.contact.subtitle}</h1></div>
 
       <Reveal className="mt-10">
         <div className="grid gap-8 lg:grid-cols-[0.9fr_1.1fr]">
           <Card>
-            <h3 className="text-lg font-semibold text-white">{profile.contact.cardTitle}</h3>
-            <p className="mt-2 text-sm text-slate-400">{profile.contact.cardSubtitle}</p>
+            <h3 className="font-display text-lg font-bold text-white">{profile.contact.cardTitle}</h3>
+            <p className="mt-1.5 text-sm text-slate-500">{profile.contact.cardSubtitle}</p>
             <div className="mt-6 space-y-4">
               {profile.contact.links.map((link) => {
                 const Icon = iconMap[link.type as keyof typeof iconMap] ?? Mail
                 return (
                   <div
                     key={link.label}
-                    className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-white/10 bg-white/5 px-4 py-3"
+                    className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-white/10 bg-white/5 px-4 py-3 transition-colors hover:border-accent-400/20 hover:bg-accent-400/5"
                   >
                     <a
                       href={link.href}
@@ -122,7 +121,7 @@ export default function Contact() {
           </Card>
 
           <Card>
-            <h3 className="text-lg font-semibold text-white">{profile.contact.title}</h3>
+            <h3 className="font-display text-lg font-bold text-white">{profile.contact.title}</h3>
             <form className="mt-6 space-y-4" onSubmit={handleSubmit}>
               <label className="block text-sm text-slate-300">
                 {profile.contact.form.nameLabel}
@@ -176,12 +175,12 @@ export default function Contact() {
                     animate={{ opacity: 1, y: 0, scale: 1 }}
                     exit={{ opacity: 0, y: 8, scale: 0.98 }}
                     transition={{ duration: 0.25, ease: 'easeOut' }}
-                    className="mt-3 flex items-center gap-3 rounded-xl border border-teal-400/30 bg-teal-500/10 px-4 py-3 text-sm text-teal-100"
+                    className="mt-3 flex items-center gap-3 rounded-xl border border-accent-400/20 bg-accent-400/5 px-4 py-3 text-sm"
                   >
-                    <span className="flex h-8 w-8 items-center justify-center rounded-full bg-teal-400/20 text-teal-200">
+                    <span className="flex h-7 w-7 items-center justify-center rounded-full bg-accent-400/15 text-accent-400">
                       <Check size={16} />
                     </span>
-                    <span>{profile.contact.form.successMessage}</span>
+                    <span className="text-accent-300">{profile.contact.form.successMessage}</span>
                   </motion.div>
                 ) : null}
               </AnimatePresence>

@@ -27,7 +27,7 @@ export default function BootScreen() {
 
   return (
     <motion.div
-      className="fixed inset-0 z-[60] flex items-center justify-center bg-base-950 text-slate-100"
+      className="fixed inset-0 z-[60] flex items-center justify-center bg-base-950"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
@@ -43,7 +43,7 @@ export default function BootScreen() {
         <div className="mb-8 flex flex-col items-center gap-5">
           <div className="relative flex items-center justify-center">
             <motion.div
-              className="h-20 w-20 rounded-full border border-white/15 border-t-accent-400"
+              className="h-24 w-24 rounded-full border-2 border-accent-400/15 border-t-accent-400"
               animate={shouldReduceMotion ? undefined : { rotate: 360 }}
               transition={{
                 duration: 1.1,
@@ -51,13 +51,13 @@ export default function BootScreen() {
                 ease: 'linear',
               }}
             />
-            <div className="absolute flex h-12 w-12 items-center justify-center rounded-2xl border border-white/10 bg-white/5 text-xl font-semibold text-accent-300 shadow-soft">
+            <div className="font-display absolute flex h-14 w-14 items-center justify-center rounded-full border border-accent-400/20 bg-accent-400/5 text-lg font-bold text-accent-400">
               {brandMark}
             </div>
           </div>
 
           <motion.div
-            className="text-3xl font-semibold text-white"
+            className="font-display text-3xl font-bold tracking-tight text-white"
             variants={container}
             initial="hidden"
             animate="show"
@@ -73,11 +73,11 @@ export default function BootScreen() {
             ))}
           </motion.div>
 
-          <p className="text-sm text-slate-400">{bootCopy.loadingLabel}</p>
+          <p className="font-mono text-xs uppercase tracking-[0.25em] text-slate-500">{bootCopy.loadingLabel}</p>
         </div>
 
         <motion.div
-          className="flex items-center gap-2 text-xs uppercase tracking-[0.32em] text-teal-300"
+          className="flex items-center gap-2 font-mono text-xs uppercase tracking-[0.32em] text-accent-400"
           initial={{ opacity: 0, y: 6 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{
@@ -86,7 +86,7 @@ export default function BootScreen() {
             ease: 'easeOut',
           }}
         >
-          <span className="h-2 w-2 rounded-full bg-teal-300" />
+          <span className="h-2 w-2 rounded-full bg-accent-400 shadow-[0_0_6px_rgba(127,255,178,0.8)]" />
           {bootCopy.completeLabel}
         </motion.div>
       </div>

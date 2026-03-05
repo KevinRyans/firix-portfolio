@@ -2,83 +2,145 @@ import { motion, useReducedMotion } from 'framer-motion'
 import { Link } from 'react-router-dom'
 import { useProfile } from '../../lib/i18n'
 import { buttonStyles } from '../ui/buttonStyles'
-import Badge from '../ui/Badge'
 
 export default function HeroShowcase() {
   const shouldReduceMotion = useReducedMotion()
   const profile = useProfile()
-  const titleLines = profile.home.heroTitle.split('\n')
   const withBase = (path: string) =>
     `${import.meta.env.BASE_URL}${path.replace(/^\/+/, '')}`
 
   return (
-    <section className="relative overflow-hidden rounded-3xl border border-white/10 bg-base-900/70 p-6 shadow-soft backdrop-blur md:p-10">
-      <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-white/8 via-transparent to-transparent" />
-      <div className="relative grid items-center gap-10 lg:grid-cols-[1.15fr_0.85fr]">
-        <div className="space-y-5">
-          <p className="text-xs uppercase tracking-[0.35em] text-slate-500">
-            {profile.name}
-          </p>
-          <Badge tone="accent" className="w-fit">
-            {profile.home.heroEyebrow}
-          </Badge>
-          <div className="space-y-3">
-            <h1 className="text-4xl font-semibold text-white md:text-5xl">
-              {titleLines.map((line) => (
-                <span key={line} className="block">
-                  {line}
-                </span>
-              ))}
-            </h1>
-            <p className="text-base text-slate-300 md:text-lg">
-              {profile.home.heroSubtitle}
-            </p>
+    <section className="relative overflow-hidden">
+      {/* Dot grid background — hero only */}
+      <div
+        className="pointer-events-none absolute inset-0 opacity-40"
+        style={{
+          backgroundImage:
+            'radial-gradient(circle, rgba(127,255,178,0.15) 1px, transparent 1px)',
+          backgroundSize: '28px 28px',
+          maskImage:
+            'radial-gradient(ellipse 80% 60% at 50% 0%, black 0%, transparent 100%)',
+        }}
+      />
+
+      <div className="relative grid items-center gap-12 py-10 md:py-16 lg:grid-cols-2">
+        {/* Left: text */}
+        <div className="space-y-6">
+          {/* Eyebrow */}
+          <div className="flex items-center gap-3">
+            <span className="h-px w-8 bg-accent-400/50" />
+            <span className="font-mono text-xs uppercase tracking-[0.3em] text-accent-400">
+              {profile.home.heroEyebrow}
+            </span>
           </div>
-          <p className="text-sm text-slate-400 md:text-base">{profile.tagline}</p>
-          <p className="text-sm text-slate-500 md:text-base">{profile.intro}</p>
-          <div className="flex flex-wrap gap-3">
+
+          {/* Heading */}
+          <motion.h1
+            className="font-display text-4xl font-extrabold leading-[1.05] tracking-tight text-white md:text-5xl lg:text-6xl"
+            initial={shouldReduceMotion ? false : { opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, ease: 'easeOut' }}
+          >
+            Hey, I&apos;m{' '}
+            <span className="text-gradient">{profile.name}.</span>
+          </motion.h1>
+
+          {/* Subtitle */}
+          <motion.p
+            className="max-w-lg text-base leading-relaxed text-slate-400 md:text-lg"
+            initial={shouldReduceMotion ? false : { opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.1, ease: 'easeOut' }}
+          >
+            {profile.home.heroSubtitle}
+          </motion.p>
+
+          {/* CTAs */}
+          <motion.div
+            className="flex flex-wrap gap-3"
+            initial={shouldReduceMotion ? false : { opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.2, ease: 'easeOut' }}
+          >
             <Link to="/projects" className={buttonStyles({ variant: 'primary' })}>
               {profile.ctas.primaryLabel}
             </Link>
             <Link to="/contact" className={buttonStyles({ variant: 'secondary' })}>
               {profile.ctas.secondaryLabel}
             </Link>
-          </div>
-          <div className="mt-6 flex flex-wrap gap-6">
+          </motion.div>
+
+          {/* Stats */}
+          <motion.div
+            className="flex flex-wrap gap-8 pt-2"
+            initial={shouldReduceMotion ? false : { opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.6, delay: 0.35 }}
+          >
             {profile.heroStats.map((stat) => (
-              <div key={stat.label} className="min-w-[110px]">
-                <p className="text-xl font-semibold text-white">{stat.value}</p>
-                <p className="text-xs uppercase tracking-[0.2em] text-slate-500">
+              <div key={stat.label}>
+                <p className="font-display text-2xl font-bold text-white">{stat.value}</p>
+                <p className="mt-0.5 text-xs uppercase tracking-[0.2em] text-slate-500">
                   {stat.label}
                 </p>
               </div>
             ))}
-          </div>
+          </motion.div>
         </div>
 
+        {/* Right: spinning avatar ring */}
         <motion.div
-          initial={shouldReduceMotion ? false : { opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, ease: 'easeOut' }}
-          className="relative"
+          className="flex items-center justify-center"
+          initial={shouldReduceMotion ? false : { opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.6, delay: 0.15, ease: 'easeOut' }}
         >
-          <div className="absolute -inset-6 rounded-[40px] bg-gradient-to-br from-accent-500/25 via-transparent to-teal-400/20 blur-2xl" />
-          <div className="relative overflow-hidden rounded-[32px] border border-white/10 bg-base-950/70 shadow-glow">
-            <div className="relative aspect-[4/5]">
+          <div className="relative flex h-72 w-72 items-center justify-center md:h-80 md:w-80">
+            {/* Outer ambient glow */}
+            <div className="absolute inset-0 rounded-full bg-accent-400/5 blur-3xl" />
+
+            {/* Spinning gradient ring */}
+            <motion.div
+              className="absolute inset-0 rounded-full"
+              style={{
+                background:
+                  'conic-gradient(from 0deg, transparent 0%, rgba(127,255,178,0.5) 40%, rgba(91,140,255,0.3) 65%, transparent 100%)',
+                padding: '2px',
+                borderRadius: '50%',
+              }}
+              animate={shouldReduceMotion ? undefined : { rotate: 360 }}
+              transition={{ duration: 7, repeat: Infinity, ease: 'linear' }}
+            >
+              <div className="h-full w-full rounded-full bg-base-950" />
+            </motion.div>
+
+            {/* Static dashed track ring */}
+            <div className="absolute inset-0 rounded-full border border-dashed border-white/10" />
+
+            {/* Orbiting green dot */}
+            <motion.div
+              className="absolute inset-0"
+              animate={shouldReduceMotion ? undefined : { rotate: 360 }}
+              transition={{ duration: 7, repeat: Infinity, ease: 'linear' }}
+            >
+              <div
+                className="absolute left-1/2 top-0 h-3.5 w-3.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-accent-400"
+                style={{ boxShadow: '0 0 12px rgba(127,255,178,0.9), 0 0 4px rgba(127,255,178,1)' }}
+              />
+            </motion.div>
+
+            {/* Avatar image circle */}
+            <div className="relative flex h-56 w-56 items-center justify-center overflow-hidden rounded-full border border-white/10 bg-base-900 md:h-64 md:w-64">
               <img
-                src={withBase(profile.media.profileImage)}
-                alt={profile.media.profileAlt}
-                className="absolute inset-x-0 bottom-0 h-full w-full object-contain"
-                style={{
-                  transform: `translateY(${profile.media.profileOffsetY}px) scale(${profile.media.profileScale})`,
-                }}
-                loading="lazy"
-                onError={(event) => {
-                  event.currentTarget.src = withBase('images/profile-placeholder.png')
+                src={withBase(profile.media.memojiImage)}
+                alt={profile.media.memojiAlt}
+                className="h-full w-full object-cover object-center"
+                loading="eager"
+                onError={(e) => {
+                  e.currentTarget.style.display = 'none'
                 }}
               />
             </div>
-            <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-base-950/80 via-transparent to-transparent" />
           </div>
         </motion.div>
       </div>
