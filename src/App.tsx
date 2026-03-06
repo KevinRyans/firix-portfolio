@@ -84,7 +84,7 @@ export default function App() {
     setIsLangTransition(true)
   }, [language, displayLanguage, showBoot])
 
-  if (location.pathname.startsWith('/admin')) return <Admin />
+  if (location.pathname.startsWith('/admin') || location.hash.startsWith('#/admin')) return <Admin />
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-base-950 text-slate-100">
