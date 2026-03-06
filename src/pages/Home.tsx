@@ -87,24 +87,26 @@ export default function Home() {
       </Reveal>
 
       <Reveal>
+        <div className="-mx-6 border-y border-[#1c1c28] bg-[#111118] px-6 py-16">
         <SectionHeader
           title={profile.home.stackTitle}
           subtitle={profile.home.stackSubtitle}
         />
         <div className="mt-6 flex flex-wrap gap-3">
           {profile.stack.map((item) => (
-            <Badge key={item} className="border-white/10 bg-white/5 text-slate-300 hover:border-accent-400/30 hover:text-accent-400">
+            <Badge key={item} className="rounded-[100px] border-[#242434] bg-transparent text-slate-500 hover:border-accent-400 hover:text-accent-400">
               {item}
             </Badge>
           ))}
+        </div>
         </div>
       </Reveal>
 
       <Reveal>
         <SectionHeader title={profile.home.nowTitle} subtitle={profile.home.nowSubtitle} />
-        <Card className="mt-6 border-l-2 border-l-accent-400">
-          <p className="text-sm leading-relaxed text-slate-400 md:text-base">{profile.now}</p>
-        </Card>
+        <div className="mt-6 max-w-[700px] rounded-[10px] border border-[#1c1c28] border-l-2 border-l-accent-400 bg-base-900 p-7">
+          <p className="text-[0.88rem] leading-[1.85] text-slate-500">{profile.now}</p>
+        </div>
       </Reveal>
     </div>
   )

@@ -24,15 +24,18 @@ export default function SectionHeader({
       )}
     >
       {eyebrow ? (
-        <p className="text-[0.65rem] font-mono uppercase tracking-[0.22em] text-accent-400">
+        <p className="text-[0.63rem] font-mono uppercase tracking-[0.22em] text-accent-400">
           {'// '}{eyebrow}
         </p>
       ) : null}
-      <h2 className="font-display text-[1.9rem] font-extrabold leading-tight text-white md:text-[2.4rem]">
+      <h2
+        className="font-display font-extrabold leading-tight text-white"
+        style={{ fontSize: "clamp(1.7rem, 3vw, 2.6rem)", letterSpacing: "-0.03em" }}
+      >
         {title}
       </h2>
       {subtitle ? (
-        <p className="max-w-[540px] text-sm leading-relaxed text-slate-500">
+        <p className="max-w-[540px] text-[0.85rem] leading-relaxed text-slate-500">
           {subtitle}
         </p>
       ) : null}

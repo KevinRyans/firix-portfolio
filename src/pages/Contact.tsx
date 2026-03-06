@@ -1,37 +1,9 @@
 import { useEffect, useState } from 'react'
-import { Mail, Github, Phone, Check } from 'lucide-react'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faDiscord } from '@fortawesome/free-brands-svg-icons'
+import { Check } from 'lucide-react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useProfile } from '../lib/i18n'
-import Card from '../components/ui/Card'
-import Button from '../components/ui/Button'
 import CopyButton from '../components/ui/CopyButton'
 import Reveal from '../components/sections/Reveal'
-
-function DiscordIcon({
-  className,
-  size = 16,
-}: {
-  className?: string
-  size?: number
-}) {
-  return (
-    <FontAwesomeIcon
-      icon={faDiscord}
-      className={className}
-      style={{ fontSize: size }}
-      aria-hidden="true"
-    />
-  )
-}
-
-const iconMap = {
-  github: Github,
-  discord: DiscordIcon,
-  email: Mail,
-  phone: Phone,
-}
 
 export default function Contact() {
   const profile = useProfile()
@@ -40,7 +12,6 @@ export default function Contact() {
     'idle',
   )
   const [showToast, setShowToast] = useState(false)
-  const accessKey = import.meta.env.VITE_WEB3FORMS_KEY as string | undefined
 
   useEffect(() => {
     if (status !== 'success') return
@@ -51,37 +22,10 @@ export default function Contact() {
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
-    if (!accessKey) {
-      setStatus('error')
-      return
-    }
-
     setStatus('sending')
-    const payload = {
-      access_key: accessKey,
-      subject: profile.contact.form.subject,
-      name: form.name,
-      email: form.email,
-      phone: form.phone,
-      message: form.message,
-    }
-
-    fetch('https://api.web3forms.com/submit', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
-      },
-      body: JSON.stringify(payload),
-    })
-      .then((response) => {
-        if (!response.ok) throw new Error('submit_failed')
-        setStatus('success')
-        setForm({ name: '', email: '', phone: '', message: '' })
-      })
-      .catch(() => {
-        setStatus('error')
-      })
+    fetch('/api/contact', { method: 'POST', headers: { 'Content-Type': 'application/json', Accept: 'application/json' }, body: JSON.stringify(form) })
+      .then((r) => { if (!r.ok) throw new Error(); setStatus('success'); setForm({ name: '', email: '', phone: '', message: '' }) })
+      .catch(() => setStatus('error'))
   }
 
   return (
@@ -90,46 +34,23 @@ export default function Contact() {
 
       <Reveal className="mt-10">
         <div className="grid gap-8 lg:grid-cols-[0.9fr_1.1fr]">
-          <Card>
-            <h3 className="font-display text-lg font-bold text-white">{profile.contact.cardTitle}</h3>
-            <p className="mt-1.5 text-sm text-slate-500">{profile.contact.cardSubtitle}</p>
-            <div className="mt-6 space-y-4">
+          <div className="overflow-hidden rounded-[10px] border border-[#1c1c28] bg-base-900"><div className="border-b border-[#1c1c28] px-6 py-5"><p className="font-mono text-[0.63rem] uppercase tracking-[0.12em] text-slate-500">{profile.contact.cardTitle}</p><h3 className="mt-1 font-display text-[1rem] font-bold text-white">{profile.contact.subtitle}</h3></div><div className="py-1">
               {profile.contact.links.map((link) => {
-                const Icon = iconMap[link.type as keyof typeof iconMap] ?? Mail
                 return (
-                  <div
-                    key={link.label}
-                    className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-white/10 bg-white/5 px-4 py-3 transition-colors hover:border-accent-400/20 hover:bg-accent-400/5"
-                  >
-                    <a
-                      href={link.href}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="focus-ring flex items-center gap-2 rounded-full px-2 py-1 text-sm text-slate-200"
-                    >
-                      <Icon size={16} className="text-slate-200" /> {link.value}
-                    </a>
-                    <CopyButton
-                      value={link.value}
-                      label={profile.contact.copyLabel}
-                      copiedLabel={profile.contact.copiedLabel}
-                    />
-                  </div>
+<div key={link.label} className={"flex items-center justify-between px-4 py-3 transition-colors hover:bg-white/[0.02] " + (profile.contact.links.indexOf(link) < profile.contact.links.length - 1 ? "border-b border-[#1c1c28]" : "")}><div><div className="font-mono text-[0.63rem] uppercase tracking-[0.12em] text-slate-500">{link.label}</div><div className="mt-0.5 text-[0.8rem] text-[var(--text)]">{link.value}</div></div><div className="flex items-center gap-2"><CopyButton value={link.value} label={profile.contact.copyLabel} copiedLabel={profile.contact.copiedLabel} /><a href={link.href} target="_blank" rel="noreferrer" className="font-mono text-[0.8rem] text-slate-500 hover:text-accent-400">↗</a></div></div>
                 )
               })}
             </div>
-          </Card>
+          </div>
 
-          <Card>
-            <h3 className="font-display text-lg font-bold text-white">{profile.contact.title}</h3>
-            <form className="mt-6 space-y-4" onSubmit={handleSubmit}>
+          <div className="rounded-[10px] border border-[#1c1c28] bg-base-900 p-6"><h3 className="font-display text-[1rem] font-bold text-white">{profile.contact.title}</h3><form className="mt-6 space-y-4" onSubmit={handleSubmit}>
               <label className="block text-sm text-slate-300">
                 {profile.contact.form.nameLabel}
                 <input
                   type="text"
                   value={form.name}
                   onChange={(event) => setForm({ ...form, name: event.target.value })}
-                  className="focus-ring mt-2 w-full rounded-xl border border-white/10 bg-base-950/70 px-4 py-2 text-sm text-white"
+                  className="focus-ring mt-2 w-full rounded-[6px] border border-[#1c1c28] bg-base-900 px-4 py-2 text-sm text-white"
                   required
                 />
               </label>
@@ -139,7 +60,7 @@ export default function Contact() {
                   type="email"
                   value={form.email}
                   onChange={(event) => setForm({ ...form, email: event.target.value })}
-                  className="focus-ring mt-2 w-full rounded-xl border border-white/10 bg-base-950/70 px-4 py-2 text-sm text-white"
+                  className="focus-ring mt-2 w-full rounded-[6px] border border-[#1c1c28] bg-base-900 px-4 py-2 text-sm text-white"
                   required
                 />
               </label>
@@ -150,7 +71,7 @@ export default function Contact() {
                   value={form.phone}
                   onChange={(event) => setForm({ ...form, phone: event.target.value })}
                   placeholder={profile.contact.form.phonePlaceholder}
-                  className="focus-ring mt-2 w-full rounded-xl border border-white/10 bg-base-950/70 px-4 py-2 text-sm text-white"
+                  className="focus-ring mt-2 w-full rounded-[6px] border border-[#1c1c28] bg-base-900 px-4 py-2 text-sm text-white"
                 />
               </label>
               <label className="block text-sm text-slate-300">
@@ -158,16 +79,16 @@ export default function Contact() {
                 <textarea
                   value={form.message}
                   onChange={(event) => setForm({ ...form, message: event.target.value })}
-                  className="focus-ring mt-2 min-h-[140px] w-full rounded-xl border border-white/10 bg-base-950/70 px-4 py-2 text-sm text-white"
+                  className="focus-ring mt-2 min-h-[140px] w-full rounded-[6px] border border-[#1c1c28] bg-base-900 px-4 py-2 text-sm text-white"
                   placeholder={profile.contact.form.messagePlaceholder}
                   required
                 />
               </label>
-              <Button type="submit" disabled={status === 'sending'}>
+              <button type="submit" disabled={status === 'sending'} className="rounded-[4px] bg-accent-400 px-6 py-2 font-mono text-[0.75rem] tracking-[0.06em] text-base-950 transition hover:-translate-y-0.5 hover:bg-accent-300 disabled:opacity-60">
                 {status === 'sending'
                   ? profile.contact.form.sendingLabel
                   : profile.contact.form.sendLabel}
-              </Button>
+              </button>
               <AnimatePresence>
                 {showToast ? (
                   <motion.div
@@ -191,7 +112,7 @@ export default function Contact() {
               ) : null}
               <p className="text-xs text-slate-400">{profile.contact.form.note}</p>
             </form>
-          </Card>
+          </div>
         </div>
       </Reveal>
     </div>

@@ -27,7 +27,7 @@ export default function About() {
         <div className="space-y-6">
           {/* Prose cards */}
           <Reveal>
-            <Card className="border-l-2 border-l-accent-400">
+            <Card className="rounded-[10px]">
               <p className="text-sm leading-relaxed text-slate-400 md:text-base">
                 {profile.bio}
               </p>
@@ -35,18 +35,14 @@ export default function About() {
           </Reveal>
 
           <Reveal>
-            <Card>
-              <p className="text-sm leading-relaxed text-slate-400 md:text-base">
-                {profile.intro}
-              </p>
+            <Card className="rounded-[10px]">
+              <p className="text-[0.86rem] leading-[1.9] text-slate-500">{profile.intro}</p>
             </Card>
           </Reveal>
 
           <Reveal>
-            <Card>
-              <p className="text-sm leading-relaxed text-slate-400 md:text-base">
-                {profile.tagline}
-              </p>
+            <Card className="rounded-[10px]">
+              <p className="text-[0.86rem] leading-[1.9] text-slate-500">{profile.tagline}</p>
             </Card>
           </Reveal>
 
@@ -57,7 +53,7 @@ export default function About() {
             </h2>
             <div className="grid gap-3 sm:grid-cols-2">
               {profile.workStyle.map((item) => (
-                <Card key={item} className="flex gap-3">
+                <Card key={item} className="flex gap-3 rounded-[8px]">
                   <span className="mt-0.5 shrink-0 font-mono text-sm font-bold text-accent-400">→</span>
                   <p className="text-sm leading-relaxed text-slate-400">{item}</p>
                 </Card>
@@ -72,7 +68,7 @@ export default function About() {
             </h2>
             <div className="flex flex-wrap gap-2">
               {profile.toolbox.map((item) => (
-                <Badge key={item} className="border-white/10 bg-white/5 text-slate-300 hover:border-accent-400/30 hover:text-accent-400">
+                <Badge key={item} className="rounded-[100px] border-[#242434] bg-transparent text-slate-500 hover:border-accent-400 hover:text-accent-400">
                   {item}
                 </Badge>
               ))}
@@ -80,40 +76,24 @@ export default function About() {
           </Reveal>
         </div>
 
-        {/* Right column: timeline */}
+        {/* Right column: milestones */}
         <div>
           <Reveal>
-            <h2 className="font-display mb-6 text-xl font-bold text-white">
+            <h2 className="font-display mb-4 text-xl font-bold text-white">
               {profile.about.timelineTitle}
             </h2>
-            <div className="relative">
-              {/* Vertical line */}
-              <div className="absolute left-3.5 top-2 h-[calc(100%-1.5rem)] w-px bg-gradient-to-b from-accent-400/40 via-white/10 to-transparent" />
-
-              <div className="space-y-8">
-                {profile.milestones.map((item, i) => (
-                  <div key={item.title} className="relative flex gap-5">
-                    {/* Dot */}
-                    <div className="relative mt-1.5 flex-shrink-0">
-                      <div
-                        className="h-[7px] w-[7px] rounded-full border border-accent-400/60 bg-accent-400/20"
-                        style={i === 0 ? { backgroundColor: 'rgba(127,255,178,0.6)' } : undefined}
-                      />
-                    </div>
-                    <div>
-                      <p className="font-mono text-xs uppercase tracking-[0.2em] text-accent-400">
-                        {item.time}
-                      </p>
-                      <h3 className="font-display mt-1 text-base font-bold text-white">
-                        {item.title}
-                      </h3>
-                      <p className="mt-1.5 text-sm leading-relaxed text-slate-400">
-                        {item.description}
-                      </p>
-                    </div>
+            <div className="flex flex-col gap-3">
+              {profile.milestones.map((item) => (
+                <div key={item.title} className="flex gap-6 rounded-[8px] border border-[#1c1c28] bg-base-900 p-5 transition-colors hover:border-[#242434]">
+                  <span className="min-w-[88px] pt-0.5 font-mono text-[0.65rem] uppercase tracking-[0.12em] text-accent-400">
+                    {item.time}
+                  </span>
+                  <div>
+                    <h4 className="font-display text-[0.95rem] font-bold text-white">{item.title}</h4>
+                    <p className="mt-1 text-[0.78rem] leading-[1.7] text-slate-500">{item.description}</p>
                   </div>
-                ))}
-              </div>
+                </div>
+              ))}
             </div>
           </Reveal>
         </div>

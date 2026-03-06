@@ -11,17 +11,12 @@ export default function HeroShowcase() {
 
   return (
     <section className="relative overflow-hidden">
-      {/* Dot grid background — hero only */}
-      <div
-        className="pointer-events-none absolute inset-0 opacity-40"
-        style={{
-          backgroundImage:
-            'radial-gradient(circle, rgba(127,255,178,0.15) 1px, transparent 1px)',
-          backgroundSize: '28px 28px',
-          maskImage:
-            'radial-gradient(ellipse 80% 60% at 50% 0%, black 0%, transparent 100%)',
-        }}
-      />
+      {/* Line grid */}
+      <div className="pointer-events-none absolute inset-0" style={{ backgroundImage: "linear-gradient(rgba(28,28,40,1) 1px,transparent 1px),linear-gradient(90deg,rgba(28,28,40,1) 1px,transparent 1px)", backgroundSize: "64px 64px", opacity: 0.35 }} />
+      {/* Glow top-right */}
+      <div className="pointer-events-none absolute" style={{ width: "600px", height: "600px", background: "radial-gradient(circle,rgba(127,255,178,0.07) 0%,transparent 70%)", top: "-100px", right: "-150px" }} />
+      {/* Glow bottom-left */}
+      <div className="pointer-events-none absolute" style={{ width: "400px", height: "400px", background: "radial-gradient(circle,rgba(91,140,255,0.05) 0%,transparent 70%)", bottom: "0", left: "-100px" }} />
 
       <div className="relative grid items-center gap-12 py-10 md:py-16 lg:grid-cols-2">
         {/* Left: text */}
@@ -36,7 +31,7 @@ export default function HeroShowcase() {
 
           {/* Heading */}
           <motion.h1
-            className="font-display text-4xl font-extrabold leading-[0.93] tracking-tight text-white md:text-5xl lg:text-6xl"
+            className="font-display font-extrabold leading-[0.93] text-white" style={{ fontSize: "clamp(3rem,7.5vw,6.8rem)", letterSpacing: "-0.04em" }}
             initial={shouldReduceMotion ? false : { opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, ease: 'easeOut' }}

@@ -5,19 +5,18 @@ export type BadgeProps = React.HTMLAttributes<HTMLSpanElement> & {
 }
 
 const toneStyles = {
-  default: 'bg-white/10 text-slate-200',
-  accent: 'bg-accent-500/20 text-accent-300',
-  warning: 'bg-amber-400/20 text-amber-200 border-amber-300/40',
-  success: 'bg-emerald-500/20 text-emerald-200 border-emerald-400/40',
+  default: 'bg-white/5 text-slate-400 border-[#242434]',
+  accent: 'bg-accent-400/10 text-accent-400 border-accent-400/25',
+  warning: 'bg-amber-400/10 text-amber-300 border-amber-300/30',
+  success: 'bg-emerald-500/10 text-emerald-300 border-emerald-400/30',
 }
 
 export default function Badge({ tone = 'default', className, ...props }: BadgeProps) {
   return (
     <span
       className={cn(
-        'inline-flex items-center rounded-full border border-transparent px-3 py-1 text-xs font-medium uppercase tracking-wide transition',
+        'inline-flex items-center rounded-[4px] border px-[0.6rem] py-[0.2rem] text-[0.62rem] font-medium uppercase tracking-[0.1em] transition',
         toneStyles[tone],
-        'hover:-translate-y-0.5 hover:border-white/20',
         className,
       )}
       {...props}

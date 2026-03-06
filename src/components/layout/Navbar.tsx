@@ -15,18 +15,18 @@ export default function Navbar() {
 
   const navLinkClass = ({ isActive }: { isActive: boolean }) =>
     cn(
-      'focus-ring relative rounded-sm px-2 py-1 text-sm font-medium transition-colors',
+      'focus-ring relative rounded-[2px] px-2 py-1 text-[0.67rem] uppercase tracking-[0.14em] font-mono transition-colors',
       isActive
-        ? 'text-accent-400 after:absolute after:bottom-0 after:left-2 after:right-2 after:h-px after:bg-accent-400/70'
-        : 'text-slate-400 hover:text-slate-100',
+        ? 'text-accent-400 after:absolute after:bottom-[-3px] after:left-0 after:right-0 after:h-px after:bg-accent-400'
+        : 'text-slate-500 hover:text-accent-400',
     )
 
   return (
-    <header className="no-print fixed top-0 z-50 w-full border-b border-white/5 bg-base-950/80 backdrop-blur-xl">
+    <header className="no-print fixed top-0 z-50 w-full border-b border-[#1c1c28] bg-[rgba(9,9,14,0.9)] backdrop-blur-[18px]">
       <div className="mx-auto flex w-full max-w-6xl items-center justify-between px-6 py-4">
         {/* Brand */}
         <Link to="/" className="focus-ring flex items-center rounded-sm">
-          <span className="font-display text-sm font-bold tracking-[0.22em] text-slate-100">
+          <span className="font-display text-[0.95rem] font-extrabold tracking-[0.02em] text-accent-400">
             {brandName}
           </span>
         </Link>
@@ -48,7 +48,7 @@ export default function Navbar() {
               <span className="animate-pulseRing absolute inline-flex h-full w-full rounded-full bg-accent-400 opacity-75" />
               <span className="relative inline-flex h-2 w-2 rounded-full bg-accent-400" />
             </span>
-            <span className="text-xs font-medium text-accent-400">Open to work</span>
+            <span className="font-mono text-[0.65rem] tracking-[0.08em] text-slate-500">Tilgjengelig</span>
           </div>
 
           {/* Language toggle */}
@@ -59,7 +59,7 @@ export default function Navbar() {
                 type="button"
                 onClick={() => setLanguage(option)}
                 className={cn(
-                  'focus-ring rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-wide transition',
+                  'focus-ring rounded-[4px] px-3 py-1 text-[0.67rem] font-semibold uppercase tracking-wide transition',
                   language === option
                     ? 'bg-accent-400/15 text-accent-400'
                     : 'text-slate-400 hover:text-slate-100',
@@ -120,7 +120,7 @@ export default function Navbar() {
                       <span className="animate-pulseRing absolute inline-flex h-full w-full rounded-full bg-accent-400 opacity-75" />
                       <span className="relative inline-flex h-2 w-2 rounded-full bg-accent-400" />
                     </span>
-                    <span className="text-xs text-accent-400">Open to work</span>
+                    <span className="font-mono text-[0.65rem] text-slate-500">Tilgjengelig</span>
                   </div>
                   <div className="flex items-center rounded-full border border-white/10 bg-white/5 p-1">
                     {(['en', 'no'] as const).map((option) => (
@@ -129,7 +129,7 @@ export default function Navbar() {
                         type="button"
                         onClick={() => setLanguage(option)}
                         className={cn(
-                          'focus-ring rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-wide transition',
+                          'focus-ring rounded-[4px] px-3 py-1 text-[0.67rem] font-semibold uppercase tracking-wide transition',
                           language === option
                             ? 'bg-accent-400/15 text-accent-400'
                             : 'text-slate-400 hover:text-slate-100',
