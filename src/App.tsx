@@ -18,6 +18,8 @@ import About from './pages/About'
 import Resume from './pages/Resume'
 import Contact from './pages/Contact'
 import NotFound from './pages/NotFound'
+import Admin from './pages/Admin'
+import { trackPageView } from './lib/analytics'
 
 export default function App() {
   const location = useLocation()
@@ -66,6 +68,8 @@ export default function App() {
     }
   }, [showBoot])
 
+  useEffect(() => { trackPageView(location.pathname) }, [location.pathname])
+
   useEffect(() => {
     document.title = profile.meta.title
     const metaDescription = document.querySelector('meta[name="description"]')
@@ -79,6 +83,8 @@ export default function App() {
     if (language === displayLanguage) return
     setIsLangTransition(true)
   }, [language, displayLanguage, showBoot])
+
+  if (location.pathname.startsWith('/admin')) return <Admin />
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-base-950 text-slate-100">

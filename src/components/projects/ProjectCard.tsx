@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
-import { GitFork, Star } from 'lucide-react'
+import { ExternalLink, GitFork, Star } from 'lucide-react'
 import { useReducedMotion } from 'framer-motion'
 import { useProfile } from '../../lib/i18n'
 import { type Project } from '../../lib/projects'
@@ -61,10 +61,7 @@ export default function ProjectCard({
   const tiltRef = useTilt(!shouldReduceMotion)
 
   return (
-    <Link
-      to={`/projects/${project.slug}`}
-      className="focus-ring group block rounded-2xl"
-    >
+    <div className="focus-ring group relative block rounded-2xl">
       <div
         ref={tiltRef}
         className={cn(
@@ -76,12 +73,18 @@ export default function ProjectCard({
       >
         <div className="flex items-start justify-between gap-4">
           <div>
-            <h3 className="font-display text-base font-bold text-white">{project.displayName}</h3>
+            {/* Stretched link covers entire card */}
+            <Link
+              to={`/projects/${project.slug}`}
+              className="font-display text-base font-bold text-white before:absolute before:inset-0 before:z-0"
+            >
+              {project.displayName}
+            </Link>
             <p className="mt-2 text-sm text-slate-300 line-clamp-2">
               {project.description}
             </p>
           </div>
-          <div className="flex flex-col items-end gap-2">
+          <div className="relative z-10 flex flex-col items-end gap-2">
             {project.featured ? (
               <Badge tone="accent" className="shrink-0">
                 {profile.labels.featuredLabel}
@@ -112,9 +115,22 @@ export default function ProjectCard({
               <GitFork size={14} /> {formatNumber(project.forks)}
             </span>
           </div>
-          <span>{project.updatedLabel}</span>
+          <div className="relative z-10 flex items-center gap-3">
+            {project.demoUrl ? (
+              <a
+                href={project.demoUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-1 font-mono text-[0.67rem] uppercase tracking-[0.08em] text-accent-400 transition-colors hover:text-accent-300"
+              >
+                <ExternalLink size={11} />
+                {profile.labels.viewDemo}
+              </a>
+            ) : null}
+            <span>{project.updatedLabel}</span>
+          </div>
         </div>
       </div>
-    </Link>
+    </div>
   )
 }

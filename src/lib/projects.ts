@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
+import { getAdminStore } from './adminStore'
 import { type Profile, type ProjectCategory, type ProjectOverride } from '../content/profile'
 import { fetchGithubRepos, type GitHubRepo } from './github'
 import { formatDate, slugify } from './utils'
@@ -165,15 +166,21 @@ export function useProjects(profile: Profile) {
 
   const filterHidden = useCallback(
     (repos: GitHubRepo[]) => {
-      if (hiddenProjects.size === 0) return repos
-      return repos.filter((repo) => !hiddenProjects.has(repo.name.toLowerCase()))
+      const adminStore = getAdminStore()
+      return repos.filter((repo) => {
+        if (hiddenProjects.has(repo.name.toLowerCase())) return false
+        if (adminStore.projectOverrides[repo.name]?.hidden) return false
+        return true
+      })
     },
     [hiddenProjects],
   )
 
   const mapRepo = useCallback(
     (repo: GitHubRepo): Project => {
-      const override = overrideMap.get(repo.name)
+      const adminOverride = getAdminStore().projectOverrides[repo.name] ?? {}
+      const baseOverride = overrideMap.get(repo.name)
+      const override: (typeof baseOverride & typeof adminOverride) | undefined = baseOverride ? { ...baseOverride, ...adminOverride } : (Object.keys(adminOverride).length ? { repo: repo.name, ...adminOverride } as any : undefined)
       const topics = normalizeTopics(repo.topics)
       const category = override?.category ?? inferCategory(topics, repo)
       const openSource = override?.openSource ?? inferOpenSource(topics, repo)
