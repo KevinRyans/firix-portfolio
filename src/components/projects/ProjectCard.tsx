@@ -57,7 +57,7 @@ function getStatusClass(status: string) {
 
 export default function ProjectCard({
   project,
-  variant = 'default',
+  variant: _variant = 'default',
 }: {
   project: Project
   variant?: 'default' | 'featured'
@@ -76,7 +76,7 @@ export default function ProjectCard({
           'relative h-full overflow-hidden rounded-xl border border-[#1c1c28] bg-[#0e0e18] p-6 shadow-soft transition-all duration-300',
           'before:absolute before:inset-x-0 before:top-0 before:h-[2px] before:bg-gradient-to-r before:from-accent-400 before:to-teal-400 before:opacity-0 before:transition-opacity before:duration-300',
           'group-hover:-translate-y-[5px] group-hover:border-transparent group-hover:shadow-[0_20px_48px_rgba(0,0,0,0.45)] group-hover:before:opacity-100',
-          variant === 'featured' && 'bg-gradient-to-br from-white/8 via-white/5 to-transparent',
+
         )}
       >
         {/* Top row: language/category + status */}

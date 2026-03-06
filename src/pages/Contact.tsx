@@ -7,7 +7,7 @@ import Reveal from '../components/sections/Reveal'
 
 export default function Contact() {
   const profile = useProfile()
-  const [form, setForm] = useState({ name: '', email: '', message: '' })
+  const [form, setForm] = useState({ name: '', email: '', phone: '', message: '' })
   const [status, setStatus] = useState<'idle' | 'sending' | 'success' | 'error'>(
     'idle',
   )
@@ -26,11 +26,11 @@ export default function Contact() {
     fetch('https://api.web3forms.com/submit', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-      body: JSON.stringify({ access_key: import.meta.env.VITE_WEB3FORMS_KEY, ...form }),
+      body: JSON.stringify({ access_key: import.meta.env.VITE_WEB3FORMS_KEY, name: form.name, email: form.email, message: form.message, ...(form.phone ? { phone: form.phone } : {}) }),
     })
       .then((r) => r.json())
       .then((data) => {
-        if (data.success) { setStatus('success'); setForm({ name: '', email: '', message: '' }) }
+        if (data.success) { setStatus('success'); setForm({ name: '', email: '', phone: '', message: '' }) }
         else throw new Error()
       })
       .catch(() => setStatus('error'))
@@ -77,6 +77,17 @@ export default function Contact() {
                   onChange={(event) => setForm({ ...form, email: event.target.value })}
                   className="focus-ring mt-2 w-full rounded-[6px] border border-[#1c1c28] bg-base-900 px-4 py-2 text-sm text-white"
                   required
+                />
+              </label>
+
+              <label className="block text-sm text-slate-300">
+                <span className="flex items-center gap-2">Phone <span className="rounded-[3px] border border-[#1c1c28] px-1.5 py-0.5 text-[0.65rem] text-slate-600">optional</span></span>
+                <input
+                  type="tel"
+                  value={form.phone}
+                  onChange={(event) => setForm({ ...form, phone: event.target.value })}
+                  placeholder="+47 000 00 000"
+                  className="focus-ring mt-2 w-full rounded-[6px] border border-[#1c1c28] bg-base-900 px-4 py-2 text-sm text-white"
                 />
               </label>
 
