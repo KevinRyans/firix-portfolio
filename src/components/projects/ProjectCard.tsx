@@ -1,12 +1,12 @@
 import { useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
-import { ExternalLink, Github, GitFork, Star } from 'lucide-react'
+import { ExternalLink } from 'lucide-react'
 import { useReducedMotion } from 'framer-motion'
 import { useProfile } from '../../lib/i18n'
 import { type Project } from '../../lib/projects'
 import { getStatusTone } from '../../lib/badgeStyles'
-import { cn, formatNumber } from '../../lib/utils'
-import Badge from '../ui/Badge'
+import { cn } from '../../lib/utils'
+
 
 function useTilt(enabled: boolean) {
   const ref = useRef<HTMLDivElement>(null)
@@ -87,14 +87,9 @@ export default function ProjectCard({
             </span>
           ) : <span />}
           <div className="flex items-center gap-2">
-            {project.featured ? (
-              <Badge tone="accent" className="shrink-0">
-                {profile.labels.featuredLabel}
-              </Badge>
-            ) : null}
             {project.status ? (
               <span className={cn(
-                'font-mono text-[0.62rem] uppercase tracking-[0.1em] border px-[0.6rem] py-[0.2rem] rounded-full',
+                'font-mono text-[0.62rem] uppercase tracking-[0.1em] border px-[0.6rem] py-[0.2rem] rounded-[4px]',
                 getStatusClass(project.status)
               )}>
                 {project.status}
@@ -123,33 +118,20 @@ export default function ProjectCard({
           ))}
         </div>
 
-        {/* Bottom links */}
-        <div className="mt-5 flex items-center gap-[0.6rem] text-[0.7rem] text-slate-500">
-          <a
-            href={project.url}
-            target="_blank"
-            rel="noreferrer"
-            className="relative z-10 inline-flex items-center gap-[0.35rem] border border-[#1c1c28] px-[0.75rem] py-[0.3rem] rounded-[4px] transition-colors hover:text-accent-400 hover:border-accent-400"
-          >
-            <Github size={11} />
-            GitHub
-          </a>
+        {/* Bottom: demo link + date */}
+        <div className="mt-5 flex items-center justify-between text-[0.7rem] text-slate-600">
+          <span className="font-mono">{project.updatedLabel}</span>
           {project.demoUrl ? (
             <a
               href={project.demoUrl}
               target="_blank"
               rel="noreferrer"
-              className="relative z-10 inline-flex items-center gap-[0.35rem] border border-[#1c1c28] px-[0.75rem] py-[0.3rem] rounded-[4px] transition-colors hover:text-accent-400 hover:border-accent-400"
+              className="relative z-10 inline-flex items-center gap-[0.35rem] font-mono text-[0.67rem] uppercase tracking-[0.08em] text-accent-400 transition-colors hover:text-accent-300"
             >
               <ExternalLink size={11} />
               {profile.labels.viewDemo}
             </a>
           ) : null}
-          <div className="ml-auto flex items-center gap-3">
-            <span className="inline-flex items-center gap-1"><Star size={12} /> {formatNumber(project.stars)}</span>
-            <span className="inline-flex items-center gap-1"><GitFork size={12} /> {formatNumber(project.forks)}</span>
-            <span>{project.updatedLabel}</span>
-          </div>
         </div>
       </div>
     </div>
