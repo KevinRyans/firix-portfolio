@@ -280,3 +280,20 @@
     text-decoration: none !important;
   }
 }
+
+@keyframes heroFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+@keyframes heroSpin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@media (max-width: 900px) {
+  .memoji-wrap {
+    width: 170px !important;
+    height: 170px !important;
+  }
+}

@@ -52,17 +52,17 @@ export default function Navbar() {
           </div>
 
           {/* Language toggle */}
-          <div className="flex items-center rounded-full border border-white/10 bg-white/5 p-1">
+          <div style={{ display: 'flex', border: '1px solid #242434', borderRadius: '4px', overflow: 'hidden' }}>
             {(['en', 'no'] as const).map((option) => (
               <button
                 key={option}
                 type="button"
                 onClick={() => setLanguage(option)}
                 className={cn(
-                  'focus-ring rounded-[4px] px-3 py-1 text-[0.67rem] font-semibold uppercase tracking-wide transition',
+                  'focus-ring border-0 font-mono text-[0.67rem] uppercase tracking-[0.14em] transition-all duration-200 px-[0.65rem] py-[0.28rem]',
                   language === option
-                    ? 'bg-accent-400/15 text-accent-400'
-                    : 'text-slate-400 hover:text-slate-100',
+                    ? 'bg-accent-400 text-base-950'
+                    : 'bg-transparent text-slate-500 hover:text-white',
                 )}
               >
                 {option}
@@ -122,17 +122,17 @@ export default function Navbar() {
                     </span>
                     <span className="font-mono text-[0.65rem] text-slate-500">Tilgjengelig</span>
                   </div>
-                  <div className="flex items-center rounded-full border border-white/10 bg-white/5 p-1">
+                  <div style={{ display: 'flex', border: '1px solid #242434', borderRadius: '4px', overflow: 'hidden' }}>
                     {(['en', 'no'] as const).map((option) => (
                       <button
                         key={option}
                         type="button"
                         onClick={() => setLanguage(option)}
                         className={cn(
-                          'focus-ring rounded-[4px] px-3 py-1 text-[0.67rem] font-semibold uppercase tracking-wide transition',
+                          'focus-ring border-0 font-mono text-[0.67rem] uppercase tracking-[0.14em] transition-all duration-200 px-[0.65rem] py-[0.28rem]',
                           language === option
-                            ? 'bg-accent-400/15 text-accent-400'
-                            : 'text-slate-400 hover:text-slate-100',
+                            ? 'bg-accent-400 text-base-950'
+                            : 'bg-transparent text-slate-500 hover:text-white',
                         )}
                       >
                         {option}

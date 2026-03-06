@@ -83,57 +83,98 @@ export default function HeroShowcase() {
           </motion.div>
         </div>
 
-        {/* Right: spinning avatar ring */}
+        {/* Right: avatar with float + ring */}
         <motion.div
           className="flex items-center justify-center"
           initial={shouldReduceMotion ? false : { opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.6, delay: 0.15, ease: 'easeOut' }}
         >
-          <div className="relative flex h-72 w-72 items-center justify-center md:h-80 md:w-80">
+          <div
+            className="memoji-wrap"
+            style={{
+              position: 'relative',
+              width: '240px',
+              height: '240px',
+              animation: shouldReduceMotion ? 'none' : 'heroFloat 6s ease-in-out infinite',
+            }}
+          >
             {/* Outer ambient glow */}
             <div className="absolute inset-0 rounded-full bg-accent-400/5 blur-3xl" />
 
-            {/* Spinning gradient ring */}
-            <motion.div
-              className="absolute inset-0 rounded-full"
+            {/* Spinning ring */}
+            <div
               style={{
-                background:
-                  'conic-gradient(from 0deg, transparent 0%, rgba(127,255,178,0.5) 40%, rgba(91,140,255,0.3) 65%, transparent 100%)',
-                padding: '2px',
+                position: 'absolute',
+                inset: '-14px',
                 borderRadius: '50%',
+                background: 'conic-gradient(from 0deg, transparent 0%, rgba(127,255,178,0.5) 40%, rgba(91,140,255,0.3) 65%, transparent 100%)',
+                padding: '2px',
+                animation: shouldReduceMotion ? 'none' : 'heroSpin 18s linear infinite',
               }}
-              animate={shouldReduceMotion ? undefined : { rotate: 360 }}
-              transition={{ duration: 7, repeat: Infinity, ease: 'linear' }}
             >
-              <div className="h-full w-full rounded-full bg-base-950" />
-            </motion.div>
+              <div style={{ width: '100%', height: '100%', borderRadius: '50%', background: '#09090e' }} />
+            </div>
 
             {/* Static dashed track ring */}
-            <div className="absolute inset-0 rounded-full border border-dashed border-white/10" />
+            <div
+              style={{
+                position: 'absolute',
+                inset: '-14px',
+                borderRadius: '50%',
+                border: '1px dashed rgba(255,255,255,0.1)',
+                pointerEvents: 'none',
+              }}
+            />
 
-            {/* Orbiting green dot */}
-            <motion.div
-              className="absolute inset-0"
-              animate={shouldReduceMotion ? undefined : { rotate: 360 }}
-              transition={{ duration: 7, repeat: Infinity, ease: 'linear' }}
+            {/* Orbiting accent dot */}
+            <div
+              style={{
+                position: 'absolute',
+                inset: '-14px',
+                borderRadius: '50%',
+                animation: shouldReduceMotion ? 'none' : 'heroSpin 18s linear infinite',
+              }}
             >
               <div
-                className="absolute left-1/2 top-0 h-3.5 w-3.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-accent-400"
-                style={{ boxShadow: '0 0 12px rgba(127,255,178,0.9), 0 0 4px rgba(127,255,178,1)' }}
-              />
-            </motion.div>
-
-            {/* Avatar image circle */}
-            <div className="relative flex h-56 w-56 items-center justify-center overflow-hidden rounded-full border border-white/10 bg-base-900 md:h-64 md:w-64">
-              <img
-                src={withBase(profile.media.memojiImage)}
-                alt={profile.media.memojiAlt}
-                className="h-full w-full object-cover object-center"
-                loading="eager"
-                onError={(e) => {
-                  e.currentTarget.style.display = 'none'
+                style={{
+                  position: 'absolute',
+                  top: 0,
+                  left: '50%',
+                  transform: 'translate(-50%, -50%)',
+                  width: '14px',
+                  height: '14px',
+                  borderRadius: '50%',
+                  background: '#7fffb2',
+                  boxShadow: '0 0 12px rgba(127,255,178,0.9), 0 0 4px rgba(127,255,178,1)',
                 }}
+              />
+            </div>
+
+            {/* Avatar image */}
+            <div
+              style={{
+                position: 'relative',
+                width: '100%',
+                height: '100%',
+                borderRadius: '50%',
+                overflow: 'hidden',
+                border: '1px solid rgba(255,255,255,0.1)',
+                background: '#0e0e18',
+              }}
+            >
+              <img
+                src={withBase('images/avatar.png')}
+                alt={profile.media.memojiAlt}
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  objectFit: 'cover',
+                  objectPosition: 'center',
+                  mixBlendMode: 'lighten',
+                }}
+                loading="eager"
+                onError={(e) => { e.currentTarget.style.display = 'none' }}
               />
             </div>
           </div>
