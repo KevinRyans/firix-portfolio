@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { NavLink, Link } from 'react-router-dom'
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
 import { Menu, X } from 'lucide-react'
-import { useLanguage, useProfile } from '../../lib/i18n'
+import {  useProfile } from '../../lib/i18n'
 import { cn } from '../../lib/utils'
 import Button from '../ui/Button'
 
@@ -10,7 +10,6 @@ export default function Navbar() {
   const [open, setOpen] = useState(false)
   const shouldReduceMotion = useReducedMotion()
   const profile = useProfile()
-  const { language, setLanguage } = useLanguage()
   const brandName = profile.brand?.name ?? profile.name
 
   const navLinkClass = ({ isActive }: { isActive: boolean }) =>
@@ -51,24 +50,6 @@ export default function Navbar() {
             <span className="font-mono text-[0.65rem] tracking-[0.08em] text-slate-500">Tilgjengelig</span>
           </div>
 
-          {/* Language toggle */}
-          <div style={{ display: 'flex', border: '1px solid #242434', borderRadius: '4px', overflow: 'hidden' }}>
-            {(['en', 'no'] as const).map((option) => (
-              <button
-                key={option}
-                type="button"
-                onClick={() => setLanguage(option)}
-                className={cn(
-                  'focus-ring border-0 font-mono text-[0.67rem] uppercase tracking-[0.14em] transition-all duration-200 px-[0.65rem] py-[0.28rem]',
-                  language === option
-                    ? 'bg-accent-400 text-base-950'
-                    : 'bg-transparent text-slate-500 hover:text-white',
-                )}
-              >
-                {option}
-              </button>
-            ))}
-          </div>
         </div>
 
         {/* Mobile toggle */}
@@ -121,23 +102,6 @@ export default function Navbar() {
                       <span className="relative inline-flex h-2 w-2 rounded-full bg-accent-400" />
                     </span>
                     <span className="font-mono text-[0.65rem] text-slate-500">Tilgjengelig</span>
-                  </div>
-                  <div style={{ display: 'flex', border: '1px solid #242434', borderRadius: '4px', overflow: 'hidden' }}>
-                    {(['en', 'no'] as const).map((option) => (
-                      <button
-                        key={option}
-                        type="button"
-                        onClick={() => setLanguage(option)}
-                        className={cn(
-                          'focus-ring border-0 font-mono text-[0.67rem] uppercase tracking-[0.14em] transition-all duration-200 px-[0.65rem] py-[0.28rem]',
-                          language === option
-                            ? 'bg-accent-400 text-base-950'
-                            : 'bg-transparent text-slate-500 hover:text-white',
-                        )}
-                      >
-                        {option}
-                      </button>
-                    ))}
                   </div>
                 </div>
               </div>

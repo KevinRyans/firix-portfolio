@@ -7,7 +7,6 @@ import Reveal from '../components/sections/Reveal'
 export default function Resume() {
   const profile = useProfile()
   const resume = profile.resume
-  const phone = profile.contact.links.find((link) => link.type === 'phone')?.value
   const github = profile.links.github.replace(/^https?:\/\/(www\.)?/, '')
 
   return (
@@ -37,7 +36,6 @@ export default function Resume() {
                 {resume.location}
               </p>
               <p className="mt-1">{profile.links.email.replace('mailto:', '')}</p>
-              <p className="mt-1">{phone}</p>
               <p className="mt-1">{github}</p>
             </div>
           </div>

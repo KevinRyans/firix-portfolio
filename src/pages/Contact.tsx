@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Check } from 'lucide-react'
+import { Check, Github, Linkedin, Mail, MessageCircle } from 'lucide-react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useProfile } from '../lib/i18n'
 import CopyButton from '../components/ui/CopyButton'
@@ -7,7 +7,7 @@ import Reveal from '../components/sections/Reveal'
 
 export default function Contact() {
   const profile = useProfile()
-  const [form, setForm] = useState({ name: '', email: '', phone: '', message: '' })
+  const [form, setForm] = useState({ name: '', email: '', message: '' })
   const [status, setStatus] = useState<'idle' | 'sending' | 'success' | 'error'>(
     'idle',
   )
@@ -23,9 +23,24 @@ export default function Contact() {
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     setStatus('sending')
-    fetch('/api/contact', { method: 'POST', headers: { 'Content-Type': 'application/json', Accept: 'application/json' }, body: JSON.stringify(form) })
-      .then((r) => { if (!r.ok) throw new Error(); setStatus('success'); setForm({ name: '', email: '', phone: '', message: '' }) })
+    fetch('https://api.web3forms.com/submit', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+      body: JSON.stringify({ access_key: import.meta.env.VITE_WEB3FORMS_KEY, ...form }),
+    })
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.success) { setStatus('success'); setForm({ name: '', email: '', message: '' }) }
+        else throw new Error()
+      })
       .catch(() => setStatus('error'))
+  }
+
+  const linkIcon: Record<string, React.ReactNode> = {
+    github: <Github size={14} />,
+    discord: <MessageCircle size={14} />,
+    linkedin: <Linkedin size={14} />,
+    email: <Mail size={14} />,
   }
 
   return (
@@ -37,7 +52,7 @@ export default function Contact() {
           <div className="overflow-hidden rounded-[10px] border border-[#1c1c28] bg-base-900"><div className="border-b border-[#1c1c28] px-6 py-5"><p className="font-mono text-[0.63rem] uppercase tracking-[0.12em] text-slate-500">{profile.contact.cardTitle}</p><h3 className="mt-1 font-display text-[1rem] font-bold text-white">{profile.contact.subtitle}</h3></div><div className="py-1">
               {profile.contact.links.map((link) => {
                 return (
-<div key={link.label} className={"flex items-center justify-between px-4 py-3 transition-colors hover:bg-white/[0.02] " + (profile.contact.links.indexOf(link) < profile.contact.links.length - 1 ? "border-b border-[#1c1c28]" : "")}><div><div className="font-mono text-[0.63rem] uppercase tracking-[0.12em] text-slate-500">{link.label}</div><div className="mt-0.5 text-[0.8rem] text-[var(--text)]">{link.value}</div></div><div className="flex items-center gap-2"><CopyButton value={link.value} label={profile.contact.copyLabel} copiedLabel={profile.contact.copiedLabel} /><a href={link.href} target="_blank" rel="noreferrer" className="font-mono text-[0.8rem] text-slate-500 hover:text-accent-400">↗</a></div></div>
+<div key={link.label} className={"flex items-center justify-between px-4 py-3 transition-colors hover:bg-white/[0.02] " + (profile.contact.links.indexOf(link) < profile.contact.links.length - 1 ? "border-b border-[#1c1c28]" : "")}><div><div className="flex items-center gap-1.5 font-mono text-[0.63rem] uppercase tracking-[0.12em] text-slate-500"><span className="text-slate-600">{linkIcon[link.type]}</span>{link.label}</div><div className="mt-0.5 text-[0.8rem] text-[var(--text)]">{link.value}</div></div><div className="flex items-center gap-2"><CopyButton value={link.value} label={profile.contact.copyLabel} copiedLabel={profile.contact.copiedLabel} /><a href={link.href} target="_blank" rel="noreferrer" className="font-mono text-[0.8rem] text-slate-500 hover:text-accent-400">↗</a></div></div>
                 )
               })}
             </div>
@@ -64,16 +79,7 @@ export default function Contact() {
                   required
                 />
               </label>
-              <label className="block text-sm text-slate-300">
-                {profile.contact.form.phoneLabel}
-                <input
-                  type="tel"
-                  value={form.phone}
-                  onChange={(event) => setForm({ ...form, phone: event.target.value })}
-                  placeholder={profile.contact.form.phonePlaceholder}
-                  className="focus-ring mt-2 w-full rounded-[6px] border border-[#1c1c28] bg-base-900 px-4 py-2 text-sm text-white"
-                />
-              </label>
+
               <label className="block text-sm text-slate-300">
                 {profile.contact.form.messageLabel}
                 <textarea

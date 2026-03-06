@@ -12,11 +12,6 @@ const LanguageContext = createContext<LanguageContextValue | undefined>(undefine
 const STORAGE_KEY = 'firix_lang'
 
 function getInitialLanguage(): Language {
-  if (typeof window === 'undefined') return 'en'
-
-  const stored = window.localStorage.getItem(STORAGE_KEY)
-  if (stored === 'en' || stored === 'no') return stored
-
   return 'en'
 }
 
@@ -33,7 +28,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
   }, [language])
 
   useEffect(() => {
-    document.documentElement.lang = displayLanguage === 'no' ? 'nb' : 'en'
+    document.documentElement.lang = 'en'
   }, [displayLanguage])
 
   const value = useMemo(
