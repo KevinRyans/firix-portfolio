@@ -12,6 +12,7 @@ export type Project = {
   longDescription?: string
   url: string
   demoUrl?: string
+  previewUrl?: string
   language?: string
   stars: number
   forks: number
@@ -194,6 +195,7 @@ export function useProjects(profile: Profile) {
         longDescription: override?.longDescription,
         url: repo.html_url,
         demoUrl: override?.demoUrl ?? (repo.homepage || undefined),
+        previewUrl: override?.previewUrl,
         language: repo.language ?? undefined,
         stars: repo.stargazers_count ?? 0,
         forks: repo.forks_count ?? 0,

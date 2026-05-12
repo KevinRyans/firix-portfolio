@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useCallback } from 'react'
 import { Link } from 'react-router-dom'
 import { ExternalLink } from 'lucide-react'
 import { useReducedMotion } from 'framer-motion'
@@ -55,6 +55,61 @@ function getStatusClass(status: string) {
   return 'text-slate-500 border-[#242434]'
 }
 
+function SitePreview({ url, name }: { url: string; name: string }) {
+  const viewportRef = useRef<HTMLDivElement>(null)
+  const iframeRef = useRef<HTMLIFrameElement>(null)
+
+  const scale = useCallback(() => {
+    const vp = viewportRef.current
+    const iframe = iframeRef.current
+    if (!vp || !iframe) return
+    const w = vp.offsetWidth
+    if (!w) return
+    iframe.style.transform = `scale(${w / 1280})`
+  }, [])
+
+  useEffect(() => {
+    scale()
+    const ro = new ResizeObserver(scale)
+    if (viewportRef.current) ro.observe(viewportRef.current)
+    return () => ro.disconnect()
+  }, [scale])
+
+  let hostname = url
+  try { hostname = new URL(url).hostname } catch {}
+
+  return (
+    <div className="mb-4 overflow-hidden rounded-lg border border-white/5">
+      <div className="flex items-center gap-2 border-b border-white/5 bg-[#16161f] px-3 py-2">
+        <div className="flex gap-1 flex-shrink-0">
+          <span className="h-[7px] w-[7px] rounded-full bg-[#ff5f57]" />
+          <span className="h-[7px] w-[7px] rounded-full bg-[#febc2e]" />
+          <span className="h-[7px] w-[7px] rounded-full bg-[#28c840]" />
+        </div>
+        <span className="flex-1 truncate rounded bg-white/5 px-2 py-[2px] text-center font-mono text-[0.58rem] text-slate-500">
+          {hostname}
+        </span>
+      </div>
+      <div ref={viewportRef} className="relative h-40 overflow-hidden bg-[#f0ede8]">
+        <iframe
+          ref={iframeRef}
+          src={url}
+          title={`Preview of ${name}`}
+          loading="lazy"
+          className="absolute left-0 top-0 h-[900px] w-[1280px] origin-top-left border-none pointer-events-none"
+        />
+        <a
+          href={url}
+          target="_blank"
+          rel="noreferrer"
+          className="absolute inset-0 z-10"
+          aria-label={`Åpne ${name}`}
+        />
+      </div>
+    </div>
+  )
+}
+
 export default function ProjectCard({
   project,
   variant: _variant = 'default',
@@ -79,6 +134,11 @@ export default function ProjectCard({
 
         )}
       >
+        {/* Site preview */}
+        {project.previewUrl && (
+          <SitePreview url={project.previewUrl} name={project.displayName} />
+        )}
+
         {/* Top row: language/category + status */}
         <div className="mb-4 flex items-center justify-between gap-2">
           {langLabel ? (

@@ -19,6 +19,7 @@ export type ProjectOverride = {
   description?: string
   longDescription?: string
   demoUrl?: string
+  previewUrl?: string
   tags?: string[]
   category?: ProjectCategory
   openSource?: boolean
@@ -342,6 +343,19 @@ const en = {
   },
   pinnedProjects: [
     {
+      repo: 'privatsamleren-no',
+      displayName: 'Privatsamleren.no',
+      description:
+        'Far og sønn som kjøper løsøre, innbo og tar hånd om dødsbo – kontant oppgjør for gull, sølv, klokker, kunst og militaria.',
+      demoUrl: 'https://privatsamleren.no',
+      previewUrl: 'https://privatsamleren.no',
+      tags: ['Landing page', 'Frontend', 'Freelance'],
+      category: 'Frontend',
+      openSource: false,
+      featured: true,
+      status: 'Completed',
+    },
+    {
       repo: 'firix-portfolio',
       displayName: 'Firix Portfolio',
       description:
@@ -398,6 +412,21 @@ const en = {
     },
   ] satisfies ProjectOverride[],
   sampleProjects: [
+    {
+      id: 5,
+      name: 'privatsamleren-no',
+      full_name: 'privatsamleren/privatsamleren-no',
+      html_url: 'https://privatsamleren.no',
+      description:
+        'Far og sønn som kjøper løsøre, innbo og tar hånd om dødsbo – kontant oppgjør for gull, sølv, klokker, kunst og militaria.',
+      language: 'JavaScript',
+      stargazers_count: 0,
+      forks_count: 0,
+      updated_at: '2026-05-01T12:00:00Z',
+      topics: ['frontend', 'landing'],
+      homepage: 'https://privatsamleren.no',
+      license: null,
+    },
     {
       id: 4,
       name: 'firix-portfolio',
