@@ -3,7 +3,7 @@ import { Eye, EyeOff, LayoutDashboard, LogOut, Package, BarChart2, Save, RotateC
 import { isAuthenticated, login, logout } from '../lib/adminAuth'
 import { getAdminStore, patchProject, resetProject, type AdminProjectOverride } from '../lib/adminStore'
 import { cn } from '../lib/utils'
-import { fetchGithubRepos, type GitHubRepo } from '../lib/github'
+import { fetchMergedRepos, createProjectMapper, type Project } from '../lib/projects'
 import { useProfile } from '../lib/i18n'
 
 type Tab = 'overview' | 'projects' | 'analytics'
@@ -84,7 +84,7 @@ function Sidebar({ active, onChange, onLogout }: { active: Tab; onChange: (t: Ta
     </aside>
   )
 }
-function OverviewTab({ repos }: { repos: GitHubRepo[] }) {
+function OverviewTab({ projects }: { projects: Project[] }) {
   const store = getAdminStore()
   const hidden = Object.values(store.projectOverrides).filter((o) => o.hidden).length
   const customized = Object.keys(store.projectOverrides).filter((k) => { const o = store.projectOverrides[k]; return o.displayName || o.description || o.demoUrl || o.tags }).length
@@ -93,22 +93,22 @@ function OverviewTab({ repos }: { repos: GitHubRepo[] }) {
       <div>
         <h2 className="font-mono text-xs uppercase tracking-[0.2em] text-slate-500">Overview</h2>
         <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <StatCard label="Total repos" value={repos.length} Icon={Package} />
+          <StatCard label="Total repos" value={projects.length} Icon={Package} />
           <StatCard label="Hidden" value={hidden} Icon={EyeOff} sub="repos hidden from site" />
           <StatCard label="Customized" value={customized} Icon={Save} sub="repos with overrides" />
-          <StatCard label="Visible" value={Math.max(0, repos.length - hidden)} Icon={Eye} sub="showing on site" />
+          <StatCard label="Visible" value={Math.max(0, projects.length - hidden)} Icon={Eye} sub="showing on site" />
         </div>
       </div>
       <div>
-        <h2 className="font-mono text-xs uppercase tracking-[0.2em] text-slate-500">GitHub repos</h2>
+        <h2 className="font-mono text-xs uppercase tracking-[0.2em] text-slate-500">Projects</h2>
         <div className="mt-4 overflow-hidden rounded-[8px] border border-[#1c1c28]">
-          {repos.slice(0, 10).map((repo, i) => {
-            const override = store.projectOverrides[repo.name] ?? {}
+          {projects.slice(0, 10).map((project, i) => {
+            const override = store.projectOverrides[project.name] ?? {}
             return (
-              <div key={repo.name} className={cn('flex items-center justify-between px-4 py-3 text-sm', i > 0 && 'border-t border-[#1c1c28]')}>
-                <span className={cn('font-mono text-[0.75rem]', override.hidden ? 'text-slate-600 line-through' : 'text-slate-300')}>{override.displayName ?? repo.name}</span>
+              <div key={project.name} className={cn('flex items-center justify-between px-4 py-3 text-sm', i > 0 && 'border-t border-[#1c1c28]')}>
+                <span className={cn('font-mono text-[0.75rem]', override.hidden ? 'text-slate-600 line-through' : 'text-slate-300')}>{project.displayName}</span>
                 <div className="flex items-center gap-3">
-                  {override.demoUrl ? <span className="font-mono text-[0.6rem] text-[#7fffb2]/60">demo</span> : null}
+                  {project.demoUrl ? <span className="font-mono text-[0.6rem] text-[#7fffb2]/60">demo</span> : null}
                   <span className={cn('font-mono text-[0.62rem] uppercase tracking-[0.08em]', override.hidden ? 'text-rose-500/70' : 'text-[#1c1c28]')}>{override.hidden ? 'hidden' : ''}</span>
                 </div>
               </div>
@@ -119,7 +119,7 @@ function OverviewTab({ repos }: { repos: GitHubRepo[] }) {
     </div>
   )
 }
-function ProjectRow({ repo, override, onSave, onReset }: { repo: GitHubRepo; override: AdminProjectOverride; onSave: (patch: AdminProjectOverride) => void; onReset: () => void }) {
+function ProjectRow({ repo, override, onSave, onReset }: { repo: Project; override: AdminProjectOverride; onSave: (patch: AdminProjectOverride) => void; onReset: () => void }) {
   const [expanded, setExpanded] = useState(false)
   const [draft, setDraft] = useState<AdminProjectOverride>({ ...override })
   const [saved, setSaved] = useState(false)
@@ -170,11 +170,11 @@ function ProjectRow({ repo, override, onSave, onReset }: { repo: GitHubRepo; ove
   )
 }
 
-function ProjectsTab({ repos }: { repos: GitHubRepo[] }) {
+function ProjectsTab({ projects }: { projects: Project[] }) {
   const [, forceUpdate] = useState(0)
   const [search, setSearch] = useState('')
   const store = getAdminStore()
-  const filtered = repos.filter((r) => r.name.toLowerCase().includes(search.toLowerCase()))
+  const filtered = projects.filter((p) => p.name.toLowerCase().includes(search.toLowerCase()))
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
@@ -184,8 +184,8 @@ function ProjectsTab({ repos }: { repos: GitHubRepo[] }) {
       <p className="font-mono text-[0.65rem] text-slate-600">Changes save to localStorage and reflect on the site without a redeploy.</p>
       <div className="overflow-hidden rounded-[8px] border border-[#1c1c28]">
         {filtered.length === 0 ? <p className="px-5 py-6 font-mono text-[0.72rem] text-slate-600">No repos found.</p> : null}
-        {filtered.map((repo) => (
-          <ProjectRow key={repo.name} repo={repo} override={store.projectOverrides[repo.name] ?? {}} onSave={(patch) => { patchProject(repo.name, patch); forceUpdate((n) => n + 1) }} onReset={() => { resetProject(repo.name); forceUpdate((n) => n + 1) }} />
+        {filtered.map((project) => (
+          <ProjectRow key={project.name} repo={project} override={store.projectOverrides[project.name] ?? {}} onSave={(patch) => { patchProject(project.name, patch); forceUpdate((n) => n + 1) }} onReset={() => { resetProject(project.name); forceUpdate((n) => n + 1) }} />
         ))}
       </div>
     </div>
@@ -256,17 +256,23 @@ function AnalyticsTab() {
 
 function AdminPanel({ onLogout }: { onLogout: () => void }) {
   const [tab, setTab] = useState<Tab>('overview')
-  const [repos, setRepos] = useState<GitHubRepo[]>([])
+  const [projects, setProjects] = useState<Project[]>([])
   const profile = useProfile()
   useEffect(() => {
-    fetchGithubRepos(profile.githubUsername).then(setRepos).catch(() => setRepos([]))
-  }, [profile.githubUsername])
+    let active = true
+    fetchMergedRepos(profile).then(({ repos }) => {
+      if (!active) return
+      const { mapRepo } = createProjectMapper(profile)
+      setProjects(repos.map(mapRepo))
+    }).catch(() => { if (active) setProjects([]) })
+    return () => { active = false }
+  }, [profile])
   return (
     <div className="flex h-screen bg-[#09090e] text-slate-100">
       <Sidebar active={tab} onChange={setTab} onLogout={() => { logout(); onLogout() }} />
       <main className="flex-1 overflow-y-auto p-8">
-        {tab === 'overview' && <OverviewTab repos={repos} />}
-        {tab === 'projects' && <ProjectsTab repos={repos} />}
+        {tab === 'overview' && <OverviewTab projects={projects} />}
+        {tab === 'projects' && <ProjectsTab projects={projects} />}
         {tab === 'analytics' && <AnalyticsTab />}
       </main>
     </div>
