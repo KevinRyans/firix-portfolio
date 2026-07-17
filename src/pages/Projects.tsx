@@ -1,284 +1,101 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
-import { getAdminStore } from './adminStore'
-import { type Profile, type ProjectCategory, type ProjectOverride } from '../content/profile'
-import { fetchGithubRepos, type GitHubRepo } from './github'
-import { formatDate, slugify } from './utils'
+import { useMemo, useState } from 'react'
+import { Filter, ArrowUpDown } from 'lucide-react'
+import { type ProjectCategory } from '../content/profile'
+import { filterProjects, sortProjects, useProjects } from '../lib/projects'
+import { useProfile } from '../lib/i18n'
+import { cn } from '../lib/utils'
+import ProjectCard from '../components/projects/ProjectCard'
+import ProjectCardSkeleton from '../components/projects/ProjectCardSkeleton'
+import SectionHeader from '../components/ui/SectionHeader'
+import Reveal from '../components/sections/Reveal'
 
-export type Project = {
-  id: number
-  name: string
-  displayName: string
-  description: string
-  longDescription?: string
-  url: string
-  demoUrl?: string
-  previewUrl?: string
-  language?: string
-  stars: number
-  forks: number
-  updatedAt: string
-  updatedLabel: string
-  topics: string[]
-  tags: string[]
-  category: ProjectCategory
-  openSource: boolean
-  pinned: boolean
-  featured: boolean
-  status?: string
-  slug: string
-}
-
-export type ProjectsSource = 'github' | 'sample'
-
-export type ProjectsState = {
-  status: 'idle' | 'loading' | 'success' | 'error'
-  source: ProjectsSource
-  projects: Project[]
-  error?: string
-}
-
-type CachedProjects = {
-  data: Project[]
-  source: ProjectsSource
-  fetchedAt: number
-}
-
-const cache: { current: CachedProjects | null } = { current: null }
-const TTL = 1000 * 60 * 5
-
-const frontTags = ['frontend', 'ui', 'react', 'web', 'landing', 'design']
-const backTags = ['backend', 'api', 'server', 'database', 'ops']
-const fullTags = ['fullstack', 'full-stack', 'platform']
-const ossTags = ['open-source', 'opensource', 'oss']
-
-export function mergeMissingRepos(repos: GitHubRepo[], fallback: GitHubRepo[]) {
-  const existing = new Set(repos.map((repo) => repo.name.toLowerCase()))
-  const extras = fallback.filter((repo) => !existing.has(repo.name.toLowerCase()))
-  return [...repos, ...extras]
-}
-
-function normalizeTopics(topics?: string[]) {
-  return (topics ?? []).map((topic) => topic.toLowerCase())
-}
-
-function titleize(value: string) {
-  return value
-    .split('-')
-    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-    .join(' ')
-}
-
-function inferCategory(topics: string[], repo: GitHubRepo): ProjectCategory {
-  const hasFull = topics.some((topic) => fullTags.includes(topic))
-  const hasFront = topics.some((topic) => frontTags.includes(topic))
-  const hasBack = topics.some((topic) => backTags.includes(topic))
-
-  if (hasFull || (hasFront && hasBack)) return 'Fullstack'
-  if (hasFront) return 'Frontend'
-  if (hasBack) return 'Backend'
-
-  if (repo.language && ['html', 'css', 'javascript', 'typescript'].includes(repo.language.toLowerCase())) {
-    return 'Frontend'
-  }
-
-  return 'Fullstack'
-}
-
-function inferOpenSource(topics: string[], repo: GitHubRepo) {
-  if (topics.some((topic) => ossTags.includes(topic))) return true
-  if (repo.license && repo.license.spdx_id && repo.license.spdx_id !== 'NOASSERTION') {
-    return true
-  }
-  return false
-}
-
-function buildTags(override: ProjectOverride | undefined, repo: GitHubRepo, topics: string[]) {
-  if (override?.tags && override.tags.length > 0) return override.tags
-  if (topics.length > 0) return topics.slice(0, 3).map(titleize)
-  if (repo.language) return [repo.language]
-  return []
-}
-
-function sortWithPinned(
-  projects: Project[],
-  sortBy: 'stars' | 'updated',
-  pinnedOrder: Map<string, number>,
-) {
-  const sorted = [...projects].sort((a, b) => {
-    const aPinned = pinnedOrder.get(a.name)
-    const bPinned = pinnedOrder.get(b.name)
-
-    if (aPinned !== undefined || bPinned !== undefined) {
-      if (aPinned === undefined) return 1
-      if (bPinned === undefined) return -1
-      return aPinned - bPinned
-    }
-
-    if (sortBy === 'stars') return b.stars - a.stars
-    return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
-  })
-
-  return sorted
-}
-
-export function filterProjects(projects: Project[], filter: ProjectCategory) {
-  if (filter === 'All') return projects
-  if (filter === 'Open Source') return projects.filter((project) => project.openSource)
-  return projects.filter((project) => project.category === filter)
-}
-
-export function sortProjects(
-  projects: Project[],
-  sortBy: 'stars' | 'updated',
-  pinnedOrder: Map<string, number>,
-) {
-  return sortWithPinned(projects, sortBy, pinnedOrder)
-}
-
-type MergedRepos = {
-  repos: GitHubRepo[]
-  source: ProjectsSource
-  error?: string
-}
-
-const reposCache: { current: (MergedRepos & { fetchedAt: number }) | null } = { current: null }
-
-/**
- * Fetches the full merged repo list: live GitHub repos plus manually curated
- * fallback/sample entries from profile.ts (e.g. projects that aren't public
- * GitHub repos, like a client landing page). Applies the permanent, code-level
- * `profile.hiddenProjects` exclude list.
- *
- * This intentionally does NOT filter out projects hidden via the admin store
- * (the UI "Hide" toggle) — the Admin panel needs to see those so they can be
- * un-hidden. `useProjects` below applies that extra filter for public pages.
- */
-export async function fetchMergedRepos(profile: Profile): Promise<MergedRepos> {
-  if (reposCache.current && Date.now() - reposCache.current.fetchedAt < TTL) {
-    const { repos, source, error } = reposCache.current
-    return { repos, source, error }
-  }
-
-  const hiddenProjects = new Set((profile.hiddenProjects ?? []).map((name) => name.toLowerCase()))
-  const excludeConfigHidden = (repos: GitHubRepo[]) =>
-    repos.filter((repo) => !hiddenProjects.has(repo.name.toLowerCase()))
-
-  try {
-    const repos = excludeConfigHidden(await fetchGithubRepos(profile.githubUsername))
-    const fallbackRepos = excludeConfigHidden(profile.sampleProjects as GitHubRepo[])
-    const merged = mergeMissingRepos(repos, fallbackRepos)
-    reposCache.current = { repos: merged, source: 'github', fetchedAt: Date.now() }
-    return { repos: merged, source: 'github' }
-  } catch (err) {
-    const fallbackRepos = excludeConfigHidden(profile.sampleProjects as GitHubRepo[])
-    const error = err instanceof Error ? err.message : 'unknown_error'
-    reposCache.current = { repos: fallbackRepos, source: 'sample', error, fetchedAt: Date.now() }
-    return { repos: fallbackRepos, source: 'sample', error }
-  }
-}
-
-/**
- * Builds a repo -> Project mapper bound to a profile's pinned projects and
- * overrides, merged with whatever is currently saved in the admin store.
- * Shared by `useProjects` (public site) and the Admin panel, so both render
- * projects the same way.
- */
-export function createProjectMapper(profile: Profile) {
-  const pinnedProjects = profile.pinnedProjects as ProjectOverride[]
-  const projectOverrides = profile.projectOverrides as ProjectOverride[]
-
-  const pinnedOrder = new Map(pinnedProjects.map((project, index) => [project.repo, index]))
-  const overrideMap = new Map<string, ProjectOverride>(
-    [...pinnedProjects, ...projectOverrides].map((override) => [override.repo, override]),
+export default function Projects() {
+  const profile = useProfile()
+  const { projects, status, source, pinnedOrder } = useProjects(profile)
+  const [filter, setFilter] = useState<ProjectCategory>(
+    profile.projects.filters[0].value,
+  )
+  const [sort, setSort] = useState<'stars' | 'updated'>(
+    profile.projects.sortOptions[0].value as 'stars' | 'updated',
   )
 
-  const mapRepo = (repo: GitHubRepo): Project => {
-    const adminOverride = getAdminStore().projectOverrides[repo.name] ?? {}
-    const baseOverride = overrideMap.get(repo.name)
-    const override: (typeof baseOverride & typeof adminOverride) | undefined = baseOverride ? { ...baseOverride, ...adminOverride } : (Object.keys(adminOverride).length ? { repo: repo.name, ...adminOverride } as any : undefined)
-    const topics = normalizeTopics(repo.topics)
-    const category = override?.category ?? inferCategory(topics, repo)
-    const openSource = override?.openSource ?? inferOpenSource(topics, repo)
-    const pinnedIndex = pinnedOrder.get(repo.name)
+  const filtered = useMemo(() => {
+    const next = filterProjects(projects, filter)
+    return sortProjects(next, sort, pinnedOrder)
+  }, [projects, filter, sort, pinnedOrder])
 
-    return {
-      id: repo.id,
-      name: repo.name,
-      displayName: override?.displayName ?? repo.name,
-      description: override?.description ?? repo.description ?? profile.labels.noDescription,
-      longDescription: override?.longDescription,
-      url: repo.html_url,
-      demoUrl: override?.demoUrl ?? (repo.homepage || undefined),
-      previewUrl: override?.previewUrl,
-      language: repo.language ?? undefined,
-      stars: repo.stargazers_count ?? 0,
-      forks: repo.forks_count ?? 0,
-      updatedAt: repo.updated_at,
-      updatedLabel: formatDate(repo.updated_at),
-      topics,
-      tags: buildTags(override, repo, topics),
-      category,
-      openSource,
-      pinned: pinnedIndex !== undefined,
-      featured: override?.featured ?? false,
-      status: override?.status,
-      slug: override?.displayName ? slugify(override.displayName) : slugify(repo.name),
-    }
-  }
+  return (
+    <div className="mx-auto w-full max-w-6xl px-6 pb-20">
+      <Reveal>
+        <SectionHeader title={profile.projects.title} subtitle={profile.projects.subtitle} />
+        {source === 'sample' ? (
+          <p className="mt-3 text-xs text-slate-400">{profile.projects.fallbackNotice}</p>
+        ) : null}
 
-  return { mapRepo, pinnedOrder }
-}
+        <div className="mt-8 flex flex-wrap items-center gap-3">
+          <div className="flex items-center gap-2 text-xs text-slate-400">
+            <Filter size={14} /> {profile.labels.filterLabel}
+          </div>
+          {profile.projects.filters.map((option) => (
+            <button
+              key={option.value}
+              type="button"
+              onClick={() => setFilter(option.value)}
+              className={cn(
+                'focus-ring rounded-full border border-white/10 px-4 py-2 text-xs font-medium text-slate-300 transition',
+                filter === option.value &&
+                  'border-accent-400/40 bg-accent-500/10 text-accent-200',
+              )}
+            >
+              {option.label}
+            </button>
+          ))}
 
-export function useProjects(profile: Profile) {
-  const { mapRepo, pinnedOrder } = useMemo(() => createProjectMapper(profile), [profile])
+          <div className="ml-auto flex items-center gap-2 text-xs text-slate-400">
+            <ArrowUpDown size={14} /> {profile.labels.sortLabel}
+          </div>
+          <div className="flex items-center gap-2">
+            {profile.projects.sortOptions.map((option) => (
+              <button
+                key={option.value}
+                type="button"
+                onClick={() => setSort(option.value as 'stars' | 'updated')}
+                className={cn(
+                  'focus-ring rounded-full border border-white/10 px-4 py-2 text-xs font-medium text-slate-300 transition',
+                  sort === option.value && 'border-teal-400/40 bg-teal-400/10 text-teal-200',
+                )}
+              >
+                {option.label}
+              </button>
+            ))}
+          </div>
+        </div>
+      </Reveal>
 
-  const filterAdminHidden = useCallback((repos: GitHubRepo[]) => {
-    const adminStore = getAdminStore()
-    return repos.filter((repo) => !adminStore.projectOverrides[repo.name]?.hidden)
-  }, [])
-
-  const [state, setState] = useState<ProjectsState>(() => {
-    if (cache.current && Date.now() - cache.current.fetchedAt < TTL) {
-      return {
-        status: 'success',
-        source: cache.current.source,
-        projects: cache.current.data,
-      }
-    }
-    return { status: 'loading', source: 'github', projects: [] }
-  })
-
-  useEffect(() => {
-    let active = true
-
-    const load = async () => {
-      if (cache.current && Date.now() - cache.current.fetchedAt < TTL) {
-        return
-      }
-
-      setState((prev) => ({ ...prev, status: 'loading' }))
-
-      const { repos, source, error } = await fetchMergedRepos(profile)
-      const visible = filterAdminHidden(repos)
-      const mapped = visible.map(mapRepo)
-      const sorted = sortWithPinned(mapped, 'updated', pinnedOrder)
-      const next = { data: sorted, source, fetchedAt: Date.now() }
-      cache.current = next
-
-      if (!active) return
-      setState({ status: 'success', source, projects: sorted, error })
-    }
-
-    void load()
-
-    return () => {
-      active = false
-    }
-  }, [])
-
-  const bySlug = useMemo(() => {
-    return new Map(state.projects.map((project) => [project.slug, project]))
-  }, [state.projects])
-
-  return { ...state, bySlug, pinnedOrder }
+      <Reveal className="mt-8">
+        {status === 'loading' ? (
+          <ProjectCardSkeleton count={6} />
+        ) : filtered.length === 0 ? (
+          <div className="rounded-2xl border border-white/10 bg-white/5 p-10 text-center">
+            <p className="text-base font-semibold text-white">
+              {profile.projects.emptyStateTitle}
+            </p>
+            <p className="mt-2 text-sm text-slate-400">
+              {profile.projects.emptyStateSubtitle}
+            </p>
+          </div>
+        ) : (
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {filtered.map((project) => (
+              <ProjectCard
+                key={project.id}
+                project={project}
+                variant={project.featured ? 'featured' : 'default'}
+              />
+            ))}
+          </div>
+        )}
+      </Reveal>
+    </div>
+  )
 }
