@@ -83,21 +83,48 @@ Er KV ikke koblet til ennå, faller siden tilbake til listen i
 
 ## Forhåndsvisninger av prosjektene
 
-Hvert prosjekt vises i en nettleserramme. Du velger i `/admin` mellom to
-måter å fylle den på:
+Hvert prosjekt vises i en nettleserramme. Du velger måte i `/admin`:
 
-**«Bilde» (standard).** Et skjermbilde fra `public/previews/`. Virker alltid,
-laster raskt, og ser likt ut for alle.
+### Automatisk skjermbilde (standard)
 
-**«Live».** Nettstedet lastes i en iframe, skalert ned fra 1440px. Iframen
-monteres først når kortet nærmer seg skjermen, og er ikke klikkbar før
-brukeren trykker «Utforsk i kortet», slik at den ikke spiser scrollingen.
+Et skjermbilde av nettstedet hentes utenfra og oppdaterer seg selv når
+kunden endrer siden. Virker uansett om nettstedet tillater innramming, laster
+raskere enn et helt nettsted, og spiser ikke scrolling.
 
-### Hvorfor «live» må slås på manuelt
+Bildet hentes gjennom vårt eget `/api/screenshot`, som:
 
-Mange nettsteder nekter å bli vist i ramme, via `X-Frame-Options` eller
-`Content-Security-Policy: frame-ancestors`. **Dette kan ikke oppdages fra
-nettleseren.** Målt på en blokkert og en tillatt ramme side om side:
+- lar Vercel cache resultatet i en uke på kanten, så tjenesten treffes svært
+  sjelden,
+- venter til tjenesten er ferdig med å bygge bildet i stedet for å vise et
+  halvferdig ett,
+- skjuler hvilken tredjepart som brukes, så besøkende aldri sender en
+  forespørsel dit selv,
+- avviser adresser som ikke er offentlige, så det ikke kan brukes til å nå
+  interne tjenester.
+
+Finnes ikke `/api` (GitHub Pages), går nettleseren rett til tjenesten i
+stedet. Feiler begge, vises et formgitt kort med navn og domene. Kortet er
+aldri tomt.
+
+Tjenesten er WordPress' `mshots`: gratis, uten nøkkel, og bygget for
+wordpress.com-trafikk. Vil du bytte, er alt samlet i `src/lib/preview.ts` og
+`api/screenshot.ts`.
+
+### Eget bilde
+
+Best kvalitet. Lagre i `public/previews/` (1440 × 900, JPG eller WebP, under
+300 kB) og skriv stien — for eksempel `/previews/privatsamleren.jpg` — i
+feltet **«Bilde-sti»**. Et eget bilde vinner alltid over det automatiske.
+
+### Live nettsted
+
+Nettstedet lastes i en iframe, skalert ned fra 1440px, montert først når
+kortet nærmer seg skjermen og ikke klikkbart før brukeren trykker «Utforsk i
+kortet».
+
+**Dette må velges bevisst per prosjekt.** Mange nettsteder nekter innramming
+via `X-Frame-Options` eller `CSP: frame-ancestors`, og det kan ikke oppdages
+fra nettleseren. Målt på en blokkert og en tillatt ramme side om side:
 
 | | Blokkert | Tillatt |
 |---|---|---|
@@ -106,35 +133,19 @@ nettleseren.** Målt på en blokkert og en tillatt ramme side om side:
 | `contentWindow.origin` | SecurityError | SecurityError |
 | `contentWindow.location` | SecurityError | SecurityError |
 
-Signalene er identiske. En blokkert ramme tegner nettleserens grå feilside
-oppå alt annet, og det finnes ingen måte å fange det opp og bytte til et
-bilde i stedet. Derfor er `image` standard, og `live` noe du slår på bevisst.
+Signalene er identiske, så en blokkert ramme kan ikke byttes automatisk mot
+et bilde — den tegner nettleserens grå feilside oppå alt annet.
 
-`privatsamleren.no` nekter innramming, og står derfor på «Bilde».
-
-### Sjekke et nettsted
+Merk at slike hoder ofte er knyttet til opphav: et nettsted kan tillate
+`https://firix.no` og samtidig blokkere `localhost`. Test derfor fra det
+domenet siden faktisk skal kjøre på.
 
 Er du på Vercel: trykk **«Kan nettstedet vises live?»** i `/admin`. Serveren
-leser svarhodene og slår automatisk av live-modus hvis nettstedet blokkerer.
-
-Uten backend gjør du det samme fra terminalen:
+leser hodene og slår av live-modus hvis nettstedet blokkerer. Ellers:
 
 ```bash
 curl -sI https://example.com | grep -i -E 'x-frame-options|content-security-policy'
 ```
-
-Ingen treff betyr at live fungerer.
-
-### Legge til et skjermbilde
-
-Lagre bildet i `public/previews/` (1440 × 900, JPG eller WebP, under 300 kB)
-og skriv stien — for eksempel `/previews/privatsamleren.jpg` — i feltet
-**«Bilde-sti»** i `/admin`. Feltet brukes også som reserve hvis en
-live-visning ikke laster.
-
-Uten bilde viser kortet et formgitt kort med nettstedets navn og domene. Det
-ser bevisst ut, men det er ikke kundens forside — og det er forsiden som
-selger.
 
 ## Miljøvariabler
 

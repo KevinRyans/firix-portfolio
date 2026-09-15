@@ -258,7 +258,7 @@ function Editor({
       <div className="rounded-xl border border-line-soft bg-muted p-4">
         <p className="text-[13px] font-medium text-ink">Forhåndsvisning</p>
         <div className="mt-3 flex flex-wrap gap-2">
-          {(['live', 'image'] as const).map((mode) => (
+          {(['auto', 'image', 'live'] as const).map((mode) => (
             <button
               key={mode}
               type="button"
@@ -270,14 +270,22 @@ function Editor({
                   : 'border-line bg-surface text-ink-soft hover:border-ink-ghost',
               )}
             >
-              {mode === 'live' ? 'Live nettsted' : 'Bilde'}
+              {mode === 'auto'
+                ? 'Automatisk skjermbilde'
+                : mode === 'image'
+                  ? 'Eget bilde'
+                  : 'Live nettsted'}
             </button>
           ))}
         </div>
         <p className="mt-2 text-[12px] leading-relaxed text-ink-faint">
-          «Bilde» virker alltid. «Live» laster det ekte nettstedet, men mange nettsteder nekter å
-          bli vist i ramme — og det kan ikke oppdages fra nettleseren, så en blokkert visning ender
-          som nettleserens grå feilside hos besøkende. Sjekk før du slår den på.
+          <strong className="font-medium text-ink">Automatisk</strong> henter et skjermbilde av
+          nettstedet og oppdaterer seg selv — virker uansett om nettstedet tillater innramming.{' '}
+          <strong className="font-medium text-ink">Eget bilde</strong> gir best kvalitet: legg filen
+          i <code className="text-ink">/public/previews/</code>.{' '}
+          <strong className="font-medium text-ink">Live</strong> laster det ekte nettstedet, men
+          mange nettsteder nekter innramming, og det kan ikke oppdages fra nettleseren — da ser
+          besøkende nettleserens grå feilside. Sjekk før du velger den.
         </p>
 
         {project.url ? (
