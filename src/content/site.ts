@@ -36,8 +36,8 @@ export type Business = {
 export const business: Business = {
   /** Juridisk navn slik det står i Brønnøysundregistrene. */
   legalName: 'Firix',
-  /** 9 siffer. Tom streng = org.nr skjules i footer og tillitsraden. */
-  orgNumber: '',
+  /** 9 siffer, gruppert slik Brønnøysund skriver det. Tom streng skjuler det. */
+  orgNumber: '936 634 567',
   /** true når du faktisk er MVA-registrert. Viser «MVA-registrert» som tillitssignal. */
   vatRegistered: true,
   city: 'Tønsberg',
