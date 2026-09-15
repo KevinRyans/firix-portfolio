@@ -87,28 +87,38 @@ Hvert prosjekt vises i en nettleserramme. Du velger måte i `/admin`:
 
 ### Automatisk skjermbilde (standard)
 
-Et skjermbilde av nettstedet hentes utenfra og oppdaterer seg selv når
-kunden endrer siden. Virker uansett om nettstedet tillater innramming, laster
-raskere enn et helt nettsted, og spiser ikke scrolling.
+Skjermbildene tas av **GitHub Actions** og legges i repoet, så nettsiden
+serverer dem fra ditt eget domene. Ingen ekstern tjeneste involveres når en
+besøkende er inne på siden.
 
-Bildet hentes gjennom vårt eget `/api/screenshot`, som:
+`.github/workflows/previews.yml` kjører hver mandag, og når du selv trykker
+**Run workflow**. Den starter Chromium, åpner hvert prosjektnettsted i 1200 ×
+750 på 2x, slår av animasjoner, og lagrer `public/previews/<slug>.jpg`.
+Endres noe, committes bildene — og den commiten utløser en ny publisering.
 
-- lar Vercel cache resultatet i en uke på kanten, så tjenesten treffes svært
-  sjelden,
-- venter til tjenesten er ferdig med å bygge bildet i stedet for å vise et
-  halvferdig ett,
-- skjuler hvilken tredjepart som brukes, så besøkende aldri sender en
-  forespørsel dit selv,
-- avviser adresser som ikke er offentlige, så det ikke kan brukes til å nå
-  interne tjenester.
+Prosjektlisten hentes fra `https://firix.no/api/projects` når det finnes, slik
+at prosjekter du legger til i `/admin` kommer med uten at noen rører koden.
+Ellers leses listen i `src/content/projects.ts`. Prosjekter som allerede har
+et eget bilde hoppes over, og et nettsted som er nede sletter ikke bildet som
+ligger der fra før.
 
-Finnes ikke `/api` (GitHub Pages), går nettleseren rett til tjenesten i
-stedet. Feiler begge, vises et formgitt kort med navn og domene. Kortet er
-aldri tomt.
+Kjør den lokalt slik:
 
-Tjenesten er WordPress' `mshots`: gratis, uten nøkkel, og bygget for
-wordpress.com-trafikk. Vil du bytte, er alt samlet i `src/lib/preview.ts` og
-`api/screenshot.ts`.
+```bash
+npx playwright install chromium
+node scripts/capture-previews.mjs                    # fra src/content/projects.ts
+node scripts/capture-previews.mjs --api=https://firix.no   # fra den publiserte listen
+```
+
+**Reserver, i rekkefølge.** Finnes ikke `public/previews/<slug>.jpg` ennå,
+prøver siden `/api/screenshot` (som henter bildet på serveren og lar Vercel
+cache det), så en gratis skjermbildetjeneste direkte fra nettleseren, og til
+slutt et formgitt kort med navn og domene. Kortet er aldri tomt.
+
+Merk at en slik tjeneste bygger bildet asynkront og svarer med en liten grå
+stump første gang den ser en URL. Den stumpen er et gyldig bilde, så den
+laster uten feil — siden avviser den derfor på bredde, og viser kortet i
+stedet. Det er nettopp denne usikkerheten skjermbildene i repoet fjerner.
 
 ### Eget bilde
 

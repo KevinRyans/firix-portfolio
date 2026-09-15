@@ -1,0 +1,56 @@
+# Tar skjermbilder av prosjektnettstedene og legger dem i repoet.
+#
+# Bildene serveres deretter fra vårt eget domene. Nettsiden trenger ingen
+# ekstern skjermbildetjeneste når en besøkende er der, og du trenger ikke
+# gjøre noe manuelt når en kunde oppdaterer nettstedet sitt.
+#
+# Kjør den med «Run workflow» første gang, eller når du har lagt til et
+# prosjekt og ikke vil vente til mandag.
+name: Oppdater forhåndsvisninger
+
+on:
+  schedule:
+    # Mandag 05:00 UTC.
+    - cron: '0 5 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: 'previews'
+  cancel-in-progress: false
+
+jobs:
+  capture:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Installer nettleser
+        run: npx playwright install --with-deps chromium
+
+      - name: Ta skjermbilder
+        # Prosjektlisten hentes fra det publiserte API-et når det finnes, så
+        # prosjekter lagt til i /admin kommer med. Ellers brukes listen i
+        # src/content/projects.ts.
+        run: node scripts/capture-previews.mjs --api=https://firix.no
+
+      - name: Commit endringene
+        run: |
+          if [ -z "$(git status --porcelain public/previews)" ]; then
+            echo "Ingen endringer i forhåndsvisningene."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add public/previews
+          git commit -m "Oppdater forhåndsvisninger av prosjektene"
+          git push

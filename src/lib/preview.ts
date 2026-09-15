@@ -35,14 +35,29 @@ export function mshotsUrl(target: string, width = SHOT_WIDTH): string {
 }
 
 /**
+ * Stien der GitHub Actions legger skjermbildet den tar av prosjektet.
+ * Se scripts/capture-previews.mjs og .github/workflows/previews.yml.
+ */
+export function capturedPath(slug: string): string {
+  return `/previews/${slug}.jpg`
+}
+
+/**
  * Kildene for et automatisk skjermbilde, i prioritert rekkefølge.
  *
- * 1. Vårt eget endepunkt, som henter bildet på serveren og lar Vercel cache
- *    det. Da ser ikke besøkende hvilken tjeneste som brukes, og tjenesten
- *    treffes sjelden.
- * 2. Tjenesten direkte, for når siden kjører på en host uten backend.
+ * 1. Bildet GitHub Actions har tatt og lagt i repoet. Ligger på vårt eget
+ *    domene, er allerede ferdig, og koster ingen ekstern forespørsel.
+ *    Finnes det ikke ennå, svarer serveren 404 og vi går videre.
+ * 2. Vårt eget endepunkt, som henter bildet på serveren og lar Vercel cache
+ *    det. Da ser ikke besøkende hvilken tjeneste som brukes.
+ * 3. Tjenesten direkte, for når siden kjører på en host uten backend.
  */
-export function screenshotSources(target: string, width = SHOT_WIDTH): string[] {
-  if (!isHttpUrl(target)) return []
-  return [`/api/screenshot?url=${encodeURIComponent(target)}&w=${width}`, mshotsUrl(target, width)]
+export function screenshotSources(target: string, slug: string, width = SHOT_WIDTH): string[] {
+  const sources: string[] = []
+  if (slug) sources.push(capturedPath(slug))
+  if (isHttpUrl(target)) {
+    sources.push(`/api/screenshot?url=${encodeURIComponent(target)}&w=${width}`)
+    sources.push(mshotsUrl(target, width))
+  }
+  return sources
 }

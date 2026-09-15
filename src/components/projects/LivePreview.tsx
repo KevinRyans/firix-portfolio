@@ -146,8 +146,8 @@ export default function LivePreview({
   const sources = useMemo(() => {
     if (project.posterImage) return [project.posterImage]
     if (project.previewMode === 'image') return []
-    return target ? screenshotSources(target) : []
-  }, [project.posterImage, project.previewMode, target])
+    return screenshotSources(target, project.slug)
+  }, [project.posterImage, project.previewMode, project.slug, target])
 
   const containerRef = useRef<HTMLDivElement>(null)
   const timerRef = useRef<number | undefined>(undefined)
