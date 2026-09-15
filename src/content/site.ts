@@ -160,12 +160,11 @@ export const nav = [
 export const hero = {
   eyebrow: 'Webutvikling for norske bedrifter',
   /**
-   * Én streng per linje. På skjermer over 640px tvinges linjeskiftet slik det
-   * står her; på mobil flyter linjene sammen og brekkes balansert, fordi et
-   * hardt skift der gir enslige ord på egen linje.
+   * Én streng = naturlig ombrekking. Heroen er nå to kolonner, så en tvunget
+   * linjedeling ville brukket stygt i den smalere tekstspalten.
    */
-  title: ['Din neste kunde', 'finner deg på nett.'],
-  lead: 'Jeg bygger raske, gjennomarbeidede nettsider og webapplikasjoner til fastpris — uten byråets prosjektledere, mellomledd og påslag. Du snakker med utvikleren som skriver koden.',
+  title: ['Jeg bygger nettsider, servere og alt imellom.'],
+  lead: 'Fastpris, ingen byråoverhead, og én person å forholde seg til fra første samtale til siden er live. Jeg tar også hosting, domener og driften etterpå.',
   primaryCta: { label: 'Få et tilbud', to: '/kontakt' },
   secondaryCta: { label: 'Se arbeidet mitt', to: '/#arbeid' },
 }
