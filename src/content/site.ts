@@ -211,6 +211,33 @@ export const services = {
   ],
 }
 
+export const about = {
+  eyebrow: 'Om meg',
+  title: 'Hvem du snakker med.',
+  /**
+   * Alderen står her fordi du ba om det. Vurder å fjerne den: den svarer på
+   * et spørsmål ingen kunde stilte, og for enkelte kjøpere er den en grunn
+   * til å nøle. «Sju år» er tallet som faktisk selger.
+   */
+  body: [
+    'Jeg heter Michael, er 25 år og holder til i Tønsberg. Jeg har bygget ting på nett i sju år — det begynte med egne prosjekter og ble etter hvert oppdrag for andre.',
+    'Når du leier meg, er det meg du får. Ingen prosjektleder som videreformidler, ingen selger som lover noe utvikleren ikke har sagt ja til. Du snakker med den som skriver koden, fra første samtale til siden er live.',
+  ],
+  facts: [
+    { value: '7 år', label: 'Med webutvikling' },
+    { value: 'Tønsberg', label: 'Base — jobber i hele Norge' },
+    { value: 'Null', label: 'Mellomledd mellom deg og koden' },
+  ],
+  /**
+   * Vises som en liten rund avatar ved navnet, ikke som stort portrett.
+   * Dette er en tegnet figur, ikke et foto — stort format ville fått
+   * seksjonen til å lese som en spillprofil. Bytt gjerne mot et ekte
+   * bilde av deg; da tåler den å bli større. Tom streng skjuler den.
+   */
+  portrait: '/images/michael.webp',
+  portraitAlt: 'Michael, utvikleren bak Firix',
+}
+
 export const work = {
   eyebrow: 'Arbeid',
   title: 'Levert og live.',
