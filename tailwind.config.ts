@@ -5,9 +5,12 @@ import type { Config } from 'tailwindcss'
  *
  * Colour and type values are modelled on apple.com's public marketing pages:
  * a near-white canvas, a single strong blue for action, and a very tight
- * negative tracking on large display type. Nothing here is branded Apple
- * asset — SF Pro is not licensed for web use, so `fontFamily.sans` resolves
- * to the real system font on Apple devices and falls back to Inter elsewhere.
+ * negative tracking on large display type.
+ *
+ * Typografien er Inter, selvhostet. Systemfonten sto først tidligere, som ga
+ * ekte SF Pro på Apple-enheter — men da så siden ulik ut avhengig av hvem som
+ * besøkte den. Inter er tegnet i samme tradisjon, så uttrykket består, og nå
+ * ser alle det samme.
  */
 const config: Config = {
   content: ['./index.html', './src/**/*.{ts,tsx}'],
@@ -59,11 +62,10 @@ const config: Config = {
       },
       fontFamily: {
         sans: [
+          'Inter Variable',
+          'Inter',
           '-apple-system',
           'BlinkMacSystemFont',
-          '"SF Pro Display"',
-          '"SF Pro Text"',
-          'Inter',
           'system-ui',
           'Segoe UI',
           'Roboto',
