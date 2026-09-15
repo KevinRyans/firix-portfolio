@@ -21,5 +21,7 @@ export function trackPageView(path: string): void {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ path, visitorId, referrer }),
     keepalive: true,
-  }).catch(() => { /* analytics failures are silent */ })
+  }).catch(() => {
+    /* analytics failures are silent */
+  })
 }

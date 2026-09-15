@@ -1,104 +1,88 @@
 import type { Config } from 'tailwindcss'
-import colors from 'tailwindcss/colors'
-import typography from '@tailwindcss/typography'
 
+/**
+ * Apple-inspired design tokens.
+ *
+ * Colour and type values are modelled on apple.com's public marketing pages:
+ * a near-white canvas, a single strong blue for action, and a very tight
+ * negative tracking on large display type. Nothing here is branded Apple
+ * asset — SF Pro is not licensed for web use, so `fontFamily.sans` resolves
+ * to the real system font on Apple devices and falls back to Inter elsewhere.
+ */
 const config: Config = {
   content: ['./index.html', './src/**/*.{ts,tsx}'],
   theme: {
     extend: {
       colors: {
-        slate: colors.slate,
-        base: {
-          950: '#09090e',
-          900: '#0e0e18',
-          800: '#111118',
-          700: '#1c1c28',
+        canvas: '#fbfbfd',
+        surface: '#ffffff',
+        muted: '#f5f5f7',
+        ink: {
+          DEFAULT: '#1d1d1f',
+          soft: '#424245',
+          faint: '#6e6e73',
+          ghost: '#86868b',
         },
-        surface: {
-          DEFAULT: '#111118',
-          soft: '#0e0e18',
-          glow: '#13131f',
+        line: {
+          DEFAULT: '#d2d2d7',
+          soft: '#e8e8ed',
         },
-        accent: {
-          300: '#b3ffe0',
-          400: '#7fffb2',
-          500: '#5dde96',
-          600: '#3db36f',
+        brand: {
+          50: '#eef6ff',
+          100: '#d9ecff',
+          400: '#2b8bf2',
+          500: '#0071e3',
+          600: '#0066cc',
+          700: '#0055b0',
         },
-        teal: {
-          300: '#a3baff',
-          400: '#5b8cff',
-          500: '#3a6ade',
-        },
-        border: '#1c1c28',
-        glow: 'rgba(127, 255, 178, 0.35)',
+        positive: '#00875a',
       },
       fontFamily: {
-        sans: ['DM Mono', 'ui-monospace', 'SFMono-Regular', 'monospace'],
-        mono: ['DM Mono', 'ui-monospace', 'SFMono-Regular', 'monospace'],
-        display: ['Syne', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        sans: [
+          '-apple-system',
+          'BlinkMacSystemFont',
+          '"SF Pro Display"',
+          '"SF Pro Text"',
+          'Inter',
+          'system-ui',
+          'Segoe UI',
+          'Roboto',
+          'Helvetica Neue',
+          'sans-serif',
+        ],
+        mono: ['ui-monospace', 'SFMono-Regular', 'Menlo', 'monospace'],
+      },
+      fontSize: {
+        hero: ['clamp(2.75rem, 7vw, 5.5rem)', { lineHeight: '1.04', letterSpacing: '-0.035em' }],
+        display: ['clamp(2.25rem, 5vw, 3.75rem)', { lineHeight: '1.07', letterSpacing: '-0.03em' }],
+        headline: [
+          'clamp(1.75rem, 3.4vw, 2.75rem)',
+          { lineHeight: '1.1', letterSpacing: '-0.025em' },
+        ],
+        title: ['clamp(1.25rem, 2vw, 1.6rem)', { lineHeight: '1.2', letterSpacing: '-0.015em' }],
+        lead: ['clamp(1.0625rem, 1.6vw, 1.4rem)', { lineHeight: '1.45', letterSpacing: '-0.01em' }],
+        eyebrow: ['0.8125rem', { lineHeight: '1.3', letterSpacing: '0.01em' }],
+      },
+      maxWidth: {
+        page: '1120px',
+        prose: '720px',
+        narrow: '880px',
+      },
+      borderRadius: {
+        card: '18px',
+        panel: '28px',
       },
       boxShadow: {
-        soft: '0 20px 50px -30px rgba(9, 9, 14, 0.9)',
-        glow: '0 0 0 1px rgba(127, 255, 178, 0.12), 0 0 30px rgba(127, 255, 178, 0.15)',
-        lift: '0 18px 40px -20px rgba(9, 9, 14, 0.95)',
+        card: '0 2px 10px rgba(0,0,0,0.045), 0 12px 32px -18px rgba(0,0,0,0.18)',
+        lift: '0 8px 24px rgba(0,0,0,0.07), 0 28px 60px -28px rgba(0,0,0,0.26)',
+        chrome: '0 1px 2px rgba(0,0,0,0.06), 0 18px 44px -20px rgba(0,0,0,0.3)',
       },
-      backdropBlur: {
-        xs: '2px',
-      },
-      keyframes: {
-        float: {
-          '0%, 100%': { transform: 'translate3d(0, 0, 0)' },
-          '50%': { transform: 'translate3d(0, -12px, 0)' },
-        },
-        drift: {
-          '0%, 100%': { transform: 'translate3d(0, 0, 0) rotate(0deg)' },
-          '50%': { transform: 'translate3d(0, -18px, 0) rotate(6deg)' },
-        },
-        gridShift: {
-          '0%': { backgroundPosition: '0 0, 0 0' },
-          '100%': { backgroundPosition: '160px 160px, -160px -160px' },
-        },
-        orbit: {
-          '0%': { transform: 'translate3d(0, 0, 0) rotate(0deg)' },
-          '100%': { transform: 'translate3d(0, 0, 0) rotate(360deg)' },
-        },
-        spinSlow: {
-          '0%': { transform: 'rotate(0deg)' },
-          '100%': { transform: 'rotate(360deg)' },
-        },
-        pulseGlow: {
-          '0%, 100%': { opacity: '0.45' },
-          '50%': { opacity: '0.9' },
-        },
-        shimmer: {
-          '0%': { backgroundPosition: '-200% 0' },
-          '100%': { backgroundPosition: '200% 0' },
-        },
-        pulseRing: {
-          '0%': { transform: 'scale(1)', opacity: '1' },
-          '100%': { transform: 'scale(2.2)', opacity: '0' },
-        },
-      },
-      animation: {
-        float: 'float 10s ease-in-out infinite',
-        slowFloat: 'float 18s ease-in-out infinite',
-        drift: 'drift 14s ease-in-out infinite',
-        gridShift: 'gridShift 40s linear infinite',
-        orbit: 'orbit 22s linear infinite',
-        spinSlower: 'spinSlow 28s linear infinite',
-        spinFast: 'spinSlow 7s linear infinite',
-        pulseGlow: 'pulseGlow 6s ease-in-out infinite',
-        shimmer: 'shimmer 2.4s ease-in-out infinite',
-        pulseRing: 'pulseRing 1.8s ease-out infinite',
-      },
-      backgroundImage: {
-        'hero-glow':
-          'radial-gradient(circle at top, rgba(127,255,178,0.08), transparent 60%), radial-gradient(circle at 20% 20%, rgba(91,140,255,0.1), transparent 50%)',
+      transitionTimingFunction: {
+        apple: 'cubic-bezier(0.28, 0.11, 0.32, 1)',
       },
     },
   },
-  plugins: [typography],
+  plugins: [],
 }
 
 export default config

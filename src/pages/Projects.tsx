@@ -1,101 +1,43 @@
-import { useMemo, useState } from 'react'
-import { Filter, ArrowUpDown } from 'lucide-react'
-import { type ProjectCategory } from '../content/profile'
-import { filterProjects, sortProjects, useProjects } from '../lib/projects'
-import { useProfile } from '../lib/i18n'
-import { cn } from '../lib/utils'
+import { useEffect } from 'react'
+import { work } from '../content/site'
+import { useProjects } from '../lib/projects'
 import ProjectCard from '../components/projects/ProjectCard'
-import ProjectCardSkeleton from '../components/projects/ProjectCardSkeleton'
-import SectionHeader from '../components/ui/SectionHeader'
-import Reveal from '../components/sections/Reveal'
+import FinalCta from '../components/sections/FinalCta'
+import Reveal from '../components/ui/Reveal'
 
 export default function Projects() {
-  const profile = useProfile()
-  const { projects, status, source, pinnedOrder } = useProjects(profile)
-  const [filter, setFilter] = useState<ProjectCategory>(
-    profile.projects.filters[0].value,
-  )
-  const [sort, setSort] = useState<'stars' | 'updated'>(
-    profile.projects.sortOptions[0].value as 'stars' | 'updated',
-  )
+  const { status, projects } = useProjects()
 
-  const filtered = useMemo(() => {
-    const next = filterProjects(projects, filter)
-    return sortProjects(next, sort, pinnedOrder)
-  }, [projects, filter, sort, pinnedOrder])
+  useEffect(() => {
+    document.title = 'Prosjekter — Firix'
+  }, [])
 
   return (
-    <div className="mx-auto w-full max-w-6xl px-6 pb-20">
-      <Reveal>
-        <SectionHeader title={profile.projects.title} subtitle={profile.projects.subtitle} />
-        {source === 'sample' ? (
-          <p className="mt-3 text-xs text-slate-400">{profile.projects.fallbackNotice}</p>
+    <>
+      <div className="shell pb-20 pt-[calc(var(--nav-height)+80px)]">
+        <Reveal className="max-w-narrow">
+          <p className="text-eyebrow font-semibold uppercase tracking-[0.08em] text-brand-500">
+            {work.eyebrow}
+          </p>
+          <h1 className="mt-4 text-display font-semibold text-ink">{work.title}</h1>
+          <p className="mt-5 text-lead text-ink-faint">{work.lead}</p>
+        </Reveal>
+
+        {status === 'ready' && projects.length === 0 ? (
+          <p className="mt-16 rounded-panel border border-dashed border-line bg-muted p-10 text-center text-[15px] text-ink-faint">
+            {work.emptyState}
+          </p>
         ) : null}
 
-        <div className="mt-8 flex flex-wrap items-center gap-3">
-          <div className="flex items-center gap-2 text-xs text-slate-400">
-            <Filter size={14} /> {profile.labels.filterLabel}
-          </div>
-          {profile.projects.filters.map((option) => (
-            <button
-              key={option.value}
-              type="button"
-              onClick={() => setFilter(option.value)}
-              className={cn(
-                'focus-ring rounded-full border border-white/10 px-4 py-2 text-xs font-medium text-slate-300 transition',
-                filter === option.value &&
-                  'border-accent-400/40 bg-accent-500/10 text-accent-200',
-              )}
-            >
-              {option.label}
-            </button>
+        <div className="mt-16 grid gap-14 sm:grid-cols-2">
+          {projects.map((project, index) => (
+            <Reveal key={project.id} delay={(index % 2) * 0.08}>
+              <ProjectCard project={project} priority={index === 0} />
+            </Reveal>
           ))}
-
-          <div className="ml-auto flex items-center gap-2 text-xs text-slate-400">
-            <ArrowUpDown size={14} /> {profile.labels.sortLabel}
-          </div>
-          <div className="flex items-center gap-2">
-            {profile.projects.sortOptions.map((option) => (
-              <button
-                key={option.value}
-                type="button"
-                onClick={() => setSort(option.value as 'stars' | 'updated')}
-                className={cn(
-                  'focus-ring rounded-full border border-white/10 px-4 py-2 text-xs font-medium text-slate-300 transition',
-                  sort === option.value && 'border-teal-400/40 bg-teal-400/10 text-teal-200',
-                )}
-              >
-                {option.label}
-              </button>
-            ))}
-          </div>
         </div>
-      </Reveal>
-
-      <Reveal className="mt-8">
-        {status === 'loading' ? (
-          <ProjectCardSkeleton count={6} />
-        ) : filtered.length === 0 ? (
-          <div className="rounded-2xl border border-white/10 bg-white/5 p-10 text-center">
-            <p className="text-base font-semibold text-white">
-              {profile.projects.emptyStateTitle}
-            </p>
-            <p className="mt-2 text-sm text-slate-400">
-              {profile.projects.emptyStateSubtitle}
-            </p>
-          </div>
-        ) : (
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {filtered.map((project) => (
-              <ProjectCard
-                key={project.id}
-                project={project}
-                variant={project.featured ? 'featured' : 'default'}
-              />
-            ))}
-          </div>
-        )}
-      </Reveal>
-    </div>
+      </div>
+      <FinalCta />
+    </>
   )
 }

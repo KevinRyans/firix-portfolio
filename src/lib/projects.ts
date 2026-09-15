@@ -1,284 +1,90 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
-import { getAdminStore } from './adminStore'
-import { type Profile, type ProjectCategory, type ProjectOverride } from '../content/profile'
-import { fetchGithubRepos, type GitHubRepo } from './github'
-import { formatDate, slugify } from './utils'
-
-export type Project = {
-  id: number
-  name: string
-  displayName: string
-  description: string
-  longDescription?: string
-  url: string
-  demoUrl?: string
-  previewUrl?: string
-  language?: string
-  stars: number
-  forks: number
-  updatedAt: string
-  updatedLabel: string
-  topics: string[]
-  tags: string[]
-  category: ProjectCategory
-  openSource: boolean
-  pinned: boolean
-  featured: boolean
-  status?: string
-  slug: string
-}
-
-export type ProjectsSource = 'github' | 'sample'
+import { useEffect, useMemo, useState } from 'react'
+import { defaultProjects, type CuratedProject } from '../content/projects'
 
 export type ProjectsState = {
-  status: 'idle' | 'loading' | 'success' | 'error'
-  source: ProjectsSource
-  projects: Project[]
-  error?: string
+  status: 'loading' | 'ready'
+  projects: CuratedProject[]
+  /** true når listen kommer fra fallback-filen, ikke fra admin-panelet. */
+  isFallback: boolean
 }
 
-type CachedProjects = {
-  data: Project[]
-  source: ProjectsSource
-  fetchedAt: number
-}
-
-const cache: { current: CachedProjects | null } = { current: null }
-const TTL = 1000 * 60 * 5
-
-const frontTags = ['frontend', 'ui', 'react', 'web', 'landing', 'design']
-const backTags = ['backend', 'api', 'server', 'database', 'ops']
-const fullTags = ['fullstack', 'full-stack', 'platform']
-const ossTags = ['open-source', 'opensource', 'oss']
-
-export function mergeMissingRepos(repos: GitHubRepo[], fallback: GitHubRepo[]) {
-  const existing = new Set(repos.map((repo) => repo.name.toLowerCase()))
-  const extras = fallback.filter((repo) => !existing.has(repo.name.toLowerCase()))
-  return [...repos, ...extras]
-}
-
-function normalizeTopics(topics?: string[]) {
-  return (topics ?? []).map((topic) => topic.toLowerCase())
-}
-
-function titleize(value: string) {
-  return value
-    .split('-')
-    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-    .join(' ')
-}
-
-function inferCategory(topics: string[], repo: GitHubRepo): ProjectCategory {
-  const hasFull = topics.some((topic) => fullTags.includes(topic))
-  const hasFront = topics.some((topic) => frontTags.includes(topic))
-  const hasBack = topics.some((topic) => backTags.includes(topic))
-
-  if (hasFull || (hasFront && hasBack)) return 'Fullstack'
-  if (hasFront) return 'Frontend'
-  if (hasBack) return 'Backend'
-
-  if (repo.language && ['html', 'css', 'javascript', 'typescript'].includes(repo.language.toLowerCase())) {
-    return 'Frontend'
-  }
-
-  return 'Fullstack'
-}
-
-function inferOpenSource(topics: string[], repo: GitHubRepo) {
-  if (topics.some((topic) => ossTags.includes(topic))) return true
-  if (repo.license && repo.license.spdx_id && repo.license.spdx_id !== 'NOASSERTION') {
-    return true
-  }
-  return false
-}
-
-function buildTags(override: ProjectOverride | undefined, repo: GitHubRepo, topics: string[]) {
-  if (override?.tags && override.tags.length > 0) return override.tags
-  if (topics.length > 0) return topics.slice(0, 3).map(titleize)
-  if (repo.language) return [repo.language]
-  return []
-}
-
-function sortWithPinned(
-  projects: Project[],
-  sortBy: 'stars' | 'updated',
-  pinnedOrder: Map<string, number>,
-) {
-  const sorted = [...projects].sort((a, b) => {
-    const aPinned = pinnedOrder.get(a.name)
-    const bPinned = pinnedOrder.get(b.name)
-
-    if (aPinned !== undefined || bPinned !== undefined) {
-      if (aPinned === undefined) return 1
-      if (bPinned === undefined) return -1
-      return aPinned - bPinned
-    }
-
-    if (sortBy === 'stars') return b.stars - a.stars
-    return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
-  })
-
-  return sorted
-}
-
-export function filterProjects(projects: Project[], filter: ProjectCategory) {
-  if (filter === 'All') return projects
-  if (filter === 'Open Source') return projects.filter((project) => project.openSource)
-  return projects.filter((project) => project.category === filter)
-}
-
-export function sortProjects(
-  projects: Project[],
-  sortBy: 'stars' | 'updated',
-  pinnedOrder: Map<string, number>,
-) {
-  return sortWithPinned(projects, sortBy, pinnedOrder)
-}
-
-type MergedRepos = {
-  repos: GitHubRepo[]
-  source: ProjectsSource
-  error?: string
-}
-
-const reposCache: { current: (MergedRepos & { fetchedAt: number }) | null } = { current: null }
+type ApiResponse = { configured?: boolean; projects?: unknown }
 
 /**
- * Fetches the full merged repo list: live GitHub repos plus manually curated
- * fallback/sample entries from profile.ts (e.g. projects that aren't public
- * GitHub repos, like a client landing page). Applies the permanent, code-level
- * `profile.hiddenProjects` exclude list.
- *
- * This intentionally does NOT filter out projects hidden via the admin store
- * (the UI "Hide" toggle) — the Admin panel needs to see those so they can be
- * un-hidden. `useProjects` below applies that extra filter for public pages.
+ * Fyller ut felter som mangler fra API-et, slik at komponentene aldri må
+ * forholde seg til `undefined`. Serveren saniterer allerede, men en gammel
+ * lagret post kan mangle nyere felter.
  */
-export async function fetchMergedRepos(profile: Profile): Promise<MergedRepos> {
-  if (reposCache.current && Date.now() - reposCache.current.fetchedAt < TTL) {
-    const { repos, source, error } = reposCache.current
-    return { repos, source, error }
+function hydrate(raw: unknown, index: number): CuratedProject {
+  const item = (raw ?? {}) as Partial<CuratedProject> & Record<string, unknown>
+  const id = typeof item.id === 'string' && item.id ? item.id : `prosjekt-${index}`
+  return {
+    id,
+    slug: item.slug || id,
+    name: item.name ?? '',
+    client: item.client ?? '',
+    summary: item.summary ?? '',
+    description: item.description ?? '',
+    url: item.url ?? '',
+    repoUrl: item.repoUrl ?? '',
+    previewMode: item.previewMode === 'image' ? 'image' : 'live',
+    previewUrl: item.previewUrl ?? '',
+    posterImage: item.posterImage ?? '',
+    tags: Array.isArray(item.tags) ? item.tags : [],
+    year: item.year ?? '',
+    services: Array.isArray(item.services) ? item.services : [],
+    results: Array.isArray(item.results) ? item.results : [],
+    visible: item.visible !== false,
+    featured: item.featured === true,
+    order: typeof item.order === 'number' ? item.order : index,
   }
+}
 
-  const hiddenProjects = new Set((profile.hiddenProjects ?? []).map((name) => name.toLowerCase()))
-  const excludeConfigHidden = (repos: GitHubRepo[]) =>
-    repos.filter((repo) => !hiddenProjects.has(repo.name.toLowerCase()))
+const byOrder = (a: CuratedProject, b: CuratedProject) => a.order - b.order
 
+/** Henter prosjektlisten. `token` sendes kun fra admin, for å se skjulte. */
+export async function fetchProjects(
+  token?: string,
+): Promise<{ projects: CuratedProject[]; isFallback: boolean }> {
   try {
-    const repos = excludeConfigHidden(await fetchGithubRepos(profile.githubUsername))
-    const fallbackRepos = excludeConfigHidden(profile.sampleProjects as GitHubRepo[])
-    const merged = mergeMissingRepos(repos, fallbackRepos)
-    reposCache.current = { repos: merged, source: 'github', fetchedAt: Date.now() }
-    return { repos: merged, source: 'github' }
-  } catch (err) {
-    const fallbackRepos = excludeConfigHidden(profile.sampleProjects as GitHubRepo[])
-    const error = err instanceof Error ? err.message : 'unknown_error'
-    reposCache.current = { repos: fallbackRepos, source: 'sample', error, fetchedAt: Date.now() }
-    return { repos: fallbackRepos, source: 'sample', error }
+    const res = await fetch('/api/projects', {
+      headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+    })
+    if (!res.ok) throw new Error(String(res.status))
+    const data = (await res.json()) as ApiResponse
+    if (!Array.isArray(data.projects)) {
+      // KV er ikke satt opp, eller ingen liste er lagret ennå.
+      return { projects: [...defaultProjects].sort(byOrder), isFallback: true }
+    }
+    return { projects: data.projects.map(hydrate).sort(byOrder), isFallback: false }
+  } catch {
+    return { projects: [...defaultProjects].sort(byOrder), isFallback: true }
   }
 }
 
-/**
- * Builds a repo -> Project mapper bound to a profile's pinned projects and
- * overrides, merged with whatever is currently saved in the admin store.
- * Shared by `useProjects` (public site) and the Admin panel, so both render
- * projects the same way.
- */
-export function createProjectMapper(profile: Profile) {
-  const pinnedProjects = profile.pinnedProjects as ProjectOverride[]
-  const projectOverrides = profile.projectOverrides as ProjectOverride[]
-
-  const pinnedOrder = new Map(pinnedProjects.map((project, index) => [project.repo, index]))
-  const overrideMap = new Map<string, ProjectOverride>(
-    [...pinnedProjects, ...projectOverrides].map((override) => [override.repo, override]),
-  )
-
-  const mapRepo = (repo: GitHubRepo): Project => {
-    const adminOverride = getAdminStore().projectOverrides[repo.name] ?? {}
-    const baseOverride = overrideMap.get(repo.name)
-    const override: (typeof baseOverride & typeof adminOverride) | undefined = baseOverride ? { ...baseOverride, ...adminOverride } : (Object.keys(adminOverride).length ? { repo: repo.name, ...adminOverride } as any : undefined)
-    const topics = normalizeTopics(repo.topics)
-    const category = override?.category ?? inferCategory(topics, repo)
-    const openSource = override?.openSource ?? inferOpenSource(topics, repo)
-    const pinnedIndex = pinnedOrder.get(repo.name)
-
-    return {
-      id: repo.id,
-      name: repo.name,
-      displayName: override?.displayName ?? repo.name,
-      description: override?.description ?? repo.description ?? profile.labels.noDescription,
-      longDescription: override?.longDescription,
-      url: repo.html_url,
-      demoUrl: override?.demoUrl ?? (repo.homepage || undefined),
-      previewUrl: override?.previewUrl,
-      language: repo.language ?? undefined,
-      stars: repo.stargazers_count ?? 0,
-      forks: repo.forks_count ?? 0,
-      updatedAt: repo.updated_at,
-      updatedLabel: formatDate(repo.updated_at),
-      topics,
-      tags: buildTags(override, repo, topics),
-      category,
-      openSource,
-      pinned: pinnedIndex !== undefined,
-      featured: override?.featured ?? false,
-      status: override?.status,
-      slug: override?.displayName ? slugify(override.displayName) : slugify(repo.name),
-    }
-  }
-
-  return { mapRepo, pinnedOrder }
-}
-
-export function useProjects(profile: Profile) {
-  const { mapRepo, pinnedOrder } = useMemo(() => createProjectMapper(profile), [profile])
-
-  const filterAdminHidden = useCallback((repos: GitHubRepo[]) => {
-    const adminStore = getAdminStore()
-    return repos.filter((repo) => !adminStore.projectOverrides[repo.name]?.hidden)
-  }, [])
-
-  const [state, setState] = useState<ProjectsState>(() => {
-    if (cache.current && Date.now() - cache.current.fetchedAt < TTL) {
-      return {
-        status: 'success',
-        source: cache.current.source,
-        projects: cache.current.data,
-      }
-    }
-    return { status: 'loading', source: 'github', projects: [] }
+export function useProjects(): ProjectsState {
+  const [state, setState] = useState<ProjectsState>({
+    status: 'loading',
+    projects: [],
+    isFallback: false,
   })
 
   useEffect(() => {
     let active = true
-
-    const load = async () => {
-      if (cache.current && Date.now() - cache.current.fetchedAt < TTL) {
-        return
-      }
-
-      setState((prev) => ({ ...prev, status: 'loading' }))
-
-      const { repos, source, error } = await fetchMergedRepos(profile)
-      const visible = filterAdminHidden(repos)
-      const mapped = visible.map(mapRepo)
-      const sorted = sortWithPinned(mapped, 'updated', pinnedOrder)
-      const next = { data: sorted, source, fetchedAt: Date.now() }
-      cache.current = next
-
+    void fetchProjects().then(({ projects, isFallback }) => {
       if (!active) return
-      setState({ status: 'success', source, projects: sorted, error })
-    }
-
-    void load()
-
+      setState({ status: 'ready', projects: projects.filter((p) => p.visible), isFallback })
+    })
     return () => {
       active = false
     }
   }, [])
 
-  const bySlug = useMemo(() => {
-    return new Map(state.projects.map((project) => [project.slug, project]))
-  }, [state.projects])
+  return state
+}
 
-  return { ...state, bySlug, pinnedOrder }
+export function useProjectBySlug(slug: string | undefined) {
+  const { status, projects } = useProjects()
+  const project = useMemo(() => projects.find((item) => item.slug === slug), [projects, slug])
+  return { status, project }
 }

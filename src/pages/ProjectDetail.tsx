@@ -1,134 +1,148 @@
+import { useEffect } from 'react'
 import { Link, useParams } from 'react-router-dom'
-import { ExternalLink, Github, ArrowLeft } from 'lucide-react'
-import { useProjects } from '../lib/projects'
-import { useProfile } from '../lib/i18n'
-import { getStatusTone, getTagBadgeClass } from '../lib/badgeStyles'
-import { buttonStyles } from '../components/ui/buttonStyles'
-import Badge from '../components/ui/Badge'
-import Card from '../components/ui/Card'
+import { useProjectBySlug } from '../lib/projects'
+import LivePreview from '../components/projects/LivePreview'
+import FinalCta from '../components/sections/FinalCta'
+import Button from '../components/ui/Button'
+import Reveal from '../components/ui/Reveal'
 
 export default function ProjectDetail() {
-  const profile = useProfile()
-  const { slug } = useParams()
-  const { status, bySlug } = useProjects(profile)
-  const project = slug ? bySlug.get(slug) : undefined
-  const categoryLabel =
-    project ? profile.projects.categoryLabels[project.category] ?? project.category : null
+  const { slug } = useParams<{ slug: string }>()
+  const { status, project } = useProjectBySlug(slug)
+
+  useEffect(() => {
+    if (project) document.title = `${project.name} — Firix`
+  }, [project])
 
   if (status === 'loading') {
     return (
-      <div className="mx-auto w-full max-w-4xl px-6 pb-20">
-        <div className="h-6 w-40 rounded-full bg-white/10" />
-        <div className="mt-6 h-10 w-2/3 rounded-full bg-white/10" />
-        <div className="mt-3 h-4 w-full rounded-full bg-white/5" />
+      <div className="shell pb-32 pt-[calc(var(--nav-height)+80px)]">
+        <div className="h-8 w-52 animate-pulse rounded bg-muted" />
+        <div className="mt-6 aspect-[16/10] w-full animate-pulse rounded-panel bg-muted" />
       </div>
     )
   }
 
   if (!project) {
     return (
-      <div className="mx-auto w-full max-w-4xl px-6 pb-20 text-center">
-        <h1 className="text-2xl font-semibold text-white">
-          {profile.labels.projectNotFoundTitle}
-        </h1>
-        <p className="mt-2 text-sm text-slate-400">
-          {profile.labels.projectNotFoundSubtitle}
+      <div className="shell pb-32 pt-[calc(var(--nav-height)+120px)] text-center">
+        <h1 className="text-headline font-semibold text-ink">Fant ikke prosjektet</h1>
+        <p className="mx-auto mt-4 max-w-prose text-[15px] text-ink-faint">
+          Prosjektet finnes ikke lenger, eller lenken er feil.
         </p>
-        <Link to="/projects" className={buttonStyles({ variant: 'secondary', className: 'mt-6' })}>
-          {profile.labels.backToProjects}
-        </Link>
+        <Button to="/prosjekter" className="mt-8">
+          Se alle prosjekter
+        </Button>
       </div>
     )
   }
 
   return (
-    <div className="mx-auto w-full max-w-4xl px-6 pb-20">
-      <Link
-        to="/projects"
-        className="focus-ring inline-flex items-center gap-2 rounded-full px-2 py-1 text-sm text-slate-400 hover:text-white"
-      >
-        <ArrowLeft size={16} /> {profile.labels.backToProjects}
-      </Link>
+    <>
+      <div className="shell pb-24 pt-[calc(var(--nav-height)+56px)]">
+        <Link to="/prosjekter" className="text-[14px] text-ink-faint hover:text-ink">
+          ← Alle prosjekter
+        </Link>
 
-      <div className="mt-6 space-y-4">
-        <Badge tone="accent">{categoryLabel}</Badge>
-        <h1 className="text-3xl font-semibold text-white md:text-4xl">
-          {project.displayName}
-        </h1>
-        <p className="text-base text-slate-300">
-          {project.longDescription ?? project.description}
-        </p>
-      </div>
-
-      <div className="mt-6 flex flex-wrap gap-3">
-        <a
-          href={project.url}
-          target="_blank"
-          rel="noreferrer"
-          className={buttonStyles({ variant: 'primary' })}
-        >
-          <Github size={16} /> {profile.labels.viewGitHub}
-        </a>
-        {project.demoUrl ? (
-          <a
-            href={project.demoUrl}
-            target="_blank"
-            rel="noreferrer"
-            className={buttonStyles({ variant: 'secondary' })}
-          >
-            <ExternalLink size={16} /> {profile.labels.viewDemo}
-          </a>
-        ) : null}
-      </div>
-
-      <div className="mt-10 grid gap-6 md:grid-cols-2">
-        <Card>
-          <h2 className="text-sm font-semibold text-white">
-            {profile.labels.detailsLabel}
-          </h2>
-          <div className="mt-4 space-y-3 text-sm text-slate-300">
-            {project.status ? (
-              <div className="flex items-center justify-between">
-                <span className="text-slate-400">{profile.labels.statusLabel}</span>
-                <Badge tone={getStatusTone(project.status)}>{project.status}</Badge>
-              </div>
-            ) : null}
-            <div className="flex items-center justify-between">
-              <span className="text-slate-400">{profile.labels.languageLabel}</span>
-              <span>{project.language ?? profile.labels.notAvailable}</span>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-slate-400">{profile.labels.starsLabel}</span>
-              <span>{project.stars}</span>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-slate-400">{profile.labels.forksLabel}</span>
-              <span>{project.forks}</span>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-slate-400">{profile.labels.updatedLabel}</span>
-              <span>{project.updatedLabel}</span>
-            </div>
-          </div>
-        </Card>
-        <Card>
-          <h2 className="text-sm font-semibold text-white">
-            {profile.labels.tagsLabel}
-          </h2>
-          <div className="mt-4 flex flex-wrap gap-2">
-            {project.tags.map((tag) => (
-              <Badge key={tag} className={getTagBadgeClass(tag)}>
-                {tag}
-              </Badge>
-            ))}
-          </div>
-          {project.topics.length > 0 ? (
-            <p className="mt-4 text-xs text-slate-400">
-              {profile.labels.topicsLabel}: {project.topics.join(', ')}
+        <Reveal className="mt-8 max-w-narrow">
+          {project.client || project.year ? (
+            <p className="flex items-center gap-2 text-[13px] font-medium uppercase tracking-[0.06em] text-ink-ghost">
+              {project.client ? <span>{project.client}</span> : null}
+              {project.client && project.year ? <span aria-hidden="true">·</span> : null}
+              {project.year ? <span>{project.year}</span> : null}
             </p>
           ) : null}
-        </Card>
+          <h1 className="mt-3 text-display font-semibold text-ink">{project.name}</h1>
+          {project.summary ? (
+            <p className="mt-5 text-lead text-ink-faint">{project.summary}</p>
+          ) : null}
+          <div className="mt-8 flex flex-wrap items-center gap-4">
+            {project.url ? <Button href={project.url}>Åpne {project.name} ↗</Button> : null}
+            {project.repoUrl ? (
+              <Button href={project.repoUrl} variant="secondary">
+                Se koden
+              </Button>
+            ) : null}
+          </div>
+        </Reveal>
+
+        <Reveal className="mt-14">
+          <LivePreview project={project} priority />
+        </Reveal>
+
+        <div className="mt-16 grid gap-14 lg:grid-cols-[1.4fr_0.6fr]">
+          <Reveal>
+            {project.description
+              .split('\n\n')
+              .filter(Boolean)
+              .map((paragraph) => (
+                <p
+                  key={paragraph.slice(0, 40)}
+                  className="mb-5 max-w-prose text-[17px] leading-[1.6] text-ink-soft"
+                >
+                  {paragraph}
+                </p>
+              ))}
+          </Reveal>
+
+          <Reveal delay={0.1}>
+            <div className="rounded-panel border border-line-soft bg-muted p-7">
+              {project.services.length > 0 ? (
+                <>
+                  <p className="text-[12px] font-semibold uppercase tracking-[0.06em] text-ink-ghost">
+                    Leveranse
+                  </p>
+                  <ul className="mt-3 space-y-1.5">
+                    {project.services.map((service) => (
+                      <li key={service} className="text-[15px] text-ink-soft">
+                        {service}
+                      </li>
+                    ))}
+                  </ul>
+                </>
+              ) : null}
+
+              {project.tags.length > 0 ? (
+                <>
+                  <p className="mt-7 text-[12px] font-semibold uppercase tracking-[0.06em] text-ink-ghost">
+                    Teknologi
+                  </p>
+                  <ul className="mt-3 flex flex-wrap gap-2">
+                    {project.tags.map((tag) => (
+                      <li
+                        key={tag}
+                        className="rounded-full border border-line-soft bg-surface px-3 py-1 text-[12px] text-ink-faint"
+                      >
+                        {tag}
+                      </li>
+                    ))}
+                  </ul>
+                </>
+              ) : null}
+
+              {/* Resultater vises kun når det finnes ekte tall å vise. */}
+              {project.results.length > 0 ? (
+                <>
+                  <p className="mt-7 text-[12px] font-semibold uppercase tracking-[0.06em] text-ink-ghost">
+                    Resultat
+                  </p>
+                  <dl className="mt-3 space-y-3">
+                    {project.results.map((result) => (
+                      <div key={result.label}>
+                        <dd className="text-[24px] font-semibold tracking-[-0.02em] text-ink">
+                          {result.value}
+                        </dd>
+                        <dt className="text-[13px] text-ink-faint">{result.label}</dt>
+                      </div>
+                    ))}
+                  </dl>
+                </>
+              ) : null}
+            </div>
+          </Reveal>
+        </div>
       </div>
-    </div>
+      <FinalCta />
+    </>
   )
 }

@@ -1,137 +1,240 @@
 import { useEffect, useState } from 'react'
-import { Check, Github, Linkedin, Mail, MessageCircle } from 'lucide-react'
-import { AnimatePresence, motion } from 'framer-motion'
-import { useProfile } from '../lib/i18n'
-import CopyButton from '../components/ui/CopyButton'
-import Reveal from '../components/sections/Reveal'
+import { business, contactPage } from '../content/site'
+import { cn } from '../lib/utils'
+import Reveal from '../components/ui/Reveal'
+
+type Status = 'idle' | 'sending' | 'success' | 'error'
+
+const field =
+  'w-full rounded-xl border border-line bg-surface px-4 py-3 text-[16px] text-ink outline-none transition-colors placeholder:text-ink-ghost focus:border-brand-500'
 
 export default function Contact() {
-  const profile = useProfile()
-  const [form, setForm] = useState({ name: '', email: '', phone: '', message: '' })
-  const [status, setStatus] = useState<'idle' | 'sending' | 'success' | 'error'>(
-    'idle',
-  )
-  const [showToast, setShowToast] = useState(false)
+  const [status, setStatus] = useState<Status>('idle')
+  const [error, setError] = useState('')
+  const [form, setForm] = useState({
+    name: '',
+    company: '',
+    email: '',
+    phone: '',
+    budget: contactPage.form.budgetOptions[0],
+    message: '',
+    // Honeypot: skjult for mennesker, utfylt av enkle bots.
+    website: '',
+  })
 
   useEffect(() => {
-    if (status !== 'success') return
-    setShowToast(true)
-    const timer = window.setTimeout(() => setShowToast(false), 4200)
-    return () => window.clearTimeout(timer)
-  }, [status])
+    document.title = 'Kontakt — Firix'
+  }, [])
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const set = (key: keyof typeof form) => (value: string) =>
+    setForm((prev) => ({ ...prev, [key]: value }))
+
+  async function handleSubmit(event: React.FormEvent) {
     event.preventDefault()
     setStatus('sending')
-    fetch('https://api.web3forms.com/submit', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-      body: JSON.stringify({ access_key: import.meta.env.VITE_WEB3FORMS_KEY, name: form.name, email: form.email, message: form.message, ...(form.phone ? { phone: form.phone } : {}) }),
-    })
-      .then((r) => r.json())
-      .then((data) => {
-        if (data.success) { setStatus('success'); setForm({ name: '', email: '', phone: '', message: '' }) }
-        else throw new Error()
+    setError('')
+
+    try {
+      const res = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(form),
       })
-      .catch(() => setStatus('error'))
+      const data = (await res.json()) as { error?: string }
+      if (!res.ok) throw new Error(data.error ?? '')
+      setStatus('success')
+    } catch (err) {
+      setError(err instanceof Error && err.message ? err.message : contactPage.form.errorBody)
+      setStatus('error')
+    }
   }
 
-  const linkIcon: Record<string, React.ReactNode> = {
-    github: <Github size={14} />,
-    discord: <MessageCircle size={14} />,
-    linkedin: <Linkedin size={14} />,
-    email: <Mail size={14} />,
+  if (status === 'success') {
+    return (
+      <div className="shell flex min-h-[70vh] flex-col items-center justify-center py-24 text-center">
+        <div className="flex h-14 w-14 items-center justify-center rounded-full bg-positive/10">
+          <svg viewBox="0 0 24 24" className="h-7 w-7 text-positive" aria-hidden="true">
+            <path fill="currentColor" d="M9.3 17.6 4 12.3l1.6-1.6 3.7 3.7L18.4 5l1.6 1.6z" />
+          </svg>
+        </div>
+        <h1 className="mt-7 text-headline font-semibold text-ink">
+          {contactPage.form.successTitle}
+        </h1>
+        <p className="mx-auto mt-4 max-w-prose text-[17px] leading-relaxed text-ink-faint">
+          {contactPage.form.successBody}
+        </p>
+      </div>
+    )
   }
 
   return (
-    <div className="mx-auto w-full max-w-5xl px-6 pb-20">
-      <div className="mb-12 pt-2"><p className="mb-3 flex items-center gap-3 font-mono text-xs uppercase tracking-[0.3em] text-accent-400"><span className="h-px w-6 bg-accent-400/50" />{profile.contact.title}</p><h1 className="font-display text-4xl font-bold text-white md:text-5xl">{profile.contact.subtitle}</h1></div>
+    <div className="shell pb-28 pt-[calc(var(--nav-height)+80px)]">
+      <div className="grid gap-16 lg:grid-cols-[0.85fr_1.15fr]">
+        <Reveal>
+          <p className="text-eyebrow font-semibold uppercase tracking-[0.08em] text-brand-500">
+            {contactPage.eyebrow}
+          </p>
+          <h1 className="mt-4 text-display font-semibold text-ink">{contactPage.title}</h1>
+          <p className="mt-5 text-lead text-ink-faint">{contactPage.lead}</p>
 
-      <Reveal className="mt-10">
-        <div className="grid gap-8 lg:grid-cols-[0.9fr_1.1fr]">
-          <div className="overflow-hidden rounded-[10px] border border-[#1c1c28] bg-base-900"><div className="border-b border-[#1c1c28] px-6 py-5"><p className="font-mono text-[0.63rem] uppercase tracking-[0.12em] text-slate-500">{profile.contact.cardTitle}</p><h3 className="mt-1 font-display text-[1rem] font-bold text-white">{profile.contact.subtitle}</h3></div><div className="py-1">
-              {profile.contact.links.map((link) => {
-                return (
-<div key={link.label} className={"flex items-center justify-between px-4 py-3 transition-colors hover:bg-white/[0.02] " + (profile.contact.links.indexOf(link) < profile.contact.links.length - 1 ? "border-b border-[#1c1c28]" : "")}><div><div className="flex items-center gap-1.5 font-mono text-[0.63rem] uppercase tracking-[0.12em] text-slate-500"><span className="text-slate-600">{linkIcon[link.type]}</span>{link.label}</div><div className="mt-0.5 text-[0.8rem] text-[var(--text)]">{link.value}</div></div><div className="flex items-center gap-2"><CopyButton value={link.value} label={profile.contact.copyLabel} copiedLabel={profile.contact.copiedLabel} /><a href={link.href} target="_blank" rel="noreferrer" className="font-mono text-[0.8rem] text-slate-500 hover:text-accent-400">↗</a></div></div>
-                )
-              })}
+          <dl className="mt-10 space-y-5 border-t border-line-soft pt-8">
+            <div>
+              <dt className="text-[12px] font-semibold uppercase tracking-[0.06em] text-ink-ghost">
+                E-post
+              </dt>
+              <dd className="mt-1">
+                <a
+                  href={`mailto:${business.email}`}
+                  className="text-[17px] text-ink hover:text-brand-500"
+                >
+                  {business.email}
+                </a>
+              </dd>
             </div>
-          </div>
+            {business.phone ? (
+              <div>
+                <dt className="text-[12px] font-semibold uppercase tracking-[0.06em] text-ink-ghost">
+                  Telefon
+                </dt>
+                <dd className="mt-1">
+                  <a
+                    href={`tel:${business.phone.replace(/\s/g, '')}`}
+                    className="text-[17px] text-ink hover:text-brand-500"
+                  >
+                    {business.phone}
+                  </a>
+                </dd>
+              </div>
+            ) : null}
+            <div>
+              <dt className="text-[12px] font-semibold uppercase tracking-[0.06em] text-ink-ghost">
+                Sted
+              </dt>
+              <dd className="mt-1 text-[17px] text-ink">{business.city}, Norge</dd>
+            </div>
+          </dl>
+        </Reveal>
 
-          <div className="rounded-[10px] border border-[#1c1c28] bg-base-900 p-6"><h3 className="font-display text-[1rem] font-bold text-white">{profile.contact.title}</h3><form className="mt-6 space-y-4" onSubmit={handleSubmit}>
-              <label className="block text-sm text-slate-300">
-                {profile.contact.form.nameLabel}
+        <Reveal delay={0.1}>
+          <form
+            onSubmit={handleSubmit}
+            className="rounded-panel border border-line-soft bg-surface p-7 shadow-card sm:p-9"
+          >
+            <div className="grid gap-5 sm:grid-cols-2">
+              <label className="block">
+                <span className="mb-1.5 block text-[13px] font-medium text-ink-soft">
+                  {contactPage.form.name} *
+                </span>
                 <input
-                  type="text"
+                  required
+                  autoComplete="name"
                   value={form.name}
-                  onChange={(event) => setForm({ ...form, name: event.target.value })}
-                  className="focus-ring mt-2 w-full rounded-[6px] border border-[#1c1c28] bg-base-900 px-4 py-2 text-sm text-white"
-                  required
+                  onChange={(e) => set('name')(e.target.value)}
+                  className={field}
                 />
               </label>
-              <label className="block text-sm text-slate-300">
-                {profile.contact.form.emailLabel}
+              <label className="block">
+                <span className="mb-1.5 block text-[13px] font-medium text-ink-soft">
+                  {contactPage.form.company}
+                </span>
                 <input
-                  type="email"
-                  value={form.email}
-                  onChange={(event) => setForm({ ...form, email: event.target.value })}
-                  className="focus-ring mt-2 w-full rounded-[6px] border border-[#1c1c28] bg-base-900 px-4 py-2 text-sm text-white"
-                  required
+                  autoComplete="organization"
+                  value={form.company}
+                  onChange={(e) => set('company')(e.target.value)}
+                  className={field}
                 />
               </label>
-
-              <label className="block text-sm text-slate-300">
-                <span className="flex items-center gap-2">Phone <span className="rounded-[3px] border border-[#1c1c28] px-1.5 py-0.5 text-[0.65rem] text-slate-600">optional</span></span>
+              <label className="block">
+                <span className="mb-1.5 block text-[13px] font-medium text-ink-soft">
+                  {contactPage.form.email} *
+                </span>
+                <input
+                  required
+                  type="email"
+                  autoComplete="email"
+                  value={form.email}
+                  onChange={(e) => set('email')(e.target.value)}
+                  className={field}
+                />
+              </label>
+              <label className="block">
+                <span className="mb-1.5 block text-[13px] font-medium text-ink-soft">
+                  {contactPage.form.phone}
+                </span>
                 <input
                   type="tel"
+                  autoComplete="tel"
                   value={form.phone}
-                  onChange={(event) => setForm({ ...form, phone: event.target.value })}
-                  placeholder="+47 000 00 000"
-                  className="focus-ring mt-2 w-full rounded-[6px] border border-[#1c1c28] bg-base-900 px-4 py-2 text-sm text-white"
+                  onChange={(e) => set('phone')(e.target.value)}
+                  className={field}
                 />
               </label>
+            </div>
 
-              <label className="block text-sm text-slate-300">
-                {profile.contact.form.messageLabel}
-                <textarea
-                  value={form.message}
-                  onChange={(event) => setForm({ ...form, message: event.target.value })}
-                  className="focus-ring mt-2 min-h-[140px] w-full rounded-[6px] border border-[#1c1c28] bg-base-900 px-4 py-2 text-sm text-white"
-                  placeholder={profile.contact.form.messagePlaceholder}
-                  required
+            <label className="mt-5 block">
+              <span className="mb-1.5 block text-[13px] font-medium text-ink-soft">
+                {contactPage.form.budget}
+              </span>
+              <select
+                value={form.budget}
+                onChange={(e) => set('budget')(e.target.value)}
+                className={cn(field, 'appearance-none bg-surface')}
+              >
+                {contactPage.form.budgetOptions.map((option) => (
+                  <option key={option} value={option}>
+                    {option}
+                  </option>
+                ))}
+              </select>
+            </label>
+
+            <label className="mt-5 block">
+              <span className="mb-1.5 block text-[13px] font-medium text-ink-soft">
+                {contactPage.form.message} *
+              </span>
+              <textarea
+                required
+                rows={6}
+                value={form.message}
+                onChange={(e) => set('message')(e.target.value)}
+                placeholder={contactPage.form.messagePlaceholder}
+                className={cn(field, 'resize-y leading-relaxed')}
+              />
+            </label>
+
+            {/* Honeypot — skjult for skjermlesere og tastaturbrukere. */}
+            <div className="hidden" aria-hidden="true">
+              <label>
+                Nettside
+                <input
+                  tabIndex={-1}
+                  autoComplete="off"
+                  value={form.website}
+                  onChange={(e) => set('website')(e.target.value)}
                 />
               </label>
-              <button type="submit" disabled={status === 'sending'} className="rounded-[4px] bg-accent-400 px-6 py-2 font-mono text-[0.75rem] tracking-[0.06em] text-base-950 transition hover:-translate-y-0.5 hover:bg-accent-300 disabled:opacity-60">
-                {status === 'sending'
-                  ? profile.contact.form.sendingLabel
-                  : profile.contact.form.sendLabel}
-              </button>
-              <AnimatePresence>
-                {showToast ? (
-                  <motion.div
-                    initial={{ opacity: 0, y: 10, scale: 0.98 }}
-                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                    exit={{ opacity: 0, y: 8, scale: 0.98 }}
-                    transition={{ duration: 0.25, ease: 'easeOut' }}
-                    className="mt-3 flex items-center gap-3 rounded-xl border border-accent-400/20 bg-accent-400/5 px-4 py-3 text-sm"
-                  >
-                    <span className="flex h-7 w-7 items-center justify-center rounded-full bg-accent-400/15 text-accent-400">
-                      <Check size={16} />
-                    </span>
-                    <span className="text-accent-300">{profile.contact.form.successMessage}</span>
-                  </motion.div>
-                ) : null}
-              </AnimatePresence>
-              {status === 'error' ? (
-                <p className="text-xs text-rose-300">
-                  {profile.contact.form.errorMessage}
-                </p>
-              ) : null}
-              <p className="text-xs text-slate-400">{profile.contact.form.note}</p>
-            </form>
-          </div>
-        </div>
-      </Reveal>
+            </div>
+
+            {status === 'error' ? (
+              <p className="mt-5 rounded-xl bg-red-50 px-4 py-3 text-[14px] text-red-700">
+                {error}
+              </p>
+            ) : null}
+
+            <button
+              type="submit"
+              disabled={status === 'sending'}
+              className="mt-7 w-full rounded-full bg-brand-500 px-7 py-3.5 text-[17px] font-medium text-white transition hover:bg-brand-600 disabled:opacity-50"
+            >
+              {status === 'sending' ? contactPage.form.sending : contactPage.form.submit}
+            </button>
+
+            <p className="mt-4 text-center text-[12px] text-ink-ghost">
+              {contactPage.form.consent}
+            </p>
+          </form>
+        </Reveal>
+      </div>
     </div>
   )
 }

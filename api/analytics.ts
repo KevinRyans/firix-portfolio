@@ -1,8 +1,8 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
+import { bearer, verifyToken } from './_auth'
 
 const KV_URL = process.env.KV_REST_API_URL
 const KV_TOKEN = process.env.KV_REST_API_TOKEN
-const ADMIN_PASS = process.env.VITE_ADMIN_PASSWORD
 
 async function kv(commands: unknown[][]): Promise<unknown[]> {
   if (!KV_URL || !KV_TOKEN) return []
@@ -18,8 +18,9 @@ async function kv(commands: unknown[][]): Promise<unknown[]> {
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'GET') return res.status(405).end()
 
-  const token = (req.headers['x-admin-token'] as string | undefined) ?? ''
-  if (!ADMIN_PASS || token !== ADMIN_PASS) return res.status(401).json({ error: 'Unauthorized' })
+  if (!verifyToken(bearer(req.headers.authorization))) {
+    return res.status(401).json({ error: 'Ikke autorisert.' })
+  }
 
   if (!KV_URL || !KV_TOKEN) {
     return res.status(200).json({ configured: false })
@@ -44,8 +45,20 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const totalViews = Number(results[0] ?? 0)
   const totalVisitors = Number(results[1] ?? 0)
   const recentRaw = (results[2] as string[] | null) ?? []
-  const recent = recentRaw.map((r) => { try { return JSON.parse(r) } catch { return null } }).filter(Boolean)
-  const dailyViews = days.map((d, i) => ({ date: d, views: Number(results[3 + i] ?? 0), visitors: Number(results[3 + days.length + i] ?? 0) }))
+  const recent = recentRaw
+    .map((r) => {
+      try {
+        return JSON.parse(r)
+      } catch {
+        return null
+      }
+    })
+    .filter(Boolean)
+  const dailyViews = days.map((d, i) => ({
+    date: d,
+    views: Number(results[3 + i] ?? 0),
+    visitors: Number(results[3 + days.length + i] ?? 0),
+  }))
 
   return res.status(200).json({ configured: true, totalViews, totalVisitors, recent, dailyViews })
 }
