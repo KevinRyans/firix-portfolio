@@ -1,8 +1,45 @@
 # firix.no
 
 Nettsiden til Firix — nettsider og webapplikasjoner for norske bedrifter.
-Bygget med Vite, React 19, TypeScript, Tailwind CSS og Framer Motion, og
-deployet på Vercel.
+Bygget med Vite, React 19, TypeScript, Tailwind CSS og Framer Motion.
+
+---
+
+## 🚚 Hosting: midlertidig på GitHub Pages, på vei til Vercel
+
+`firix.no` peker i dag på GitHub Pages (`185.199.108–111.153`). Pages kan
+ikke kjøre kode, så `/api`-rutene finnes ikke der. Nettsiden er bygget for å
+tåle begge deler:
+
+| | GitHub Pages (nå) | Vercel (målet) |
+|---|---|---|
+| Nettsiden og prosjektvisning | ✅ | ✅ |
+| Live forhåndsvisninger | ✅ | ✅ |
+| Dype lenker (`/prosjekter/…`) | ✅ via `404.html` (svarer HTTP 404) | ✅ ekte rewrite |
+| Kontaktskjema | ✅ faller tilbake til Web3Forms | ✅ egen kode via Resend |
+| `/admin` — velge prosjekter | ❌ forklarer hvorfor | ✅ lagrer for alle besøkende |
+
+Kontaktskjemaet velger selv: det prøver `/api/contact` først, og bruker
+Web3Forms bare hvis ruten ikke finnes. Ingen kodeendring trengs ved flytting.
+
+### Slik fullfører du flyttingen til Vercel
+
+1. Opprett konto på vercel.com og importer `KevinRyans/firix-portfolio`.
+   Build-kommando og output (`dist`) oppdages automatisk.
+2. Legg inn miljøvariablene under (`ADMIN_PASSWORD`, `RESEND_API_KEY`) og
+   koble på en KV-database (Storage → Create → KV).
+3. Legg til `firix.no` under Settings → Domains. Vercel viser hvilke
+   DNS-verdier du skal bruke — typisk:
+   - `firix.no` → A-record `76.76.21.21`
+   - `www.firix.no` → CNAME `cname.vercel-dns.com`
+
+   Fjern de fire GitHub Pages-A-recordene (`185.199.108–111.153`).
+4. Når firix.no svarer fra Vercel: slett `.github/workflows/deploy.yml` og
+   `public/CNAME` fra repoet. Da er Pages-oppsettet borte og `/admin`
+   fungerer.
+
+> Rekkefølgen er med vilje: Pages-deployen står til Vercel er verifisert, så
+> nettsiden aldri er nede i mellomtiden.
 
 ---
 
@@ -120,6 +157,9 @@ src/
 
 ## Deploy
 
-Push til `main`. Vercel bygger og publiserer automatisk.
-`vercel.json` ruter alle ikke-`/api`-forespørsler til `index.html`, slik at
-adresser som `/prosjekter/privatsamleren` fungerer ved direkte innlasting.
+**Nå:** push til `main` → `.github/workflows/deploy.yml` bygger og publiserer
+til GitHub Pages. `CI` kjører lint og et typesjekket bygg på alle brancher.
+
+**Etter flytting:** Vercel bygger og publiserer automatisk ved push til
+`main`. `vercel.json` ruter alle ikke-`/api`-forespørsler til `index.html`,
+så dype lenker svarer med HTTP 200 i stedet for 404.

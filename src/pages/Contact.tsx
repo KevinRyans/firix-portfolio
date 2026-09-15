@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { business, contactPage } from '../content/site'
+import { sendContact } from '../lib/contact'
 import { cn } from '../lib/utils'
 import Reveal from '../components/ui/Reveal'
 
@@ -34,19 +35,13 @@ export default function Contact() {
     setStatus('sending')
     setError('')
 
-    try {
-      const res = await fetch('/api/contact', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(form),
-      })
-      const data = (await res.json()) as { error?: string }
-      if (!res.ok) throw new Error(data.error ?? '')
+    const result = await sendContact(form)
+    if (result.ok) {
       setStatus('success')
-    } catch (err) {
-      setError(err instanceof Error && err.message ? err.message : contactPage.form.errorBody)
-      setStatus('error')
+      return
     }
+    setError(result.error || contactPage.form.errorBody)
+    setStatus('error')
   }
 
   if (status === 'success') {
