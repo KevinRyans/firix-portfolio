@@ -48,6 +48,21 @@ function isJson(res: Response): boolean {
   return Boolean(res.headers.get('content-type')?.includes('application/json'))
 }
 
+/**
+ * Forklarer et svar som ikke er JSON.
+ *
+ * Fravær av backend og en funksjon som krasjer ser likt ut fra klienten —
+ * begge gir HTML i stedet for JSON. Å kalle begge «ingen backend» sender deg
+ * på villspor etter hosting når problemet egentlig er en feil i funksjonen,
+ * så statuskoden avgjør hva vi sier.
+ */
+function explain(res: Response): string {
+  if (res.status >= 500) {
+    return `Serveren svarte ${res.status}. API-et finnes, men funksjonen feilet — se Runtime Logs i Vercel for årsaken.`
+  }
+  return NO_BACKEND
+}
+
 export async function login(
   password: string,
 ): Promise<{ ok: true } | { ok: false; error: string }> {
@@ -57,7 +72,7 @@ export async function login(
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ password }),
     })
-    if (!isJson(res)) return { ok: false, error: NO_BACKEND }
+    if (!isJson(res)) return { ok: false, error: explain(res) }
 
     const data = (await res.json()) as { token?: string; error?: string }
     if (!res.ok || !data.token) {
@@ -82,7 +97,7 @@ export async function saveProjects(
       headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
       body: JSON.stringify({ projects }),
     })
-    if (!isJson(res)) return { ok: false, error: NO_BACKEND }
+    if (!isJson(res)) return { ok: false, error: explain(res) }
 
     const data = (await res.json()) as { ok?: boolean; error?: string }
     if (!res.ok) {
@@ -109,7 +124,7 @@ export async function checkPreview(url: string): Promise<PreviewCheck | { error:
     const res = await fetch(`/api/preview-check?url=${encodeURIComponent(url)}`, {
       headers: { Authorization: `Bearer ${token}` },
     })
-    if (!isJson(res)) return { error: NO_BACKEND }
+    if (!isJson(res)) return { error: explain(res) }
 
     const data = (await res.json()) as PreviewCheck & { error?: string }
     if (!res.ok) return { error: data.error ?? 'Sjekken feilet.' }

@@ -1,8 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
-import { bearer, verifyToken } from './_auth'
-
-const KV_URL = process.env.KV_REST_API_URL
-const KV_TOKEN = process.env.KV_REST_API_TOKEN
+import { bearer, verifyToken } from './_auth.js'
+import { KV_TOKEN, KV_URL } from './_kv.js'
 
 async function kv(commands: unknown[][]): Promise<unknown[]> {
   if (!KV_URL || !KV_TOKEN) return []

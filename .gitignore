@@ -12,6 +12,15 @@ dist
 dist-ssr
 *.local
 
+# Hemmeligheter. `.env` fanges IKKE av `*.local`, og en `vercel dev`-fil med
+# ADMIN_PASSWORD og RESEND_API_KEY ville ellers blitt committet av `git add -A`.
+.env
+.env.*
+!.env.example
+
+# Vercel
+.vercel
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
