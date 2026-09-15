@@ -66,11 +66,16 @@ export const business: Business = {
 }
 
 /* ------------------------------------------------------------------ *
- * PRISER — ⚠️ FYLL INN ekte tall
+ * PRISER
  *
- * `from` er ditt fastpris-utgangspunkt i hele kroner.
- * `agencyFrom` er hva et norsk byrå typisk tar for samme leveranse —
- * bruk et tall du faktisk kan forsvare hvis en kunde spør hvor det kommer fra.
+ * `from` er ditt fastpris-utgangspunkt i hele kroner. Tallene er regnet
+ * baklengs fra timeforbruk: rundt 20, 50 og 120 timer, til en effektiv
+ * timesats på 600–700 kr. Fastpris betyr at du spiser overtrekket, så
+ * estimatene har buffer. Gå ikke under 600 kr effektivt.
+ *
+ * `agencyFrom` er hva et norsk byrå typisk tar for samme leveranse.
+ * ⚠️ Disse er anslag. Hent inn ett konkret tilbud fra et lokalt byrå, så
+ * har du et tall du kan forsvare hvis en kunde spør hvor det kommer fra.
  * Sett `agencyFrom: 0` for å skjule sammenligningen på en pakke.
  * ------------------------------------------------------------------ */
 export type PricePackage = {
@@ -101,8 +106,8 @@ export const pricing: {
       id: 'landing',
       name: 'Landingsside',
       tagline: 'Én side som selger én ting.',
-      from: 0,
-      agencyFrom: 0,
+      from: 15000,
+      agencyFrom: 40000,
       timeline: '1–2 uker',
       bestFor: 'Nytt produkt, kampanje eller enkel bedriftsprofil.',
       includes: [
@@ -117,8 +122,8 @@ export const pricing: {
       id: 'website',
       name: 'Bedriftsnettside',
       tagline: 'En nettside du kan vokse med.',
-      from: 0,
-      agencyFrom: 0,
+      from: 35000,
+      agencyFrom: 90000,
       timeline: '2–4 uker',
       bestFor: 'Bedrifter som trenger flere sider, tjenester og innhold.',
       featured: true,
@@ -135,8 +140,8 @@ export const pricing: {
       id: 'webapp',
       name: 'Webapplikasjon',
       tagline: 'Verktøy som gjør jobben, ikke bare viser den.',
-      from: 0,
-      agencyFrom: 0,
+      from: 85000,
+      agencyFrom: 200000,
       timeline: '4 uker eller mer',
       bestFor: 'Interne systemer, kundeportaler, booking, dashbord.',
       includes: [
