@@ -53,8 +53,8 @@ const config: Config = {
         mono: ['ui-monospace', 'SFMono-Regular', 'Menlo', 'monospace'],
       },
       fontSize: {
-        hero: ['clamp(2.75rem, 7vw, 5.5rem)', { lineHeight: '1.04', letterSpacing: '-0.035em' }],
-        display: ['clamp(2.25rem, 5vw, 3.75rem)', { lineHeight: '1.07', letterSpacing: '-0.03em' }],
+        hero: ['clamp(2.375rem, 7vw, 5.5rem)', { lineHeight: '1.04', letterSpacing: '-0.035em' }],
+        display: ['clamp(2rem, 5vw, 3.75rem)', { lineHeight: '1.07', letterSpacing: '-0.03em' }],
         headline: [
           'clamp(1.75rem, 3.4vw, 2.75rem)',
           { lineHeight: '1.1', letterSpacing: '-0.025em' },

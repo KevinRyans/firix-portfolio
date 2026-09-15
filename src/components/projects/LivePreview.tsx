@@ -184,7 +184,7 @@ export default function LivePreview({
                 }}
                 className="pointer-events-auto rounded-full bg-white/95 px-3 py-1.5 text-xs font-medium text-ink shadow-sm backdrop-blur transition hover:bg-white"
               >
-                {live ? 'Lås scrolling' : 'Utforsk i kortet'}
+                {live ? 'Lås kortet' : 'Utforsk i kortet'}
               </button>
             ) : (
               <span />

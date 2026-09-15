@@ -23,7 +23,9 @@ export function SectionHeading({
         </p>
       ) : null}
       {/* Tittelen kan inneholde linjeskift for kontrollert ombrekking. */}
-      <h2 className="whitespace-pre-line text-display font-semibold text-ink">{title}</h2>
+      <h2 className="text-balance whitespace-pre-line text-display font-semibold text-ink">
+        {title}
+      </h2>
       {lead ? <p className="mt-5 text-lead text-ink-faint">{lead}</p> : null}
     </Reveal>
   )

@@ -1,5 +1,5 @@
 /**
- * All redaksjonelt innhold på firix.no.
+ * Alt redaksjonelt innhold på firix.no.
  *
  * Dette er den eneste filen du trenger å endre for å endre tekst på siden.
  * Prosjektene ligger IKKE her — de styres fra /admin (se src/content/projects.ts
@@ -36,6 +36,7 @@ export const business: Business = {
   email: 'michael@firix.no',
   /** Tom streng = telefonnummer skjules. Bedrifter ringer — vurder å fylle inn. */
   phone: '',
+  /** ⚠️ Utledet av LinkedIn-URL-en, ikke bekreftet. Rett opp hvis feil. */
   contactName: 'Michael Firing',
   linkedin: 'https://www.linkedin.com/in/michaelfiring/',
   github: 'https://github.com/KevinRyans',
@@ -85,7 +86,7 @@ export const pricing: {
       bestFor: 'Nytt produkt, kampanje eller enkel bedriftsprofil.',
       includes: [
         'Design tilpasset din profil',
-        'Responsivt på mobil, nettbrett og desktop',
+        'Responsivt på mobil, nettbrett og PC',
         'Kontaktskjema rett til innboksen din',
         'Teknisk SEO og Google-indeksering',
         'Publisering og domeneoppsett',
@@ -94,7 +95,7 @@ export const pricing: {
     {
       id: 'website',
       name: 'Bedriftsnettside',
-      tagline: 'Full nettside du kan vokse med.',
+      tagline: 'En nettside du kan vokse med.',
       from: 0,
       agencyFrom: 0,
       timeline: '2–4 uker',
@@ -105,8 +106,8 @@ export const pricing: {
         'Opptil 8 undersider',
         'Innholdssystem du kan redigere selv',
         'Analyse og konverteringssporing',
-        'Ytelsesbudsjett: under 1,5 s lastetid',
-        '30 dager gratis justeringer etter lansering',
+        'Ytelsesbudsjett: under 1,5 sekunder lastetid',
+        '30 dager med gratis justeringer etter lansering',
       ],
     },
     {
@@ -121,7 +122,7 @@ export const pricing: {
         'Kartlegging av arbeidsflyt før koding',
         'Innlogging og brukerroller',
         'Database og API',
-        'Integrasjoner mot systemene dere alt bruker',
+        'Integrasjoner mot systemene dere allerede bruker',
         'Drift, overvåking og support-avtale',
       ],
     },
@@ -137,7 +138,12 @@ export const nav = [
 
 export const hero = {
   eyebrow: 'Webutvikling for norske bedrifter',
-  title: 'Nettsider som\nfaktisk leverer.',
+  /**
+   * Én streng per linje. På skjermer over 640px tvinges linjeskiftet slik det
+   * står her; på mobil flyter linjene sammen og brekkes balansert, fordi et
+   * hardt skift der gir enslige ord på egen linje.
+   */
+  title: ['Din neste kunde', 'finner deg på nett.'],
   lead: 'Jeg bygger raske, gjennomarbeidede nettsider og webapplikasjoner til fastpris — uten byråets prosjektledere, mellomledd og påslag. Du snakker med utvikleren som skriver koden.',
   primaryCta: { label: 'Få et tilbud', to: '/kontakt' },
   secondaryCta: { label: 'Se arbeidet mitt', to: '/#arbeid' },
@@ -152,7 +158,7 @@ export const trustBar = {
     },
     {
       stat: 'Én kontakt',
-      label: 'Ingen prosjektleder i mellom. Du snakker med den som bygger.',
+      label: 'Ingen prosjektleder imellom. Du snakker med den som bygger.',
     },
     {
       stat: 'Under 1,5 s',
@@ -168,7 +174,7 @@ export const services = {
   items: [
     {
       title: 'Nettsider',
-      body: 'Bedriftsprofiler, landingssider og kampanjesider som laster raskt, ser like bra ut på mobil, og rangerer i Google. Bygget for å konvertere besøkende til henvendelser.',
+      body: 'Bedriftsprofiler, landingssider og kampanjesider som laster raskt, ser like bra ut på mobil og rangerer i Google. Bygget for å konvertere besøkende til henvendelser.',
       points: ['Responsivt design', 'Teknisk SEO', 'Kontaktskjema og sporing'],
     },
     {
@@ -178,7 +184,7 @@ export const services = {
     },
     {
       title: 'Drift og videreutvikling',
-      body: 'En nettside er ikke ferdig når den lanseres. Jeg tar oppdateringer, sikkerhetsoppdateringer, overvåking og nye funksjoner etter behov.',
+      body: 'En nettside er ikke ferdig når den lanseres. Jeg håndterer innhold, sikkerhetsoppdateringer, overvåking og nye funksjoner etter behov.',
       points: ['Overvåking og oppetid', 'Sikkerhetsoppdateringer', 'Løpende forbedringer'],
     },
   ],
@@ -215,7 +221,7 @@ export const process = {
     {
       n: '01',
       title: 'Samtale',
-      body: 'Vi bruker 30 minutter på hva du trenger og hvorfor. Gratis og uforpliktende. Er jeg feil person til jobben, sier jeg det.',
+      body: 'Vi bruker 30 minutter på hva du trenger og hvorfor. Gratis og uforpliktende. Er jeg feil person for jobben, sier jeg det.',
     },
     {
       n: '02',
@@ -225,7 +231,7 @@ export const process = {
     {
       n: '03',
       title: 'Bygging',
-      body: 'Du får en live lenke fra dag én og ser fremgangen fortløpende. Innspill underveis, ikke en stor avsløring på slutten.',
+      body: 'Du får en lenke til siden fra dag én og ser fremgangen fortløpende. Innspill underveis, ikke en stor avsløring på slutten.',
     },
     {
       n: '04',
@@ -245,15 +251,15 @@ export const faq = {
     },
     {
       q: 'Hva skjer hvis du blir utilgjengelig?',
-      a: 'Du eier koden og alle kontoer fra dag én. Alt ligger i et repository du har tilgang til, bygget på standard teknologi (React, TypeScript) som enhver utvikler kan overta. Du blir aldri låst til meg.',
+      a: 'Du eier koden og alle kontoer fra dag én. Alt ligger i et kodelager du har tilgang til, bygget på standard teknologi (React, TypeScript) som enhver utvikler kan overta. Du blir aldri låst til meg.',
     },
     {
       q: 'Kan jeg oppdatere innholdet selv?',
-      a: 'Ja. På Bedriftsnettside og Webapplikasjon får du et redigeringsgrensesnitt for tekst, bilder og sider. Du trenger ikke ringe meg for å bytte en telefonnummer.',
+      a: 'Ja. På Bedriftsnettside og Webapplikasjon får du et redigeringsgrensesnitt for tekst, bilder og sider. Du trenger ikke ringe meg for å bytte et telefonnummer.',
     },
     {
       q: 'Hva koster det å drifte siden etterpå?',
-      a: 'Selve driften koster typisk under 200 kr i måneden i domene og hosting — det betaler du direkte til leverandøren, ikke til meg. Ønsker du at jeg håndterer oppdateringer og support, avtaler vi det separat uten bindingstid.',
+      a: 'Selve driften koster typisk under 200 kr i måneden til domene og hosting — det betaler du direkte til leverandøren, ikke til meg. Ønsker du at jeg håndterer oppdateringer og support, avtaler vi det separat uten bindingstid.',
     },
     {
       q: 'Hvor lang tid tar det?',
@@ -297,7 +303,7 @@ export const contactPage = {
     successTitle: 'Takk — henvendelsen er mottatt.',
     successBody: `Jeg svarer ${business.responseTime}. Haster det, send en e-post direkte til ${business.email}.`,
     errorBody: `Noe gikk galt under sendingen. Send gjerne en e-post direkte til ${business.email} i stedet.`,
-    consent: 'Opplysningene brukes kun til å besvare henvendelsen din, og deles ikke videre.',
+    consent: 'Opplysningene brukes kun til å besvare henvendelsen din og deles ikke videre.',
   },
 }
 

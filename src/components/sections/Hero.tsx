@@ -30,9 +30,14 @@ export default function Hero() {
 
         <motion.h1
           {...rise(0.08)}
-          className="mx-auto mt-5 max-w-4xl whitespace-pre-line text-hero font-semibold text-ink"
+          className="mx-auto mt-5 max-w-4xl text-balance text-hero font-semibold text-ink"
         >
-          {hero.title}
+          {hero.title.map((line, index) => (
+            <span key={line} className="sm:block">
+              {line}
+              {index < hero.title.length - 1 ? ' ' : ''}
+            </span>
+          ))}
         </motion.h1>
 
         <motion.p {...rise(0.16)} className="mx-auto mt-7 max-w-prose text-lead text-ink-faint">
