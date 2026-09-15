@@ -68,15 +68,22 @@ export const business: Business = {
 /* ------------------------------------------------------------------ *
  * PRISER
  *
- * `from` er ditt fastpris-utgangspunkt i hele kroner. Tallene er regnet
- * baklengs fra timeforbruk: rundt 20, 50 og 120 timer, til en effektiv
- * timesats på 600–700 kr. Fastpris betyr at du spiser overtrekket, så
- * estimatene har buffer. Gå ikke under 600 kr effektivt.
+ * `from` er ditt fastpris-utgangspunkt i hele kroner.
  *
- * `agencyFrom` er hva et norsk byrå typisk tar for samme leveranse.
- * ⚠️ Disse er anslag. Hent inn ett konkret tilbud fra et lokalt byrå, så
- * har du et tall du kan forsvare hvis en kunde spør hvor det kommer fra.
- * Sett `agencyFrom: 0` for å skjule sammenligningen på en pakke.
+ * Tallene ligger midt i det norske frilansbåndet, som i 2026 er 5 000–25 000
+ * for nettsideprosjekter og 15 000–40 000 for en side på 5–10 undersider.
+ * Effektiv timesats blir 500–600 kr: over de 300–500 nyutdannede tar, under
+ * de 600+ erfarne tar. Fastpris betyr at du spiser overtrekket, så
+ * estimatene har buffer.
+ *
+ * Dette er startprisen din, ikke sluttprisen. Hev når porteføljen bærer
+ * det — du kan alltid gi rabatt på en enkeltkunde, men aldri kreve mer enn
+ * det som står på siden.
+ *
+ * `agencyFrom` er hva norske byråer faktisk tar i 2026: enkel bedriftsside
+ * 30 000–80 000, skreddersydd bedriftsnettside 80 000–200 000, og
+ * webapplikasjon fra 250 000. Sett `agencyFrom: 0` for å skjule
+ * sammenligningen på en pakke.
  * ------------------------------------------------------------------ */
 export type PricePackage = {
   id: string
@@ -106,8 +113,8 @@ export const pricing: {
       id: 'landing',
       name: 'Landingsside',
       tagline: 'Én side som selger én ting.',
-      from: 15000,
-      agencyFrom: 40000,
+      from: 12000,
+      agencyFrom: 30000,
       timeline: '1–2 uker',
       bestFor: 'Nytt produkt, kampanje eller enkel bedriftsprofil.',
       includes: [
@@ -122,8 +129,8 @@ export const pricing: {
       id: 'website',
       name: 'Bedriftsnettside',
       tagline: 'En nettside du kan vokse med.',
-      from: 35000,
-      agencyFrom: 90000,
+      from: 28000,
+      agencyFrom: 80000,
       timeline: '2–4 uker',
       bestFor: 'Bedrifter som trenger flere sider, tjenester og innhold.',
       featured: true,
@@ -140,8 +147,8 @@ export const pricing: {
       id: 'webapp',
       name: 'Webapplikasjon',
       tagline: 'Verktøy som gjør jobben, ikke bare viser den.',
-      from: 85000,
-      agencyFrom: 200000,
+      from: 70000,
+      agencyFrom: 250000,
       timeline: '4 uker eller mer',
       bestFor: 'Interne systemer, kundeportaler, booking, dashbord.',
       includes: [
