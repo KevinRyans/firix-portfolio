@@ -166,15 +166,32 @@ Settes i Vercel under **Settings → Environment Variables**. Se `.env.example`.
 | `ADMIN_PASSWORD` | Innlogging på `/admin` | **Aldri** med `VITE_`-prefiks |
 | `ADMIN_SESSION_SECRET` | Valgfri | Signerer sesjonstokenet. Faller tilbake til `ADMIN_PASSWORD` |
 | `RESEND_API_KEY` | Kontaktskjemaet | Domenet må være verifisert hos Resend |
-| `KV_REST_API_URL` | Prosjektlisten + statistikk | Settes automatisk av databasen |
-| `KV_REST_API_TOKEN` | Prosjektlisten + statistikk | Settes automatisk av databasen |
+| `KV_REST_API_URL` | Prosjektlisten + statistikk | **Ikke legg inn manuelt** — se under |
+| `KV_REST_API_TOKEN` | Prosjektlisten + statistikk | **Ikke legg inn manuelt** — se under |
 
-> **Databasen:** Vercel har lagt ned «Vercel KV» som eget produkt. Opprett den
-> under **Storage → Marketplace → Upstash → Redis** — samme tjeneste som KV
-> alltid var. Koden snakker REST over HTTP, så en leverandør som kun gir en
-> `redis://`-streng (som «Redis — Official Redis for Vercel») fungerer ikke.
-> Avhengig av oppsettet heter variablene enten `KV_REST_API_*` eller
-> `UPSTASH_REDIS_REST_*`; koden leser begge, så du trenger ikke gjøre noe.
+### Databasen
+
+Vercel har lagt ned «Vercel KV» som eget produkt. Opprett den under
+**Storage → Marketplace → Upstash → Redis** — samme tjeneste som KV alltid
+var. Koden snakker REST over HTTP, så en leverandør som bare gir en
+`redis://`-streng (som «Redis — Official Redis for Vercel») fungerer ikke.
+
+**De to `KV_*`-variablene skal du ikke legge inn selv.** Integrasjonen lager
+dem når du kobler databasen til prosjektet. Har du allerede lagt dem inn for
+hånd, stopper installasjonen med:
+
+> This project already has an existing environment variable with name
+> KV_REST_API_URL in one of the chosen environments
+
+Slett dem da under **Settings → Environment Variables**, og kjør
+integrasjonen på nytt med tomt prefiks-felt.
+
+Bruker du et eget prefiks, eller kobler du til på en måte som gir Upstash
+sine egne navn (`UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN`), leser
+koden begge deler — se `api/_kv.ts`.
+
+Husk å **redeploye** etterpå. Miljøvariabler tas ikke i bruk før neste
+deploy.
 
 > **Alt som starter med `VITE_` kompileres inn i den offentlige
 > JavaScript-bundlen og kan leses av hvem som helst i nettleserens
