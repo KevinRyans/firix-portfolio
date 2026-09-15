@@ -9,9 +9,34 @@ export type ContactPayload = {
   website: string
 }
 
-export type SendResult = { ok: true } | { ok: false; error: string }
+export type SendResult =
+  | { ok: true }
+  /**
+   * `mailto` settes kun når ingen sendevei er konfigurert. Da har skjemaet
+   * ingen måte å levere meldingen på, og det eneste anstendige er å gi den
+   * besøkende teksten sin tilbake i et e-postutkast framfor en blindvei.
+   */
+  | { ok: false; error: string; mailto?: string }
 
 const FALLBACK_EMAIL = 'michael@firix.no'
+
+/** Bygger et ferdig utfylt e-postutkast av det den besøkende skrev. */
+function mailtoDraft(payload: ContactPayload): string {
+  const linjer = [
+    `Navn: ${payload.name}`,
+    payload.company ? `Bedrift: ${payload.company}` : '',
+    `E-post: ${payload.email}`,
+    payload.phone ? `Telefon: ${payload.phone}` : '',
+    payload.budget ? `Budsjett: ${payload.budget}` : '',
+    '',
+    payload.message,
+  ].filter((linje, index) => linje !== '' || index === 5)
+
+  const emne = `Henvendelse fra ${payload.name}${payload.company ? ` (${payload.company})` : ''}`
+  return `mailto:${FALLBACK_EMAIL}?subject=${encodeURIComponent(emne)}&body=${encodeURIComponent(
+    linjer.join('\n'),
+  )}`
+}
 
 /**
  * Hva vårt eget API gjorde med forespørselen.
@@ -130,10 +155,12 @@ export async function sendContact(payload: ContactPayload): Promise<SendResult> 
 
   const fallback = await viaWeb3Forms(payload)
   if (fallback.ok) return fallback
-  if (!api.serverError) return fallback
 
+  // Ingen av veiene kom fram. Serverens egen forklaring er mer presis enn
+  // reservens generiske melding, så den vinner når vi har den.
   return {
     ok: false,
-    error: `${api.serverError} Send gjerne en e-post direkte til ${FALLBACK_EMAIL}.`,
+    error: api.serverError ? `${api.serverError}` : fallback.error,
+    mailto: mailtoDraft(payload),
   }
 }
