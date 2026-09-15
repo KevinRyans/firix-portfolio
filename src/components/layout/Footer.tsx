@@ -1,8 +1,10 @@
 import { Link } from 'react-router-dom'
 import { business, footer, nav } from '../../content/site'
+import { messagingChannels } from '../../lib/messaging'
 
 export default function Footer() {
   const year = new Date().getFullYear()
+  const channels = messagingChannels()
 
   return (
     <footer data-tone="muted" className="border-t border-hairline bg-ground text-fg">
@@ -53,16 +55,18 @@ export default function Footer() {
                   {business.email}
                 </a>
               </li>
-              {business.phone ? (
-                <li>
+              {channels.map((channel) => (
+                <li key={channel.id}>
                   <a
-                    href={`tel:${business.phone.replace(/\s/g, '')}`}
+                    href={channel.href}
+                    target={channel.href.startsWith('http') ? '_blank' : undefined}
+                    rel={channel.href.startsWith('http') ? 'noreferrer' : undefined}
                     className="text-[13px] text-fg-soft hover:text-fg"
                   >
-                    {business.phone}
+                    {channel.label} {channel.hint}
                   </a>
                 </li>
-              ) : null}
+              ))}
               <li>
                 <a
                   href={business.linkedin}
