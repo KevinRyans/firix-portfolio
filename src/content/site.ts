@@ -204,9 +204,9 @@ export const services = {
       points: ['Innlogging og roller', 'Database og API', 'Integrasjoner'],
     },
     {
-      title: 'Drift og videreutvikling',
-      body: 'En nettside er ikke ferdig når den lanseres. Jeg håndterer innhold, sikkerhetsoppdateringer, overvåking og nye funksjoner etter behov.',
-      points: ['Overvåking og oppetid', 'Sikkerhetsoppdateringer', 'Løpende forbedringer'],
+      title: 'Drift og infrastruktur',
+      body: 'En nettside er ikke ferdig når den lanseres. Jeg setter opp hosting, domener og servere, og håndterer innhold, sikkerhetsoppdateringer, overvåking og nye funksjoner etter behov. Du trenger ikke finne en til for den delen.',
+      points: ['Hosting, domener og servere', 'Overvåking og oppetid', 'Sikkerhetsoppdateringer'],
     },
   ],
 }
@@ -214,17 +214,19 @@ export const services = {
 export const about = {
   eyebrow: 'Om meg',
   title: 'Hvem du snakker med.',
-  /**
-   * Alderen står her fordi du ba om det. Vurder å fjerne den: den svarer på
-   * et spørsmål ingen kunde stilte, og for enkelte kjøpere er den en grunn
-   * til å nøle. «Sju år» er tallet som faktisk selger.
-   */
   body: [
-    'Jeg heter Michael, er 25 år og holder til i Tønsberg. Jeg har bygget ting på nett i sju år — det begynte med egne prosjekter og ble etter hvert oppdrag for andre.',
+    'Jeg heter Michael, er 25 år og holder til i Tønsberg. Jeg lanserte min første nettside i 2011, som elleveåring, og har holdt på siden. Det som begynte som egne prosjekter ble etter hvert oppdrag for andre.',
+    'Det er ikke bare nettsider. Jeg setter opp og drifter servere og infrastrukturen rundt dem, håndterer hosting og domener, og har bakgrunn fra teknisk drift med ansvar for anlegg, samsvar og leverandører. Det betyr at jeg forstår hva som skjer etter lansering — ikke bare hvordan man bygger noe som ser bra ut på skjermen.',
     'Når du leier meg, er det meg du får. Ingen prosjektleder som videreformidler, ingen selger som lover noe utvikleren ikke har sagt ja til. Du snakker med den som skriver koden, fra første samtale til siden er live.',
   ],
   facts: [
-    { value: '7 år', label: 'Med webutvikling' },
+    /**
+     * «Siden 2011» framfor «14 års erfaring» med vilje. Det er samme faktum,
+     * men en opplysning tåler å bli regnet på — en påstand om antall års
+     * erfaring inviterer kjøperen til å trekke 14 fra 25 og konkludere at du
+     * teller med barndommen.
+     */
+    { value: 'Siden 2011', label: 'Bygget for nett' },
     { value: 'Tønsberg', label: 'Base — jobber i hele Norge' },
     { value: 'Null', label: 'Mellomledd mellom deg og koden' },
   ],
