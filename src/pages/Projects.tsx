@@ -16,15 +16,15 @@ export default function Projects() {
     <>
       <div className="shell pb-20 pt-[calc(var(--nav-height)+80px)]">
         <Reveal className="max-w-narrow">
-          <p className="text-eyebrow font-semibold uppercase tracking-[0.08em] text-brand-500">
+          <p className="text-eyebrow font-semibold uppercase tracking-[0.08em] text-accent">
             {work.eyebrow}
           </p>
-          <h1 className="mt-4 text-display font-semibold text-ink">{work.title}</h1>
-          <p className="mt-5 text-lead text-ink-faint">{work.lead}</p>
+          <h1 className="mt-4 text-display font-semibold text-fg">{work.title}</h1>
+          <p className="mt-5 text-lead text-fg-faint">{work.lead}</p>
         </Reveal>
 
         {status === 'ready' && projects.length === 0 ? (
-          <p className="mt-16 rounded-panel border border-dashed border-line bg-muted p-10 text-center text-[15px] text-ink-faint">
+          <p className="mt-16 rounded-panel border border-dashed border-hairline-strong bg-elevated p-10 text-center text-[15px] text-fg-faint">
             {work.emptyState}
           </p>
         ) : null}

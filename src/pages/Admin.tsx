@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { emptyProject, type CuratedProject } from '../content/projects'
-import { clearToken, getToken, login, saveProjects } from '../lib/admin'
+import { checkPreview, clearToken, getToken, login, saveProjects } from '../lib/admin'
 import { fetchProjects } from '../lib/projects'
 import { cn, slugify } from '../lib/utils'
 import LivePreview from '../components/projects/LivePreview'
@@ -145,6 +145,9 @@ function Editor({
   onChange: (patch: Partial<CuratedProject>) => void
   onDelete: () => void
 }) {
+  const [checking, setChecking] = useState(false)
+  const [check, setCheck] = useState<{ ok: boolean; text: string } | null>(null)
+
   const list = (value: string) =>
     value
       .split(',')
@@ -255,7 +258,7 @@ function Editor({
       <div className="rounded-xl border border-line-soft bg-muted p-4">
         <p className="text-[13px] font-medium text-ink">Forhåndsvisning</p>
         <div className="mt-3 flex flex-wrap gap-2">
-          {(['live', 'image'] as const).map((mode) => (
+          {(['auto', 'image', 'live'] as const).map((mode) => (
             <button
               key={mode}
               type="button"
@@ -267,14 +270,61 @@ function Editor({
                   : 'border-line bg-surface text-ink-soft hover:border-ink-ghost',
               )}
             >
-              {mode === 'live' ? 'Live nettsted' : 'Bilde'}
+              {mode === 'auto'
+                ? 'Automatisk skjermbilde'
+                : mode === 'image'
+                  ? 'Eget bilde'
+                  : 'Live nettsted'}
             </button>
           ))}
         </div>
         <p className="mt-2 text-[12px] leading-relaxed text-ink-faint">
-          «Live» laster det ekte nettstedet. Nekter nettstedet å bli vist i ramme, bytt til «Bilde»
-          og legg et skjermbilde i <code className="text-ink">/public/previews/</code>.
+          <strong className="font-medium text-ink">Automatisk</strong> henter et skjermbilde av
+          nettstedet og oppdaterer seg selv — virker uansett om nettstedet tillater innramming.{' '}
+          <strong className="font-medium text-ink">Eget bilde</strong> gir best kvalitet: legg filen
+          i <code className="text-ink">/public/previews/</code>.{' '}
+          <strong className="font-medium text-ink">Live</strong> laster det ekte nettstedet, men
+          mange nettsteder nekter innramming, og det kan ikke oppdages fra nettleseren — da ser
+          besøkende nettleserens grå feilside. Sjekk før du velger den.
         </p>
+
+        {project.url ? (
+          <div className="mt-3">
+            <button
+              type="button"
+              disabled={checking}
+              onClick={async () => {
+                setChecking(true)
+                setCheck(null)
+                const result = await checkPreview(project.url)
+                setChecking(false)
+                if ('error' in result) {
+                  setCheck({ ok: false, text: result.error })
+                  return
+                }
+                setCheck({ ok: result.embeddable, text: result.reason })
+                // Blokkert nettsted skal ikke bli stående i live-modus.
+                if (!result.embeddable && project.previewMode === 'live') {
+                  onChange({ previewMode: 'image' })
+                }
+              }}
+              className="rounded-full border border-line bg-surface px-3 py-1.5 text-[13px] text-ink-soft transition hover:border-ink-ghost disabled:opacity-50"
+            >
+              {checking ? 'Sjekker …' : 'Kan nettstedet vises live?'}
+            </button>
+            {check ? (
+              <p
+                className={cn(
+                  'mt-2 rounded-lg px-3 py-2 text-[12px] leading-relaxed',
+                  check.ok ? 'bg-positive/10 text-positive' : 'bg-amber-50 text-amber-800',
+                )}
+              >
+                {check.ok ? '✓ ' : '✗ '}
+                {check.text}
+              </p>
+            ) : null}
+          </div>
+        ) : null}
         <div className="mt-3 grid gap-4 sm:grid-cols-2">
           <div>
             <span className={label}>Bilde-sti (også fallback)</span>

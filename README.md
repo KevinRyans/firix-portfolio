@@ -1,8 +1,45 @@
 # firix.no
 
 Nettsiden til Firix — nettsider og webapplikasjoner for norske bedrifter.
-Bygget med Vite, React 19, TypeScript, Tailwind CSS og Framer Motion, og
-deployet på Vercel.
+Bygget med Vite, React 19, TypeScript, Tailwind CSS og Framer Motion.
+
+---
+
+## 🚚 Hosting: midlertidig på GitHub Pages, på vei til Vercel
+
+`firix.no` peker i dag på GitHub Pages (`185.199.108–111.153`). Pages kan
+ikke kjøre kode, så `/api`-rutene finnes ikke der. Nettsiden er bygget for å
+tåle begge deler:
+
+| | GitHub Pages (nå) | Vercel (målet) |
+|---|---|---|
+| Nettsiden og prosjektvisning | ✅ | ✅ |
+| Live forhåndsvisninger | ✅ | ✅ |
+| Dype lenker (`/prosjekter/…`) | ✅ via `404.html` (svarer HTTP 404) | ✅ ekte rewrite |
+| Kontaktskjema | ✅ faller tilbake til Web3Forms | ✅ egen kode via Resend |
+| `/admin` — velge prosjekter | ❌ forklarer hvorfor | ✅ lagrer for alle besøkende |
+
+Kontaktskjemaet velger selv: det prøver `/api/contact` først, og bruker
+Web3Forms bare hvis ruten ikke finnes. Ingen kodeendring trengs ved flytting.
+
+### Slik fullfører du flyttingen til Vercel
+
+1. Opprett konto på vercel.com og importer `KevinRyans/firix-portfolio`.
+   Build-kommando og output (`dist`) oppdages automatisk.
+2. Legg inn miljøvariablene under (`ADMIN_PASSWORD`, `RESEND_API_KEY`) og
+   koble på en KV-database (Storage → Create → KV).
+3. Legg til `firix.no` under Settings → Domains. Vercel viser hvilke
+   DNS-verdier du skal bruke — typisk:
+   - `firix.no` → A-record `76.76.21.21`
+   - `www.firix.no` → CNAME `cname.vercel-dns.com`
+
+   Fjern de fire GitHub Pages-A-recordene (`185.199.108–111.153`).
+4. Når firix.no svarer fra Vercel: slett `.github/workflows/deploy.yml` og
+   `public/CNAME` fra repoet. Da er Pages-oppsettet borte og `/admin`
+   fungerer.
+
+> Rekkefølgen er med vilje: Pages-deployen står til Vercel er verifisert, så
+> nettsiden aldri er nede i mellomtiden.
 
 ---
 
@@ -44,28 +81,81 @@ Er KV ikke koblet til ennå, faller siden tilbake til listen i
 
 ---
 
-## Live forhåndsvisninger
+## Forhåndsvisninger av prosjektene
 
-Prosjektkortene laster det ekte nettstedet i en nedskalert iframe. Iframen
-monteres først når kortet nærmer seg skjermen, og er ikke klikkbar før
-brukeren trykker «Utforsk i kortet», slik at den ikke spiser scrollingen.
+Hvert prosjekt vises i en nettleserramme. Du velger måte i `/admin`:
 
-**Noen nettsteder nekter å bli vist i ramme** (`X-Frame-Options` eller
-`Content-Security-Policy: frame-ancestors`). Sjekk et nettsted slik:
+### Automatisk skjermbilde (standard)
+
+Skjermbildene tas av **GitHub Actions** og legges i repoet, så nettsiden
+serverer dem fra ditt eget domene. Ingen ekstern tjeneste involveres når en
+besøkende er inne på siden.
+
+`.github/workflows/previews.yml` kjører hver mandag, og når du selv trykker
+**Run workflow**. Den starter Chromium, åpner hvert prosjektnettsted i 1200 ×
+750 på 2x, slår av animasjoner, og lagrer `public/previews/<slug>.jpg`.
+Endres noe, committes bildene — og den commiten utløser en ny publisering.
+
+Prosjektlisten hentes fra `https://firix.no/api/projects` når det finnes, slik
+at prosjekter du legger til i `/admin` kommer med uten at noen rører koden.
+Ellers leses listen i `src/content/projects.ts`. Prosjekter som allerede har
+et eget bilde hoppes over, og et nettsted som er nede sletter ikke bildet som
+ligger der fra før.
+
+Kjør den lokalt slik:
+
+```bash
+npx playwright install chromium
+node scripts/capture-previews.mjs                    # fra src/content/projects.ts
+node scripts/capture-previews.mjs --api=https://firix.no   # fra den publiserte listen
+```
+
+**Reserver, i rekkefølge.** Finnes ikke `public/previews/<slug>.jpg` ennå,
+prøver siden `/api/screenshot` (som henter bildet på serveren og lar Vercel
+cache det), så en gratis skjermbildetjeneste direkte fra nettleseren, og til
+slutt et formgitt kort med navn og domene. Kortet er aldri tomt.
+
+Merk at en slik tjeneste bygger bildet asynkront og svarer med en liten grå
+stump første gang den ser en URL. Den stumpen er et gyldig bilde, så den
+laster uten feil — siden avviser den derfor på bredde, og viser kortet i
+stedet. Det er nettopp denne usikkerheten skjermbildene i repoet fjerner.
+
+### Eget bilde
+
+Best kvalitet. Lagre i `public/previews/` (1440 × 900, JPG eller WebP, under
+300 kB) og skriv stien — for eksempel `/previews/privatsamleren.jpg` — i
+feltet **«Bilde-sti»**. Et eget bilde vinner alltid over det automatiske.
+
+### Live nettsted
+
+Nettstedet lastes i en iframe, skalert ned fra 1440px, montert først når
+kortet nærmer seg skjermen og ikke klikkbart før brukeren trykker «Utforsk i
+kortet».
+
+**Dette må velges bevisst per prosjekt.** Mange nettsteder nekter innramming
+via `X-Frame-Options` eller `CSP: frame-ancestors`, og det kan ikke oppdages
+fra nettleseren. Målt på en blokkert og en tillatt ramme side om side:
+
+| | Blokkert | Tillatt |
+|---|---|---|
+| `onload` fyrer | ja | ja |
+| `contentDocument` | `null` | `null` |
+| `contentWindow.origin` | SecurityError | SecurityError |
+| `contentWindow.location` | SecurityError | SecurityError |
+
+Signalene er identiske, så en blokkert ramme kan ikke byttes automatisk mot
+et bilde — den tegner nettleserens grå feilside oppå alt annet.
+
+Merk at slike hoder ofte er knyttet til opphav: et nettsted kan tillate
+`https://firix.no` og samtidig blokkere `localhost`. Test derfor fra det
+domenet siden faktisk skal kjøre på.
+
+Er du på Vercel: trykk **«Kan nettstedet vises live?»** i `/admin`. Serveren
+leser hodene og slår av live-modus hvis nettstedet blokkerer. Ellers:
 
 ```bash
 curl -sI https://example.com | grep -i -E 'x-frame-options|content-security-policy'
 ```
-
-- Ingen treff → live forhåndsvisning fungerer.
-- `DENY` eller `SAMEORIGIN` → bytt prosjektet til **«Bilde»** i `/admin` og
-  legg et skjermbilde i `public/previews/`.
-
-Kortet faller uansett tilbake til bildet (eller en nøytral plate) hvis
-innlastingen feiler eller tar mer enn ni sekunder — en besøkende ser aldri en
-ødelagt ramme.
-
----
 
 ## Miljøvariabler
 
@@ -120,6 +210,9 @@ src/
 
 ## Deploy
 
-Push til `main`. Vercel bygger og publiserer automatisk.
-`vercel.json` ruter alle ikke-`/api`-forespørsler til `index.html`, slik at
-adresser som `/prosjekter/privatsamleren` fungerer ved direkte innlasting.
+**Nå:** push til `main` → `.github/workflows/deploy.yml` bygger og publiserer
+til GitHub Pages. `CI` kjører lint og et typesjekket bygg på alle brancher.
+
+**Etter flytting:** Vercel bygger og publiserer automatisk ved push til
+`main`. `vercel.json` ruter alle ikke-`/api`-forespørsler til `index.html`,
+så dype lenker svarer med HTTP 200 i stedet for 404.

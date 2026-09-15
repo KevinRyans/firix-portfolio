@@ -29,7 +29,7 @@ export default function ProjectCard({
 
       <div className={cn('pt-6', featured && 'lg:w-[42%] lg:pt-0')}>
         {project.client || project.year ? (
-          <p className="mb-2 flex items-center gap-2 text-[12px] font-medium uppercase tracking-[0.06em] text-ink-ghost">
+          <p className="mb-2 flex items-center gap-2 text-[12px] font-medium uppercase tracking-[0.06em] text-fg-faint">
             {project.client ? <span>{project.client}</span> : null}
             {project.client && project.year ? <span aria-hidden="true">·</span> : null}
             {project.year ? <span>{project.year}</span> : null}
@@ -38,11 +38,11 @@ export default function ProjectCard({
 
         <h3
           className={cn(
-            'font-semibold tracking-[-0.02em] text-ink',
+            'font-semibold tracking-[-0.02em] text-fg',
             featured ? 'text-headline' : 'text-title',
           )}
         >
-          <Link to={`/prosjekter/${project.slug}`} className="hover:text-brand-500">
+          <Link to={`/prosjekter/${project.slug}`} className="hover:text-accent">
             {project.name}
           </Link>
         </h3>
@@ -50,7 +50,7 @@ export default function ProjectCard({
         {project.summary ? (
           <p
             className={cn(
-              'mt-3 text-ink-faint',
+              'mt-3 text-fg-faint',
               featured ? 'text-lead' : 'text-[15px] leading-relaxed',
             )}
           >
@@ -63,7 +63,7 @@ export default function ProjectCard({
             {project.tags.map((tag) => (
               <li
                 key={tag}
-                className="rounded-full border border-line-soft bg-surface px-3 py-1 text-[12px] text-ink-faint"
+                className="rounded-full border border-hairline bg-elevated px-3 py-1 text-[12px] text-fg-faint"
               >
                 {tag}
               </li>
@@ -74,7 +74,7 @@ export default function ProjectCard({
         <div className="mt-6 flex flex-wrap items-center gap-5">
           <Link
             to={`/prosjekter/${project.slug}`}
-            className="text-[15px] font-medium text-brand-500 hover:underline"
+            className="text-[15px] font-medium text-accent hover:underline"
           >
             Les mer →
           </Link>
@@ -83,7 +83,7 @@ export default function ProjectCard({
               href={project.url}
               target="_blank"
               rel="noreferrer"
-              className="text-[15px] text-ink-faint hover:text-ink"
+              className="text-[15px] text-fg-faint hover:text-fg"
             >
               Besøk nettstedet ↗
             </a>

@@ -33,6 +33,21 @@ export function clearToken() {
   }
 }
 
+/**
+ * Vises når /api ikke finnes i det hele tatt — typisk fordi siden ligger på
+ * en statisk host som GitHub Pages. Da er ikke dette en feil å feilsøke,
+ * men en forventet konsekvens av hostingen.
+ */
+export const NO_BACKEND =
+  'Admin krever en server som kan kjøre kode. firix.no ligger på GitHub Pages akkurat nå, ' +
+  'så innlogging virker først når siden er flyttet til Vercel. Prosjektlisten leses i ' +
+  'mellomtiden fra src/content/projects.ts.'
+
+/** En host uten /api svarer med HTML eller 405 — ikke et avslag fra oss. */
+function isJson(res: Response): boolean {
+  return Boolean(res.headers.get('content-type')?.includes('application/json'))
+}
+
 export async function login(
   password: string,
 ): Promise<{ ok: true } | { ok: false; error: string }> {
@@ -42,6 +57,8 @@ export async function login(
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ password }),
     })
+    if (!isJson(res)) return { ok: false, error: NO_BACKEND }
+
     const data = (await res.json()) as { token?: string; error?: string }
     if (!res.ok || !data.token) {
       return { ok: false, error: data.error ?? 'Innlogging feilet.' }
@@ -49,7 +66,7 @@ export async function login(
     setToken(data.token)
     return { ok: true }
   } catch {
-    return { ok: false, error: 'Fikk ikke kontakt med serveren.' }
+    return { ok: false, error: NO_BACKEND }
   }
 }
 
@@ -65,6 +82,8 @@ export async function saveProjects(
       headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
       body: JSON.stringify({ projects }),
     })
+    if (!isJson(res)) return { ok: false, error: NO_BACKEND }
+
     const data = (await res.json()) as { ok?: boolean; error?: string }
     if (!res.ok) {
       if (res.status === 401) clearToken()
@@ -72,6 +91,30 @@ export async function saveProjects(
     }
     return { ok: true }
   } catch {
-    return { ok: false, error: 'Fikk ikke kontakt med serveren.' }
+    return { ok: false, error: NO_BACKEND }
+  }
+}
+
+export type PreviewCheck = { embeddable: boolean; reason: string }
+
+/**
+ * Spør serveren om et nettsted tillater innramming. Kan ikke gjøres i
+ * nettleseren — se kommentaren i api/preview-check.ts.
+ */
+export async function checkPreview(url: string): Promise<PreviewCheck | { error: string }> {
+  const token = getToken()
+  if (!token) return { error: 'Du er ikke logget inn.' }
+
+  try {
+    const res = await fetch(`/api/preview-check?url=${encodeURIComponent(url)}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+    if (!isJson(res)) return { error: NO_BACKEND }
+
+    const data = (await res.json()) as PreviewCheck & { error?: string }
+    if (!res.ok) return { error: data.error ?? 'Sjekken feilet.' }
+    return { embeddable: data.embeddable, reason: data.reason }
+  } catch {
+    return { error: NO_BACKEND }
   }
 }

@@ -1,12 +1,13 @@
 import { useEffect, useState } from 'react'
 import { business, contactPage } from '../content/site'
+import { sendContact } from '../lib/contact'
 import { cn } from '../lib/utils'
 import Reveal from '../components/ui/Reveal'
 
 type Status = 'idle' | 'sending' | 'success' | 'error'
 
 const field =
-  'w-full rounded-xl border border-line bg-surface px-4 py-3 text-[16px] text-ink outline-none transition-colors placeholder:text-ink-ghost focus:border-brand-500'
+  'w-full rounded-xl border border-hairline-strong bg-elevated px-4 py-3 text-[16px] text-fg outline-none transition-colors placeholder:text-fg-faint focus:border-brand-500'
 
 export default function Contact() {
   const [status, setStatus] = useState<Status>('idle')
@@ -34,19 +35,13 @@ export default function Contact() {
     setStatus('sending')
     setError('')
 
-    try {
-      const res = await fetch('/api/contact', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(form),
-      })
-      const data = (await res.json()) as { error?: string }
-      if (!res.ok) throw new Error(data.error ?? '')
+    const result = await sendContact(form)
+    if (result.ok) {
       setStatus('success')
-    } catch (err) {
-      setError(err instanceof Error && err.message ? err.message : contactPage.form.errorBody)
-      setStatus('error')
+      return
     }
+    setError(result.error || contactPage.form.errorBody)
+    setStatus('error')
   }
 
   if (status === 'success') {
@@ -57,10 +52,10 @@ export default function Contact() {
             <path fill="currentColor" d="M9.3 17.6 4 12.3l1.6-1.6 3.7 3.7L18.4 5l1.6 1.6z" />
           </svg>
         </div>
-        <h1 className="mt-7 text-headline font-semibold text-ink">
+        <h1 className="mt-7 text-headline font-semibold text-fg">
           {contactPage.form.successTitle}
         </h1>
-        <p className="mx-auto mt-4 max-w-prose text-[17px] leading-relaxed text-ink-faint">
+        <p className="mx-auto mt-4 max-w-prose text-[17px] leading-relaxed text-fg-faint">
           {contactPage.form.successBody}
         </p>
       </div>
@@ -71,21 +66,21 @@ export default function Contact() {
     <div className="shell pb-28 pt-[calc(var(--nav-height)+80px)]">
       <div className="grid gap-16 lg:grid-cols-[0.85fr_1.15fr]">
         <Reveal>
-          <p className="text-eyebrow font-semibold uppercase tracking-[0.08em] text-brand-500">
+          <p className="text-eyebrow font-semibold uppercase tracking-[0.08em] text-accent">
             {contactPage.eyebrow}
           </p>
-          <h1 className="mt-4 text-display font-semibold text-ink">{contactPage.title}</h1>
-          <p className="mt-5 text-lead text-ink-faint">{contactPage.lead}</p>
+          <h1 className="mt-4 text-display font-semibold text-fg">{contactPage.title}</h1>
+          <p className="mt-5 text-lead text-fg-faint">{contactPage.lead}</p>
 
-          <dl className="mt-10 space-y-5 border-t border-line-soft pt-8">
+          <dl className="mt-10 space-y-5 border-t border-hairline pt-8">
             <div>
-              <dt className="text-[12px] font-semibold uppercase tracking-[0.06em] text-ink-ghost">
+              <dt className="text-[12px] font-semibold uppercase tracking-[0.06em] text-fg-faint">
                 E-post
               </dt>
               <dd className="mt-1">
                 <a
                   href={`mailto:${business.email}`}
-                  className="text-[17px] text-ink hover:text-brand-500"
+                  className="text-[17px] text-fg hover:text-accent"
                 >
                   {business.email}
                 </a>
@@ -93,13 +88,13 @@ export default function Contact() {
             </div>
             {business.phone ? (
               <div>
-                <dt className="text-[12px] font-semibold uppercase tracking-[0.06em] text-ink-ghost">
+                <dt className="text-[12px] font-semibold uppercase tracking-[0.06em] text-fg-faint">
                   Telefon
                 </dt>
                 <dd className="mt-1">
                   <a
                     href={`tel:${business.phone.replace(/\s/g, '')}`}
-                    className="text-[17px] text-ink hover:text-brand-500"
+                    className="text-[17px] text-fg hover:text-accent"
                   >
                     {business.phone}
                   </a>
@@ -107,10 +102,10 @@ export default function Contact() {
               </div>
             ) : null}
             <div>
-              <dt className="text-[12px] font-semibold uppercase tracking-[0.06em] text-ink-ghost">
+              <dt className="text-[12px] font-semibold uppercase tracking-[0.06em] text-fg-faint">
                 Sted
               </dt>
-              <dd className="mt-1 text-[17px] text-ink">{business.city}, Norge</dd>
+              <dd className="mt-1 text-[17px] text-fg">{business.city}, Norge</dd>
             </div>
           </dl>
         </Reveal>
@@ -118,11 +113,11 @@ export default function Contact() {
         <Reveal delay={0.1}>
           <form
             onSubmit={handleSubmit}
-            className="rounded-panel border border-line-soft bg-surface p-7 shadow-card sm:p-9"
+            className="rounded-panel border border-hairline bg-elevated p-7 shadow-card sm:p-9"
           >
             <div className="grid gap-5 sm:grid-cols-2">
               <label className="block">
-                <span className="mb-1.5 block text-[13px] font-medium text-ink-soft">
+                <span className="mb-1.5 block text-[13px] font-medium text-fg-soft">
                   {contactPage.form.name} *
                 </span>
                 <input
@@ -134,7 +129,7 @@ export default function Contact() {
                 />
               </label>
               <label className="block">
-                <span className="mb-1.5 block text-[13px] font-medium text-ink-soft">
+                <span className="mb-1.5 block text-[13px] font-medium text-fg-soft">
                   {contactPage.form.company}
                 </span>
                 <input
@@ -145,7 +140,7 @@ export default function Contact() {
                 />
               </label>
               <label className="block">
-                <span className="mb-1.5 block text-[13px] font-medium text-ink-soft">
+                <span className="mb-1.5 block text-[13px] font-medium text-fg-soft">
                   {contactPage.form.email} *
                 </span>
                 <input
@@ -158,7 +153,7 @@ export default function Contact() {
                 />
               </label>
               <label className="block">
-                <span className="mb-1.5 block text-[13px] font-medium text-ink-soft">
+                <span className="mb-1.5 block text-[13px] font-medium text-fg-soft">
                   {contactPage.form.phone}
                 </span>
                 <input
@@ -172,13 +167,13 @@ export default function Contact() {
             </div>
 
             <label className="mt-5 block">
-              <span className="mb-1.5 block text-[13px] font-medium text-ink-soft">
+              <span className="mb-1.5 block text-[13px] font-medium text-fg-soft">
                 {contactPage.form.budget}
               </span>
               <select
                 value={form.budget}
                 onChange={(e) => set('budget')(e.target.value)}
-                className={cn(field, 'appearance-none bg-surface')}
+                className={cn(field, 'appearance-none bg-elevated')}
               >
                 {contactPage.form.budgetOptions.map((option) => (
                   <option key={option} value={option}>
@@ -189,7 +184,7 @@ export default function Contact() {
             </label>
 
             <label className="mt-5 block">
-              <span className="mb-1.5 block text-[13px] font-medium text-ink-soft">
+              <span className="mb-1.5 block text-[13px] font-medium text-fg-soft">
                 {contactPage.form.message} *
               </span>
               <textarea
@@ -229,9 +224,7 @@ export default function Contact() {
               {status === 'sending' ? contactPage.form.sending : contactPage.form.submit}
             </button>
 
-            <p className="mt-4 text-center text-[12px] text-ink-ghost">
-              {contactPage.form.consent}
-            </p>
+            <p className="mt-4 text-center text-[12px] text-fg-faint">{contactPage.form.consent}</p>
           </form>
         </Reveal>
       </div>

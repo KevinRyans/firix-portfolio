@@ -27,7 +27,8 @@ function hydrate(raw: unknown, index: number): CuratedProject {
     description: item.description ?? '',
     url: item.url ?? '',
     repoUrl: item.repoUrl ?? '',
-    previewMode: item.previewMode === 'image' ? 'image' : 'live',
+    previewMode:
+      item.previewMode === 'live' || item.previewMode === 'image' ? item.previewMode : 'auto',
     previewUrl: item.previewUrl ?? '',
     posterImage: item.posterImage ?? '',
     tags: Array.isArray(item.tags) ? item.tags : [],

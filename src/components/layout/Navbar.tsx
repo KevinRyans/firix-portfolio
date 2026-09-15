@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { AnimatePresence, motion } from 'framer-motion'
 import { nav } from '../../content/site'
+import { useDarkSectionUnderNav } from '../../lib/useToneUnderNav'
 import { cn } from '../../lib/utils'
 
 /**
@@ -11,6 +12,7 @@ import { cn } from '../../lib/utils'
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false)
   const [open, setOpen] = useState(false)
+  const overDark = useDarkSectionUnderNav()
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 8)
@@ -28,18 +30,20 @@ export default function Navbar() {
 
   return (
     <header
+      data-tone={overDark && !open ? 'dark' : 'light'}
       className={cn(
-        'fixed inset-x-0 top-0 z-50 transition-colors duration-300 ease-apple',
+        'fixed inset-x-0 top-0 z-50 transition-colors duration-500 ease-apple',
+        overDark && !open ? 'bg-black/70' : 'bg-canvas/70',
         scrolled || open
-          ? 'border-b border-line-soft/80 bg-canvas/80 backdrop-blur-xl backdrop-saturate-150'
-          : 'border-b border-transparent bg-canvas/60 backdrop-blur-md',
+          ? 'border-b border-hairline backdrop-blur-xl backdrop-saturate-150'
+          : 'border-b border-transparent backdrop-blur-md',
       )}
       style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}
     >
       <nav className="shell flex h-[var(--nav-height)] items-center justify-between">
         <Link
           to="/"
-          className="text-[19px] font-semibold tracking-[-0.02em] text-ink"
+          className="text-[19px] font-semibold tracking-[-0.02em] text-fg transition-colors duration-500"
           aria-label="Firix — til forsiden"
         >
           Firix
@@ -50,14 +54,14 @@ export default function Navbar() {
             <a
               key={item.to}
               href={item.to}
-              className="text-[13px] text-ink-soft transition-colors hover:text-ink"
+              className="text-[13px] text-fg-soft transition-colors duration-500 hover:text-fg"
             >
               {item.label}
             </a>
           ))}
           <Link
             to="/kontakt"
-            className="rounded-full bg-brand-500 px-4 py-1.5 text-[13px] font-medium text-white transition hover:bg-brand-600"
+            className="rounded-full bg-accent-solid px-4 py-1.5 text-[13px] font-medium text-white transition duration-300 hover:brightness-110"
           >
             Få et tilbud
           </Link>
@@ -73,13 +77,13 @@ export default function Navbar() {
           <span className="relative block h-3 w-4">
             <span
               className={cn(
-                'absolute left-0 h-[1.5px] w-4 bg-ink transition-all duration-300 ease-apple',
+                'absolute left-0 h-[1.5px] w-4 bg-fg transition-all duration-300 ease-apple',
                 open ? 'top-1.5 rotate-45' : 'top-0',
               )}
             />
             <span
               className={cn(
-                'absolute left-0 h-[1.5px] w-4 bg-ink transition-all duration-300 ease-apple',
+                'absolute left-0 h-[1.5px] w-4 bg-fg transition-all duration-300 ease-apple',
                 open ? 'top-1.5 -rotate-45' : 'top-3',
               )}
             />
@@ -102,7 +106,7 @@ export default function Navbar() {
                   key={item.to}
                   href={item.to}
                   onClick={() => setOpen(false)}
-                  className="border-b border-line-soft py-3.5 text-[19px] font-medium text-ink"
+                  className="border-b border-hairline py-3.5 text-[19px] font-medium text-fg"
                 >
                   {item.label}
                 </a>
@@ -110,7 +114,7 @@ export default function Navbar() {
               <Link
                 to="/kontakt"
                 onClick={() => setOpen(false)}
-                className="mt-4 rounded-full bg-brand-500 px-5 py-3 text-center text-[16px] font-medium text-white"
+                className="mt-4 rounded-full bg-accent-solid px-5 py-3 text-center text-[16px] font-medium text-white"
               >
                 Få et tilbud
               </Link>

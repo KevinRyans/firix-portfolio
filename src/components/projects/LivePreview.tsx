@@ -1,5 +1,6 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { CuratedProject } from '../../content/projects'
+import { SHOT_WIDTH, screenshotSources } from '../../lib/preview'
 import { cn, prettyHost } from '../../lib/utils'
 import BrowserFrame from '../ui/BrowserFrame'
 
@@ -7,35 +8,119 @@ import BrowserFrame from '../ui/BrowserFrame'
 const RENDER_WIDTH = 1440
 /** Høyde-forhold på previewen. 16:10 viser mer av forsiden enn 16:9. */
 const ASPECT = 10 / 16
-/** Gir vi opp på en live-preview etter dette, viser vi fallback i stedet. */
+/** Gir vi opp på en live-preview etter dette, viser vi reserven i stedet. */
 const LOAD_TIMEOUT_MS = 9000
 
 type Status = 'idle' | 'loading' | 'loaded' | 'failed'
 
-function Placeholder({ host }: { host: string }) {
+/**
+ * Vises når ingen av bildekildene ga noe.
+ *
+ * Dette er ikke en feilmelding — det er kortet en besøkende faktisk ser, så
+ * det er formgitt som et bevisst element: nettstedets navn stort, domenet
+ * under, på en rolig gradient som fungerer i begge toner.
+ */
+function Placeholder({ name, host }: { name: string; host: string }) {
   return (
-    <div className="flex h-full w-full flex-col items-center justify-center gap-3 bg-gradient-to-br from-muted via-surface to-brand-50 p-6 text-center">
-      <svg viewBox="0 0 24 24" className="h-7 w-7 text-ink-ghost" aria-hidden="true">
-        <path
-          fill="currentColor"
-          d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm6.93 9h-2.95a15.6 15.6 0 0 0-1.2-5.42A8.03 8.03 0 0 1 18.93 11ZM12 4.04c.83 1.2 1.68 3.3 1.94 6.96h-3.88C10.32 7.34 11.17 5.24 12 4.04ZM4.26 13h2.95c.14 2.1.56 3.93 1.2 5.42A8.03 8.03 0 0 1 4.26 13Zm2.95-2H4.26a8.03 8.03 0 0 1 4.15-5.42A15.6 15.6 0 0 0 7.21 11ZM12 19.96c-.83-1.2-1.68-3.3-1.94-6.96h3.88c-.26 3.66-1.11 5.76-1.94 6.96Zm2.78-1.54c.64-1.49 1.06-3.32 1.2-5.42h2.95a8.03 8.03 0 0 1-4.15 5.42Z"
-        />
-      </svg>
-      <p className="text-sm font-medium text-ink-faint">{host}</p>
+    <div className="relative flex h-full w-full flex-col items-center justify-center overflow-hidden bg-[linear-gradient(140deg,var(--elevated),var(--ground)_58%,rgba(41,151,255,0.16))] p-8 text-center">
+      <div
+        aria-hidden="true"
+        className="absolute -right-16 -top-16 h-56 w-56 rounded-full bg-[radial-gradient(circle,rgba(41,151,255,0.22),transparent_70%)] blur-2xl"
+      />
+      <p className="relative text-balance text-[clamp(1.25rem,3.2cqw,2rem)] font-semibold tracking-[-0.02em] text-fg">
+        {name || host}
+      </p>
+      <p className="relative mt-2 flex items-center gap-1.5 text-[13px] text-fg-faint">
+        <svg viewBox="0 0 12 12" className="h-3 w-3" aria-hidden="true">
+          <path
+            fill="currentColor"
+            d="M6 1a2.5 2.5 0 0 0-2.5 2.5V5H3a1 1 0 0 0-1 1v4a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V6a1 1 0 0 0-1-1h-.5V3.5A2.5 2.5 0 0 0 6 1Zm1.5 4h-3V3.5a1.5 1.5 0 0 1 3 0V5Z"
+          />
+        </svg>
+        {host}
+      </p>
     </div>
   )
 }
 
 /**
- * Viser det ekte nettstedet i en nedskalert iframe.
+ * Bildelaget. Prøver kildene i rekkefølge og går videre ved feil, slik at en
+ * tjeneste som er nede aldri etterlater et tomt kort.
+ */
+function PreviewImage({
+  sources,
+  alt,
+  priority,
+  minWidth,
+  onExhausted,
+}: {
+  sources: string[]
+  alt: string
+  priority: boolean
+  /**
+   * Minste bredde et bilde må ha for å godtas. 0 slår av sjekken, som er
+   * riktig for dine egne bilder — de kan ha hvilken som helst størrelse.
+   */
+  minWidth: number
+  onExhausted: () => void
+}) {
+  const [index, setIndex] = useState(0)
+  const [loaded, setLoaded] = useState(false)
+
+  // Ny kildeliste starter forfra fordi kallstedet gir komponenten en ny
+  // `key`. Det er Reacts egen måte å nullstille state på, og slipper en
+  // effekt som setter state synkront.
+  const src = sources[index]
+  if (!src) return null
+
+  const next = () => {
+    if (index + 1 < sources.length) {
+      // Må nullstilles, ellers vises neste bilde med full ugjennomsiktighet
+      // før det har rukket å laste.
+      setLoaded(false)
+      setIndex(index + 1)
+      return
+    }
+    onExhausted()
+  }
+
+  return (
+    <img
+      key={src}
+      src={src}
+      alt={alt}
+      loading={priority ? 'eager' : 'lazy'}
+      decoding="async"
+      onLoad={(event) => {
+        // En skjermbildetjeneste svarer med et lite plassholderbilde mens den
+        // fortsatt bygger det ekte. Det bildet laster helt fint, så `error`
+        // fyrer aldri — størrelsen er det eneste som skiller dem. Er bildet
+        // for smalt, er det ikke et skjermbilde, og vi går videre.
+        if (minWidth > 0 && event.currentTarget.naturalWidth < minWidth * 0.6) {
+          next()
+          return
+        }
+        setLoaded(true)
+      }}
+      onError={next}
+      className={cn(
+        'absolute inset-0 h-full w-full object-cover object-top transition-opacity duration-700 ease-apple',
+        loaded ? 'opacity-100' : 'opacity-0',
+      )}
+    />
+  )
+}
+
+/**
+ * Forhåndsvisning av et prosjekt, i tre varianter.
  *
- * Tre ting gjør dette trygt å ha på en salgsside:
- *  1. Iframen monteres først når kortet nærmer seg viewporten, så seks
- *     previews ikke laster seks nettsteder ved sidelast.
- *  2. Den er `pointer-events: none` til brukeren aktivt trykker «Utforsk» —
- *     ellers spiser iframen scrollingen på mobil.
- *  3. Plakatbildet ligger under og blir stående hvis nettstedet nekter å bli
- *     embeddet (X-Frame-Options / CSP frame-ancestors) eller bruker for lang tid.
+ * `auto`  henter et skjermbilde utenfra. Kan ikke blokkeres av nettstedet,
+ *         spiser ikke scrolling, og holder seg oppdatert av seg selv.
+ * `image` bruker ditt eget skjermbilde. Best kvalitet.
+ * `live`  laster nettstedet i en nedskalert iframe. Monteres først når kortet
+ *         nærmer seg skjermen, og er ikke klikkbar før brukeren ber om det.
+ *         Nekter nettstedet innramming, kan det ikke oppdages herfra — derfor
+ *         må denne velges bevisst per prosjekt.
  */
 export default function LivePreview({
   project,
@@ -56,6 +141,14 @@ export default function LivePreview({
   const host = target ? prettyHost(target) : project.name
   const wantsLive = project.previewMode === 'live' && Boolean(target)
 
+  // Eget bilde vinner alltid. Ellers hentes det automatisk, og i live-modus
+  // brukes bildet som reserve bak iframen.
+  const sources = useMemo(() => {
+    if (project.posterImage) return [project.posterImage]
+    if (project.previewMode === 'image') return []
+    return screenshotSources(target, project.slug)
+  }, [project.posterImage, project.previewMode, project.slug, target])
+
   const containerRef = useRef<HTMLDivElement>(null)
   const timerRef = useRef<number | undefined>(undefined)
   // Mangler nettleseren IntersectionObserver, hopper vi rett til synlig
@@ -67,6 +160,7 @@ export default function LivePreview({
     startVisible && wantsLive ? 'loading' : 'idle',
   )
   const [live, setLive] = useState(false)
+  const [imagesFailed, setImagesFailed] = useState(false)
 
   // Monter iframen først når kortet er i nærheten av skjermen.
   useEffect(() => {
@@ -121,28 +215,38 @@ export default function LivePreview({
     setStatus('failed')
   }, [])
 
+  const handleExhausted = useCallback(() => setImagesFailed(true), [])
+
   const showFrame = wantsLive && visible && status !== 'failed'
+  const showPlaceholder = sources.length === 0 || imagesFailed
 
   return (
     <BrowserFrame host={host} className={className} compact={compact}>
       <div
         ref={containerRef}
-        className="relative w-full overflow-hidden bg-muted"
+        className="relative w-full overflow-hidden bg-elevated [container-type:inline-size]"
         style={{ aspectRatio: `${1 / ASPECT}` }}
       >
-        {/* Basislag: plakatbilde hvis det finnes, ellers en nøytral flate. */}
-        {project.posterImage ? (
-          <img
-            src={project.posterImage}
-            alt={`Forsiden til ${project.name}`}
-            loading={priority ? 'eager' : 'lazy'}
-            className="absolute inset-0 h-full w-full object-cover object-top"
-          />
-        ) : (
+        {/* Basislag: det formgitte kortet ligger alltid nederst, så et bilde
+            som ikke laster aldri etterlater en tom flate. */}
+        {showPlaceholder ? (
           <div className="absolute inset-0">
-            <Placeholder host={host} />
+            <Placeholder name={project.name} host={host} />
           </div>
+        ) : (
+          <div className="absolute inset-0 animate-pulse bg-[linear-gradient(135deg,var(--elevated),var(--hairline))]" />
         )}
+
+        {sources.length > 0 ? (
+          <PreviewImage
+            key={sources[0]}
+            sources={sources}
+            alt={`Forsiden til ${project.name}`}
+            priority={priority}
+            minWidth={project.posterImage ? 0 : SHOT_WIDTH}
+            onExhausted={handleExhausted}
+          />
+        ) : null}
 
         {showFrame ? (
           <iframe
@@ -167,13 +271,8 @@ export default function LivePreview({
           />
         ) : null}
 
-        {/* Laster-indikator som ikke hopper i layouten. */}
-        {showFrame && status === 'loading' && !project.posterImage ? (
-          <div className="absolute inset-0 animate-pulse bg-gradient-to-br from-muted to-line-soft" />
-        ) : null}
-
         {interactive ? (
-          <div className="pointer-events-none absolute inset-x-0 bottom-0 flex items-center justify-between gap-3 bg-gradient-to-t from-black/45 via-black/10 to-transparent p-3 opacity-0 transition-opacity duration-300 ease-apple group-hover:opacity-100 group-focus-within:opacity-100">
+          <div className="pointer-events-none absolute inset-x-0 bottom-0 flex items-center justify-between gap-3 bg-gradient-to-t from-black/45 via-black/10 to-transparent p-3 opacity-0 transition-opacity duration-300 ease-apple group-focus-within:opacity-100 group-hover:opacity-100">
             {wantsLive && status === 'loaded' ? (
               <button
                 type="button"
@@ -184,7 +283,7 @@ export default function LivePreview({
                 }}
                 className="pointer-events-auto rounded-full bg-white/95 px-3 py-1.5 text-xs font-medium text-ink shadow-sm backdrop-blur transition hover:bg-white"
               >
-                {live ? 'Lås scrolling' : 'Utforsk i kortet'}
+                {live ? 'Lås kortet' : 'Utforsk i kortet'}
               </button>
             ) : (
               <span />
@@ -195,7 +294,7 @@ export default function LivePreview({
                 target="_blank"
                 rel="noreferrer"
                 onClick={(event) => event.stopPropagation()}
-                className="pointer-events-auto rounded-full bg-ink/85 px-3 py-1.5 text-xs font-medium text-white backdrop-blur transition hover:bg-ink"
+                className="pointer-events-auto rounded-full bg-black/80 px-3 py-1.5 text-xs font-medium text-white backdrop-blur transition hover:bg-black"
               >
                 Åpne nettstedet ↗
               </a>
