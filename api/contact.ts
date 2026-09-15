@@ -18,6 +18,28 @@ function toParagraphs(value: string): string {
   return escapeHtml(value).replace(/\r?\n/g, '<br>')
 }
 
+/**
+ * Skiller oppsettsfeil fra forbigående feil.
+ *
+ * Et avvist domene eller en ugyldig nøkkel er noe DU må rette, og går ikke
+ * over av seg selv. En tidsavbrudd hos leverandøren gjør det. De to fortjener
+ * ulike svar: den første skal si at oppsettet mangler noe, den andre skal
+ * la reserveløsningen forsøke.
+ */
+function isSetupProblem(error: unknown): boolean {
+  const message = (error instanceof Error ? error.message : String(error)).toLowerCase()
+  return (
+    message.includes('not verified') ||
+    message.includes('domain') ||
+    message.includes('unauthorized') ||
+    message.includes('api key') ||
+    message.includes('forbidden') ||
+    message.includes('invalid') ||
+    message.includes('403') ||
+    message.includes('401')
+  )
+}
+
 function row(label: string, value: string): string {
   if (!value) return ''
   return `<tr><td style="padding:6px 16px 6px 0;color:#6e6e73;font-size:13px;vertical-align:top">${escapeHtml(
@@ -113,7 +135,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     return res.status(200).json({ ok: true })
   } catch (error) {
-    console.error('contact', error)
+    // Hele årsaken havner i Runtime Logs uansett. Den vises ikke til
+    // besøkende, men uten den er oppsettsfeil umulige å finne.
+    console.error('[contact] utsending feilet:', error)
+
+    if (isSetupProblem(error)) {
+      return res.status(503).json({
+        error: `E-postutsending er ikke satt opp riktig ennå — se Runtime Logs for årsaken.`,
+      })
+    }
+
     return res
       .status(500)
       .json({ error: `Sendingen feilet. Send gjerne en e-post direkte til ${TO}.` })
