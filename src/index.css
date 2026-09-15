@@ -1,3 +1,12 @@
+/**
+ * Inter, selvhostet.
+ *
+ * Google Fonts ville sendt hver besøkendes IP-adresse til Google, noe som er
+ * slått ned på som GDPR-brudd i EU. Filen ligger nå i vårt eget bygg: ingen
+ * tredjepart, ingen render-blokkerende forespørsel til et annet domene.
+ */
+@import '@fontsource-variable/inter';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
