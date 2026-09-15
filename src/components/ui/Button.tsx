@@ -6,12 +6,18 @@ type Variant = 'primary' | 'secondary' | 'quiet'
 type Size = 'md' | 'lg'
 
 const base =
-  'inline-flex items-center justify-center gap-1.5 rounded-full font-medium transition-all duration-200 ease-apple disabled:cursor-not-allowed disabled:opacity-45'
+  'inline-flex items-center justify-center gap-1.5 rounded-full font-medium transition-all duration-300 ease-apple disabled:cursor-not-allowed disabled:opacity-45'
 
+/**
+ * Fargene leser tone-variablene, så knappene fungerer uendret på både lys og
+ * mørk bakgrunn. `--accent` byttes til en lysere blåfarge på mørke seksjoner.
+ */
 const variants: Record<Variant, string> = {
-  primary: 'bg-brand-500 text-white hover:bg-brand-600 active:scale-[0.98]',
-  secondary: 'border border-line bg-surface text-ink hover:border-ink-ghost active:scale-[0.98]',
-  quiet: 'text-brand-500 hover:underline underline-offset-4 decoration-1',
+  primary:
+    'bg-accent-solid text-white hover:brightness-110 hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98]',
+  secondary:
+    'border border-hairline-strong bg-transparent text-fg hover:border-fg-faint hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98]',
+  quiet: 'text-accent underline-offset-4 decoration-1 hover:underline',
 }
 
 const sizes: Record<Size, string> = {

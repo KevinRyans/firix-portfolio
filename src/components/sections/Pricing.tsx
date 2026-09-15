@@ -8,16 +8,16 @@ import { Section, SectionHeading } from '../ui/Section'
 function PriceTag({ from, currency }: { from: number; currency: string }) {
   if (!from) {
     return (
-      <p className="text-[28px] font-semibold tracking-[-0.02em] text-ink">Pris på forespørsel</p>
+      <p className="text-[28px] font-semibold tracking-[-0.02em] text-fg">Pris på forespørsel</p>
     )
   }
   return (
     <p className="flex items-baseline gap-1.5">
-      <span className="text-[14px] text-ink-faint">fra</span>
-      <span className="text-[38px] font-semibold tracking-[-0.03em] text-ink">
+      <span className="text-[14px] text-fg-faint">fra</span>
+      <span className="text-[38px] font-semibold tracking-[-0.03em] text-fg">
         {formatPrice(from)}
       </span>
-      <span className="text-[16px] text-ink-faint">{currency}</span>
+      <span className="text-[16px] text-fg-faint">{currency}</span>
     </p>
   )
 }
@@ -40,10 +40,10 @@ export default function Pricing() {
             <Reveal key={pack.id} delay={index * 0.08}>
               <div
                 className={cn(
-                  'flex h-full flex-col rounded-panel border bg-surface p-8 transition-shadow duration-500 ease-apple',
+                  'flex h-full flex-col rounded-panel border bg-elevated p-8 transition-shadow duration-500 ease-apple',
                   featured
                     ? 'border-brand-500/40 shadow-lift ring-1 ring-brand-500/20'
-                    : 'border-line-soft shadow-card hover:shadow-lift',
+                    : 'border-hairline shadow-card hover:shadow-lift',
                 )}
               >
                 {featured ? (
@@ -52,13 +52,13 @@ export default function Pricing() {
                   </p>
                 ) : null}
 
-                <h3 className="text-title font-semibold text-ink">{pack.name}</h3>
-                <p className="mt-1.5 text-[14px] text-ink-faint">{pack.tagline}</p>
+                <h3 className="text-title font-semibold text-fg">{pack.name}</h3>
+                <p className="mt-1.5 text-[14px] text-fg-faint">{pack.tagline}</p>
 
                 <div className="mt-7">
                   <PriceTag from={pack.from} currency={pricing.currency} />
                   {saving > 0 ? (
-                    <p className="mt-2 text-[13px] text-ink-ghost">
+                    <p className="mt-2 text-[13px] text-fg-faint">
                       Byrå tar typisk fra{' '}
                       <span className="line-through decoration-ink-ghost/60">
                         {formatPrice(pack.agencyFrom)} {pricing.currency}
@@ -68,19 +68,19 @@ export default function Pricing() {
                       </span>
                     </p>
                   ) : null}
-                  <p className="mt-2 text-[13px] text-ink-ghost">Leveringstid: {pack.timeline}</p>
+                  <p className="mt-2 text-[13px] text-fg-faint">Leveringstid: {pack.timeline}</p>
                 </div>
 
-                <p className="mt-6 border-t border-line-soft pt-6 text-[14px] leading-relaxed text-ink-soft">
+                <p className="mt-6 border-t border-hairline pt-6 text-[14px] leading-relaxed text-fg-soft">
                   {pack.bestFor}
                 </p>
 
                 <ul className="mt-5 flex-1 space-y-2.5">
                   {pack.includes.map((item) => (
-                    <li key={item} className="flex items-start gap-2.5 text-[14px] text-ink-soft">
+                    <li key={item} className="flex items-start gap-2.5 text-[14px] text-fg-soft">
                       <svg
                         viewBox="0 0 16 16"
-                        className="mt-[3px] h-3.5 w-3.5 shrink-0 text-brand-500"
+                        className="mt-[3px] h-3.5 w-3.5 shrink-0 text-accent"
                         aria-hidden="true"
                       >
                         <path
@@ -106,15 +106,15 @@ export default function Pricing() {
         })}
       </div>
 
-      <div className="mt-14 grid gap-10 rounded-panel border border-line-soft bg-muted p-8 sm:p-10 lg:grid-cols-[1fr_1.1fr] lg:items-center">
+      <div className="mt-14 grid gap-10 rounded-panel border border-hairline bg-elevated p-8 sm:p-10 lg:grid-cols-[1fr_1.1fr] lg:items-center">
         <Reveal>
-          <h3 className="text-title font-semibold text-ink">{priceSection.comparisonTitle}</h3>
+          <h3 className="text-title font-semibold text-fg">{priceSection.comparisonTitle}</h3>
           <ul className="mt-5 space-y-3">
             {priceSection.comparisonItems.map((item) => (
-              <li key={item} className="flex items-start gap-3 text-[15px] text-ink-soft">
+              <li key={item} className="flex items-start gap-3 text-[15px] text-fg-soft">
                 <svg
                   viewBox="0 0 16 16"
-                  className="mt-[3px] h-3.5 w-3.5 shrink-0 text-ink-ghost"
+                  className="mt-[3px] h-3.5 w-3.5 shrink-0 text-fg-faint"
                   aria-hidden="true"
                 >
                   <path
@@ -128,10 +128,10 @@ export default function Pricing() {
           </ul>
         </Reveal>
         <Reveal delay={0.1}>
-          <p className="text-[15px] leading-relaxed text-ink-faint">{priceSection.disclaimer}</p>
-          <p className="mt-4 text-[13px] text-ink-ghost">{pricing.vatNote}</p>
+          <p className="text-[15px] leading-relaxed text-fg-faint">{priceSection.disclaimer}</p>
+          <p className="mt-4 text-[13px] text-fg-faint">{pricing.vatNote}</p>
           {pricing.hourlyRate > 0 ? (
-            <p className="mt-1 text-[13px] text-ink-ghost">
+            <p className="mt-1 text-[13px] text-fg-faint">
               Løpende arbeid faktureres til {formatPrice(pricing.hourlyRate)} {pricing.currency} per
               time.
             </p>

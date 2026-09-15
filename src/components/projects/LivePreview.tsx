@@ -14,14 +14,14 @@ type Status = 'idle' | 'loading' | 'loaded' | 'failed'
 
 function Placeholder({ host }: { host: string }) {
   return (
-    <div className="flex h-full w-full flex-col items-center justify-center gap-3 bg-gradient-to-br from-muted via-surface to-brand-50 p-6 text-center">
-      <svg viewBox="0 0 24 24" className="h-7 w-7 text-ink-ghost" aria-hidden="true">
+    <div className="flex h-full w-full flex-col items-center justify-center gap-3 bg-[linear-gradient(135deg,var(--ground),var(--elevated)_55%,rgba(41,151,255,0.12))] p-6 text-center">
+      <svg viewBox="0 0 24 24" className="h-7 w-7 text-fg-faint" aria-hidden="true">
         <path
           fill="currentColor"
           d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm6.93 9h-2.95a15.6 15.6 0 0 0-1.2-5.42A8.03 8.03 0 0 1 18.93 11ZM12 4.04c.83 1.2 1.68 3.3 1.94 6.96h-3.88C10.32 7.34 11.17 5.24 12 4.04ZM4.26 13h2.95c.14 2.1.56 3.93 1.2 5.42A8.03 8.03 0 0 1 4.26 13Zm2.95-2H4.26a8.03 8.03 0 0 1 4.15-5.42A15.6 15.6 0 0 0 7.21 11ZM12 19.96c-.83-1.2-1.68-3.3-1.94-6.96h3.88c-.26 3.66-1.11 5.76-1.94 6.96Zm2.78-1.54c.64-1.49 1.06-3.32 1.2-5.42h2.95a8.03 8.03 0 0 1-4.15 5.42Z"
         />
       </svg>
-      <p className="text-sm font-medium text-ink-faint">{host}</p>
+      <p className="text-sm font-medium text-fg-faint">{host}</p>
     </div>
   )
 }
@@ -127,7 +127,7 @@ export default function LivePreview({
     <BrowserFrame host={host} className={className} compact={compact}>
       <div
         ref={containerRef}
-        className="relative w-full overflow-hidden bg-muted"
+        className="relative w-full overflow-hidden bg-elevated"
         style={{ aspectRatio: `${1 / ASPECT}` }}
       >
         {/* Basislag: plakatbilde hvis det finnes, ellers en nøytral flate. */}
@@ -169,7 +169,7 @@ export default function LivePreview({
 
         {/* Laster-indikator som ikke hopper i layouten. */}
         {showFrame && status === 'loading' && !project.posterImage ? (
-          <div className="absolute inset-0 animate-pulse bg-gradient-to-br from-muted to-line-soft" />
+          <div className="absolute inset-0 animate-pulse bg-[linear-gradient(135deg,var(--elevated),var(--hairline))]" />
         ) : null}
 
         {interactive ? (
@@ -182,7 +182,7 @@ export default function LivePreview({
                   event.stopPropagation()
                   setLive((prev) => !prev)
                 }}
-                className="pointer-events-auto rounded-full bg-white/95 px-3 py-1.5 text-xs font-medium text-ink shadow-sm backdrop-blur transition hover:bg-white"
+                className="pointer-events-auto rounded-full bg-white/95 px-3 py-1.5 text-xs font-medium text-fg shadow-sm backdrop-blur transition hover:bg-white"
               >
                 {live ? 'Lås kortet' : 'Utforsk i kortet'}
               </button>

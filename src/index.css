@@ -3,6 +3,53 @@
 @tailwind utilities;
 
 @layer base {
+  /**
+   * Tone-system.
+   *
+   * apple.com veksler mellom lyse og kullsvarte fullbredde-seksjoner. Hver
+   * seksjon setter `data-tone`, og alt innhold i den leser fargene herfra.
+   * Merk at aksentblåfargen byttes ut på mørk bakgrunn: #0071e3 har for lav
+   * kontrast mot svart, #2997ff er Apples egen mørke variant.
+   */
+  :root,
+  [data-tone='light'] {
+    --fg: #1d1d1f;
+    --fg-soft: #424245;
+    --fg-faint: #6e6e73;
+    --ground: #fbfbfd;
+    --elevated: #ffffff;
+    --hairline: #e8e8ed;
+    --hairline-strong: #d2d2d7;
+    --accent: #0071e3;
+    --accent-solid: #0071e3;
+  }
+
+  [data-tone='muted'] {
+    --fg: #1d1d1f;
+    --fg-soft: #424245;
+    --fg-faint: #6e6e73;
+    --ground: #f5f5f7;
+    --elevated: #ffffff;
+    --hairline: #e3e3e8;
+    --hairline-strong: #d2d2d7;
+    --accent: #0071e3;
+    --accent-solid: #0071e3;
+  }
+
+  [data-tone='dark'] {
+    --fg: #f5f5f7;
+    --fg-soft: #d2d2d7;
+    --fg-faint: #a1a1a6;
+    --ground: #000000;
+    --elevated: #1d1d1f;
+    --hairline: rgba(255, 255, 255, 0.12);
+    --hairline-strong: rgba(255, 255, 255, 0.22);
+    /* Lysere blå for TEKST på svart (6,96:1). */
+    --accent: #2997ff;
+    /* Knappeflaten holdes mørk, ellers faller hvit knappetekst til 3:1. */
+    --accent-solid: #0071e3;
+  }
+
   :root {
     color-scheme: light;
     --nav-height: 52px;

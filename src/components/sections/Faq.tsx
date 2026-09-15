@@ -13,12 +13,12 @@ export default function Faq() {
       <SectionHeading eyebrow={faq.eyebrow} title={faq.title} />
 
       <div className="mt-12 max-w-narrow">
-        <dl className="border-t border-line-soft">
+        <dl className="border-t border-hairline">
           {faq.items.map((item, index) => {
             const isOpen = open === index
             return (
               <Reveal key={item.q} delay={index * 0.04}>
-                <div className="border-b border-line-soft">
+                <div className="border-b border-hairline">
                   <dt>
                     <button
                       type="button"
@@ -26,12 +26,12 @@ export default function Faq() {
                       aria-expanded={isOpen}
                       className="flex w-full items-center justify-between gap-6 py-5 text-left"
                     >
-                      <span className="text-[17px] font-medium tracking-[-0.01em] text-ink">
+                      <span className="text-[17px] font-medium tracking-[-0.01em] text-fg">
                         {item.q}
                       </span>
                       <span
                         className={cn(
-                          'relative h-4 w-4 shrink-0 text-ink-ghost transition-transform duration-300 ease-apple',
+                          'relative h-4 w-4 shrink-0 text-fg-faint transition-transform duration-300 ease-apple',
                           isOpen && 'rotate-45',
                         )}
                         aria-hidden="true"
@@ -50,7 +50,7 @@ export default function Faq() {
                         transition={{ duration: 0.32, ease: [0.28, 0.11, 0.32, 1] }}
                         className="overflow-hidden"
                       >
-                        <p className="max-w-prose pb-6 pr-10 text-[15px] leading-relaxed text-ink-faint">
+                        <p className="max-w-prose pb-6 pr-10 text-[15px] leading-relaxed text-fg-faint">
                           {item.a}
                         </p>
                       </motion.dd>

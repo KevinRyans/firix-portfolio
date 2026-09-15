@@ -5,35 +5,35 @@ export default function Footer() {
   const year = new Date().getFullYear()
 
   return (
-    <footer className="border-t border-line-soft bg-muted">
+    <footer data-tone="muted" className="border-t border-hairline bg-ground text-fg">
       <div className="shell py-12">
         <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
           <div className="lg:col-span-2">
-            <p className="text-[17px] font-semibold tracking-[-0.02em] text-ink">Firix</p>
-            <p className="mt-2 max-w-xs text-[13px] leading-relaxed text-ink-faint">
+            <p className="text-[17px] font-semibold tracking-[-0.02em] text-fg">Firix</p>
+            <p className="mt-2 max-w-xs text-[13px] leading-relaxed text-fg-faint">
               {footer.tagline}
             </p>
           </div>
 
           <div>
-            <p className="text-[12px] font-semibold uppercase tracking-[0.06em] text-ink-ghost">
+            <p className="text-[12px] font-semibold uppercase tracking-[0.06em] text-fg-faint">
               Innhold
             </p>
             <ul className="mt-3 space-y-2">
               {nav.map((item) => (
                 <li key={item.to}>
-                  <a href={item.to} className="text-[13px] text-ink-soft hover:text-ink">
+                  <a href={item.to} className="text-[13px] text-fg-soft hover:text-fg">
                     {item.label}
                   </a>
                 </li>
               ))}
               <li>
-                <Link to="/prosjekter" className="text-[13px] text-ink-soft hover:text-ink">
+                <Link to="/prosjekter" className="text-[13px] text-fg-soft hover:text-fg">
                   Prosjekter
                 </Link>
               </li>
               <li>
-                <Link to="/kontakt" className="text-[13px] text-ink-soft hover:text-ink">
+                <Link to="/kontakt" className="text-[13px] text-fg-soft hover:text-fg">
                   Kontakt
                 </Link>
               </li>
@@ -41,14 +41,14 @@ export default function Footer() {
           </div>
 
           <div>
-            <p className="text-[12px] font-semibold uppercase tracking-[0.06em] text-ink-ghost">
+            <p className="text-[12px] font-semibold uppercase tracking-[0.06em] text-fg-faint">
               Kontakt
             </p>
             <ul className="mt-3 space-y-2">
               <li>
                 <a
                   href={`mailto:${business.email}`}
-                  className="text-[13px] text-ink-soft hover:text-ink"
+                  className="text-[13px] text-fg-soft hover:text-fg"
                 >
                   {business.email}
                 </a>
@@ -57,7 +57,7 @@ export default function Footer() {
                 <li>
                   <a
                     href={`tel:${business.phone.replace(/\s/g, '')}`}
-                    className="text-[13px] text-ink-soft hover:text-ink"
+                    className="text-[13px] text-fg-soft hover:text-fg"
                   >
                     {business.phone}
                   </a>
@@ -68,7 +68,7 @@ export default function Footer() {
                   href={business.linkedin}
                   target="_blank"
                   rel="noreferrer"
-                  className="text-[13px] text-ink-soft hover:text-ink"
+                  className="text-[13px] text-fg-soft hover:text-fg"
                 >
                   LinkedIn
                 </a>
@@ -77,7 +77,7 @@ export default function Footer() {
           </div>
         </div>
 
-        <div className="mt-10 flex flex-col gap-2 border-t border-line pt-6 text-[12px] text-ink-ghost sm:flex-row sm:items-center sm:justify-between">
+        <div className="mt-10 flex flex-col gap-2 border-t border-hairline-strong pt-6 text-[12px] text-fg-faint sm:flex-row sm:items-center sm:justify-between">
           <p>
             © {year} {business.legalName}. {footer.rights}
           </p>

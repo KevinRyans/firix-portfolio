@@ -31,7 +31,7 @@ export default function App() {
   if (location.pathname.startsWith('/admin')) return <Admin />
 
   return (
-    <div className="flex min-h-screen flex-col bg-canvas">
+    <div className="flex min-h-screen flex-col bg-ground">
       <Navbar />
       <main className="flex-1">
         <Routes>

@@ -36,6 +36,26 @@ const config: Config = {
           700: '#0055b0',
         },
         positive: '#00875a',
+        /**
+         * Toneavhengige farger. Verdiene bytter når en seksjon merkes som
+         * mørk (se `[data-tone]` i index.css), slik at komponenter som brukes
+         * både på lys og mørk bakgrunn ikke trenger egne varianter.
+         */
+        fg: {
+          DEFAULT: 'var(--fg)',
+          soft: 'var(--fg-soft)',
+          faint: 'var(--fg-faint)',
+        },
+        ground: 'var(--ground)',
+        elevated: 'var(--elevated)',
+        hairline: {
+          DEFAULT: 'var(--hairline)',
+          strong: 'var(--hairline-strong)',
+        },
+        accent: {
+          DEFAULT: 'var(--accent)',
+          solid: 'var(--accent-solid)',
+        },
       },
       fontFamily: {
         sans: [
@@ -79,6 +99,16 @@ const config: Config = {
       },
       transitionTimingFunction: {
         apple: 'cubic-bezier(0.28, 0.11, 0.32, 1)',
+      },
+      keyframes: {
+        // Langsom, nesten umerkelig bevegelse i glødene på mørke seksjoner.
+        drift: {
+          '0%, 100%': { transform: 'translate3d(0, 0, 0) scale(1)' },
+          '50%': { transform: 'translate3d(0, -18px, 0) scale(1.06)' },
+        },
+      },
+      animation: {
+        drift: 'drift 16s ease-in-out infinite',
       },
     },
   },
