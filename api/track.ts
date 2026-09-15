@@ -1,5 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
-import { KV_TOKEN, KV_URL } from './_kv'
+import { KV_TOKEN, KV_URL } from './_kv.js'
 
 async function kvPipeline(commands: unknown[][]): Promise<void> {
   if (!KV_URL || !KV_TOKEN) return

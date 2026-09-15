@@ -1,5 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
-import { issueToken, safeEqual } from './_auth'
+import { issueToken, safeEqual } from './_auth.js'
 
 /**
  * Bytter admin-passordet mot et kortlevd signert token.

@@ -1,5 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
-import { bearer, verifyToken } from './_auth'
+import { bearer, verifyToken } from './_auth.js'
 
 /**
  * Sjekker om et nettsted lar seg vise i en iframe.
