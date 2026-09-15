@@ -1,5 +1,4 @@
 import { about } from '../../content/site'
-import { cn } from '../../lib/utils'
 import Reveal from '../ui/Reveal'
 import { Section, SectionHeading } from '../ui/Section'
 
@@ -13,15 +12,24 @@ import { Section, SectionHeading } from '../ui/Section'
 export default function About() {
   return (
     <Section id="om" tone="muted">
-      {/* Uten bilde er det ingen høyre kolonne å fylle — da ville et
-          to-kolonners rutenett bare etterlatt et stort tomrom. */}
-      <div
-        className={cn(
-          'grid gap-12',
-          about.portrait && 'lg:grid-cols-[1fr_0.8fr] lg:items-center lg:gap-16',
-        )}
-      >
+      <div>
         <div>
+          {/* Avataren står ved overskriften framfor å fylle en egen kolonne.
+              Den er tegnet, ikke fotografert, og tåler ikke stort format uten
+              å dra seksjonen mot spillprofil. */}
+          {about.portrait ? (
+            <Reveal>
+              <img
+                src={about.portrait}
+                alt={about.portraitAlt}
+                width={88}
+                height={88}
+                loading="lazy"
+                className="mb-6 h-[88px] w-[88px] rounded-full object-cover shadow-card ring-1 ring-hairline"
+              />
+            </Reveal>
+          ) : null}
+
           <SectionHeading eyebrow={about.eyebrow} title={about.title} />
 
           <div className="mt-6 max-w-prose space-y-5">
@@ -43,18 +51,6 @@ export default function About() {
             ))}
           </dl>
         </div>
-
-        {/* Skjuler seg selv til du legger inn et bilde. */}
-        {about.portrait ? (
-          <Reveal delay={0.1}>
-            <img
-              src={about.portrait}
-              alt={about.portraitAlt}
-              loading="lazy"
-              className="aspect-[4/5] w-full rounded-panel object-cover shadow-card"
-            />
-          </Reveal>
-        ) : null}
       </div>
     </Section>
   )

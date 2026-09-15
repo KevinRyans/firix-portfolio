@@ -229,10 +229,12 @@ export const about = {
     { value: 'Null', label: 'Mellomledd mellom deg og koden' },
   ],
   /**
-   * Bilde av deg i /public/images/. Tom streng skjuler hele bildefeltet.
-   * Et ansikt er verdt mye for en enmannsbedrift — folk kjøper av folk.
+   * Vises som en liten rund avatar ved navnet, ikke som stort portrett.
+   * Dette er en tegnet figur, ikke et foto — stort format ville fått
+   * seksjonen til å lese som en spillprofil. Bytt gjerne mot et ekte
+   * bilde av deg; da tåler den å bli større. Tom streng skjuler den.
    */
-  portrait: '',
+  portrait: '/images/michael.webp',
   portraitAlt: 'Michael, utvikleren bak Firix',
 }
 
