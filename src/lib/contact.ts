@@ -9,10 +9,47 @@ export type ContactPayload = {
   website: string
 }
 
-export type SendResult = { ok: true } | { ok: false; error: string }
+export type SendResult =
+  | { ok: true }
+  /**
+   * `mailto` settes kun når ingen sendevei er konfigurert. Da har skjemaet
+   * ingen måte å levere meldingen på, og det eneste anstendige er å gi den
+   * besøkende teksten sin tilbake i et e-postutkast framfor en blindvei.
+   */
+  | { ok: false; error: string; mailto?: string }
 
 const FALLBACK_EMAIL = 'michael@firix.no'
-const noBackend = Symbol('no-backend')
+
+/** Bygger et ferdig utfylt e-postutkast av det den besøkende skrev. */
+function mailtoDraft(payload: ContactPayload): string {
+  const linjer = [
+    `Navn: ${payload.name}`,
+    payload.company ? `Bedrift: ${payload.company}` : '',
+    `E-post: ${payload.email}`,
+    payload.phone ? `Telefon: ${payload.phone}` : '',
+    payload.budget ? `Budsjett: ${payload.budget}` : '',
+    '',
+    payload.message,
+  ].filter((linje, index) => linje !== '' || index === 5)
+
+  const emne = `Henvendelse fra ${payload.name}${payload.company ? ` (${payload.company})` : ''}`
+  return `mailto:${FALLBACK_EMAIL}?subject=${encodeURIComponent(emne)}&body=${encodeURIComponent(
+    linjer.join('\n'),
+  )}`
+}
+
+/**
+ * Hva vårt eget API gjorde med forespørselen.
+ *
+ * `unavailable` dekker både «ruten finnes ikke» og «ruten finnes, men
+ * feilet». De to er like for en reserveløsning, men ikke for deg:
+ * `serverError` tar vare på serverens egen forklaring, så den kan vises hvis
+ * reserven heller ikke kommer fram.
+ */
+type ApiOutcome =
+  | { kind: 'sent' }
+  | { kind: 'rejected'; error: string }
+  | { kind: 'unavailable'; serverError?: string }
 
 async function readJson(res: Response): Promise<Record<string, unknown> | null> {
   // En host uten /api svarer med HTML (404-siden) eller 405. Da er det ikke
@@ -25,8 +62,8 @@ async function readJson(res: Response): Promise<Record<string, unknown> | null> 
   }
 }
 
-/** Sender via vår egen /api/contact. Kaster `noBackend` hvis ruten ikke finnes. */
-async function viaApi(payload: ContactPayload): Promise<SendResult> {
+/** Sender via vår egen /api/contact. */
+async function viaApi(payload: ContactPayload): Promise<ApiOutcome> {
   let res: Response
   try {
     res = await fetch('/api/contact', {
@@ -35,21 +72,25 @@ async function viaApi(payload: ContactPayload): Promise<SendResult> {
       body: JSON.stringify(payload),
     })
   } catch {
-    throw noBackend
+    return { kind: 'unavailable' }
   }
 
   const data = await readJson(res)
-  if (data === null) throw noBackend
+  if (data === null) return { kind: 'unavailable' }
+  if (res.ok) return { kind: 'sent' }
 
-  if (res.ok) return { ok: true }
-
-  // 400 med JSON er en ekte valideringsfeil fra vår server. Den skal vises,
-  // ikke skjules bak et nytt forsøk mot en annen tjeneste.
+  // 400 med JSON er et ekte avslag fra vår server — for eksempel en ugyldig
+  // e-postadresse. Det skal vises, ikke skjules bak et nytt forsøk.
   if (res.status === 400 && typeof data.error === 'string') {
-    return { ok: false, error: data.error }
+    return { kind: 'rejected', error: data.error }
   }
 
-  throw noBackend
+  // Alt annet kan reserven kanskje redde, men vi tar vare på beskjeden. En
+  // 503 «ikke konfigurert» er nettopp det som må fram hvis den ikke gjør det.
+  return {
+    kind: 'unavailable',
+    serverError: typeof data.error === 'string' ? data.error : undefined,
+  }
 }
 
 /** Reserveløsning på hosting uten backend (GitHub Pages). */
@@ -99,17 +140,27 @@ async function viaWeb3Forms(payload: ContactPayload): Promise<SendResult> {
  * Kjører den på GitHub Pages — som ikke kan kjøre kode — faller den
  * automatisk tilbake til Web3Forms. En besøkende skal aldri møte et skjema
  * som feiler fordi hostingen mangler en backend.
+ *
+ * Kommer ingen av veiene fram, vises serverens egen forklaring framfor
+ * reservens generiske melding. Ellers skjuler «skjemaet er ikke satt opp»
+ * den faktiske årsaken, som gjerne er en manglende miljøvariabel.
  */
 export async function sendContact(payload: ContactPayload): Promise<SendResult> {
   // Honeypot: lat som alt gikk bra, ikke lær boten at den ble stoppet.
   if (payload.website) return { ok: true }
 
-  try {
-    return await viaApi(payload)
-  } catch (error) {
-    if (error !== noBackend) {
-      return { ok: false, error: `Noe gikk galt. Send gjerne en e-post til ${FALLBACK_EMAIL}.` }
-    }
-    return viaWeb3Forms(payload)
+  const api = await viaApi(payload)
+  if (api.kind === 'sent') return { ok: true }
+  if (api.kind === 'rejected') return { ok: false, error: api.error }
+
+  const fallback = await viaWeb3Forms(payload)
+  if (fallback.ok) return fallback
+
+  // Ingen av veiene kom fram. Serverens egen forklaring er mer presis enn
+  // reservens generiske melding, så den vinner når vi har den.
+  return {
+    ok: false,
+    error: api.serverError ? `${api.serverError}` : fallback.error,
+    mailto: mailtoDraft(payload),
   }
 }

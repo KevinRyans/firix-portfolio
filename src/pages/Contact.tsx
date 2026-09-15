@@ -12,6 +12,7 @@ const field =
 export default function Contact() {
   const [status, setStatus] = useState<Status>('idle')
   const [error, setError] = useState('')
+  const [mailto, setMailto] = useState('')
   const [form, setForm] = useState({
     name: '',
     company: '',
@@ -41,6 +42,7 @@ export default function Contact() {
       return
     }
     setError(result.error || contactPage.form.errorBody)
+    setMailto(result.mailto ?? '')
     setStatus('error')
   }
 
@@ -211,9 +213,19 @@ export default function Contact() {
             </div>
 
             {status === 'error' ? (
-              <p className="mt-5 rounded-xl bg-red-50 px-4 py-3 text-[14px] text-red-700">
-                {error}
-              </p>
+              <div className="mt-5 rounded-xl bg-red-50 px-4 py-3 text-[14px] text-red-700">
+                <p>{error}</p>
+                {/* Siste utvei: gi den besøkende teksten sin tilbake i et
+                    ferdig utfylt e-postutkast, framfor en blindvei. */}
+                {mailto ? (
+                  <a
+                    href={mailto}
+                    className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-red-700 px-4 py-2 text-[13px] font-medium text-white transition hover:bg-red-800"
+                  >
+                    Åpne meldingen i e-postprogrammet ditt →
+                  </a>
+                ) : null}
+              </div>
             ) : null}
 
             <button
