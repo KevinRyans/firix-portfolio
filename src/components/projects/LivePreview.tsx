@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { CuratedProject } from '../../content/projects'
-import { screenshotSources } from '../../lib/preview'
+import { SHOT_WIDTH, screenshotSources } from '../../lib/preview'
 import { cn, prettyHost } from '../../lib/utils'
 import BrowserFrame from '../ui/BrowserFrame'
 
@@ -51,11 +51,17 @@ function PreviewImage({
   sources,
   alt,
   priority,
+  minWidth,
   onExhausted,
 }: {
   sources: string[]
   alt: string
   priority: boolean
+  /**
+   * Minste bredde et bilde må ha for å godtas. 0 slår av sjekken, som er
+   * riktig for dine egne bilder — de kan ha hvilken som helst størrelse.
+   */
+  minWidth: number
   onExhausted: () => void
 }) {
   const [index, setIndex] = useState(0)
@@ -67,6 +73,17 @@ function PreviewImage({
   const src = sources[index]
   if (!src) return null
 
+  const next = () => {
+    if (index + 1 < sources.length) {
+      // Må nullstilles, ellers vises neste bilde med full ugjennomsiktighet
+      // før det har rukket å laste.
+      setLoaded(false)
+      setIndex(index + 1)
+      return
+    }
+    onExhausted()
+  }
+
   return (
     <img
       key={src}
@@ -74,11 +91,18 @@ function PreviewImage({
       alt={alt}
       loading={priority ? 'eager' : 'lazy'}
       decoding="async"
-      onLoad={() => setLoaded(true)}
-      onError={() => {
-        if (index + 1 < sources.length) setIndex(index + 1)
-        else onExhausted()
+      onLoad={(event) => {
+        // En skjermbildetjeneste svarer med et lite plassholderbilde mens den
+        // fortsatt bygger det ekte. Det bildet laster helt fint, så `error`
+        // fyrer aldri — størrelsen er det eneste som skiller dem. Er bildet
+        // for smalt, er det ikke et skjermbilde, og vi går videre.
+        if (minWidth > 0 && event.currentTarget.naturalWidth < minWidth * 0.6) {
+          next()
+          return
+        }
+        setLoaded(true)
       }}
+      onError={next}
       className={cn(
         'absolute inset-0 h-full w-full object-cover object-top transition-opacity duration-700 ease-apple',
         loaded ? 'opacity-100' : 'opacity-0',
@@ -219,6 +243,7 @@ export default function LivePreview({
             sources={sources}
             alt={`Forsiden til ${project.name}`}
             priority={priority}
+            minWidth={project.posterImage ? 0 : SHOT_WIDTH}
             onExhausted={handleExhausted}
           />
         ) : null}
