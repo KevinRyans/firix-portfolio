@@ -1,110 +1,119 @@
-import { useState } from 'react'
-import { NavLink, Link } from 'react-router-dom'
-import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
-import { Menu, X } from 'lucide-react'
-import {  useProfile } from '../../lib/i18n'
+import { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
+import { AnimatePresence, motion } from 'framer-motion'
+import { nav } from '../../content/site'
 import { cn } from '../../lib/utils'
-import Button from '../ui/Button'
 
+/**
+ * Apple-stil global nav: 52px høy, gjennomsiktig med kraftig blur, og en
+ * hårfin linje som først dukker opp når man har scrollet.
+ */
 export default function Navbar() {
+  const [scrolled, setScrolled] = useState(false)
   const [open, setOpen] = useState(false)
-  const shouldReduceMotion = useReducedMotion()
-  const profile = useProfile()
-  const brandName = profile.brand?.name ?? profile.name
 
-  const navLinkClass = ({ isActive }: { isActive: boolean }) =>
-    cn(
-      'focus-ring relative rounded-[2px] px-2 py-1 text-[0.67rem] uppercase tracking-[0.14em] font-mono transition-colors',
-      isActive
-        ? 'text-accent-400 after:absolute after:bottom-[-3px] after:left-0 after:right-0 after:h-px after:bg-accent-400'
-        : 'text-slate-500 hover:text-accent-400',
-    )
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 8)
+    onScroll()
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [])
+
+  useEffect(() => {
+    document.body.style.overflow = open ? 'hidden' : ''
+    return () => {
+      document.body.style.overflow = ''
+    }
+  }, [open])
 
   return (
-    <header className="no-print fixed top-0 z-50 w-full border-b border-[#1c1c28] bg-[rgba(9,9,14,0.9)] backdrop-blur-[18px]">
-      <div className="mx-auto flex w-full max-w-6xl items-center justify-between px-6 py-4">
-        {/* Brand */}
-        <Link to="/" className="focus-ring flex items-center rounded-sm">
-          <span className="font-display text-[0.95rem] font-extrabold tracking-[0.02em] text-accent-400">
-            {brandName}
-          </span>
+    <header
+      className={cn(
+        'fixed inset-x-0 top-0 z-50 transition-colors duration-300 ease-apple',
+        scrolled || open
+          ? 'border-b border-line-soft/80 bg-canvas/80 backdrop-blur-xl backdrop-saturate-150'
+          : 'border-b border-transparent bg-canvas/60 backdrop-blur-md',
+      )}
+      style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}
+    >
+      <nav className="shell flex h-[var(--nav-height)] items-center justify-between">
+        <Link
+          to="/"
+          className="text-[19px] font-semibold tracking-[-0.02em] text-ink"
+          aria-label="Firix — til forsiden"
+        >
+          Firix
         </Link>
 
-        {/* Desktop nav */}
-        <nav className="hidden items-center gap-6 md:flex">
-          {profile.navigation.map((item) => (
-            <NavLink key={item.to} to={item.to} end={item.to === '/'} className={navLinkClass}>
+        <div className="hidden items-center gap-8 md:flex">
+          {nav.map((item) => (
+            <a
+              key={item.to}
+              href={item.to}
+              className="text-[13px] text-ink-soft transition-colors hover:text-ink"
+            >
               {item.label}
-            </NavLink>
+            </a>
           ))}
-        </nav>
-
-        {/* Right side */}
-        <div className="hidden items-center gap-4 md:flex">
-          {/* Status badge */}
-          <div className="flex items-center gap-2 rounded-full border border-accent-400/20 bg-accent-400/5 px-3 py-1.5">
-            <span className="relative flex h-2 w-2">
-              <span className="animate-pulseRing absolute inline-flex h-full w-full rounded-full bg-accent-400 opacity-75" />
-              <span className="relative inline-flex h-2 w-2 rounded-full bg-accent-400" />
-            </span>
-            <span className="font-mono text-[0.65rem] tracking-[0.08em] text-slate-500">Tilgjengelig</span>
-          </div>
-
-        </div>
-
-        {/* Mobile toggle */}
-        <div className="md:hidden">
-          <Button
-            variant="ghost"
-            size="sm"
-            aria-label={profile.labels.toggleNavLabel}
-            onClick={() => setOpen((prev) => !prev)}
+          <Link
+            to="/kontakt"
+            className="rounded-full bg-brand-500 px-4 py-1.5 text-[13px] font-medium text-white transition hover:bg-brand-600"
           >
-            {open ? <X size={18} /> : <Menu size={18} />}
-          </Button>
+            Få et tilbud
+          </Link>
         </div>
-      </div>
 
-      {/* Mobile drawer */}
+        <button
+          type="button"
+          onClick={() => setOpen((prev) => !prev)}
+          aria-expanded={open}
+          aria-label={open ? 'Lukk meny' : 'Åpne meny'}
+          className="-mr-2 flex h-10 w-10 items-center justify-center md:hidden"
+        >
+          <span className="relative block h-3 w-4">
+            <span
+              className={cn(
+                'absolute left-0 h-[1.5px] w-4 bg-ink transition-all duration-300 ease-apple',
+                open ? 'top-1.5 rotate-45' : 'top-0',
+              )}
+            />
+            <span
+              className={cn(
+                'absolute left-0 h-[1.5px] w-4 bg-ink transition-all duration-300 ease-apple',
+                open ? 'top-1.5 -rotate-45' : 'top-3',
+              )}
+            />
+          </span>
+        </button>
+      </nav>
+
       <AnimatePresence>
         {open ? (
           <motion.div
-            initial={shouldReduceMotion ? { opacity: 1 } : { opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: -10 }}
-            transition={{ duration: 0.2, ease: 'easeOut' }}
-            className="md:hidden"
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.3, ease: [0.28, 0.11, 0.32, 1] }}
+            className="overflow-hidden md:hidden"
           >
-            <div className="mx-4 mb-4 rounded-2xl border border-white/10 bg-base-900/95 p-5 shadow-soft backdrop-blur-xl">
-              <div className="flex flex-col gap-1">
-                {profile.navigation.map((item) => (
-                  <NavLink
-                    key={item.to}
-                    to={item.to}
-                    end={item.to === '/'}
-                    onClick={() => setOpen(false)}
-                    className={({ isActive }) =>
-                      cn(
-                        'rounded-lg px-3 py-2.5 text-sm font-medium transition-colors',
-                        isActive
-                          ? 'bg-accent-400/10 text-accent-400'
-                          : 'text-slate-400 hover:bg-white/5 hover:text-slate-100',
-                      )
-                    }
-                  >
-                    {item.label}
-                  </NavLink>
-                ))}
-                <div className="mt-3 flex items-center justify-between border-t border-white/10 pt-3">
-                  <div className="flex items-center gap-2">
-                    <span className="relative flex h-2 w-2">
-                      <span className="animate-pulseRing absolute inline-flex h-full w-full rounded-full bg-accent-400 opacity-75" />
-                      <span className="relative inline-flex h-2 w-2 rounded-full bg-accent-400" />
-                    </span>
-                    <span className="font-mono text-[0.65rem] text-slate-500">Tilgjengelig</span>
-                  </div>
-                </div>
-              </div>
+            <div className="shell flex flex-col gap-1 pb-6 pt-2">
+              {nav.map((item) => (
+                <a
+                  key={item.to}
+                  href={item.to}
+                  onClick={() => setOpen(false)}
+                  className="border-b border-line-soft py-3.5 text-[19px] font-medium text-ink"
+                >
+                  {item.label}
+                </a>
+              ))}
+              <Link
+                to="/kontakt"
+                onClick={() => setOpen(false)}
+                className="mt-4 rounded-full bg-brand-500 px-5 py-3 text-center text-[16px] font-medium text-white"
+              >
+                Få et tilbud
+              </Link>
             </div>
           </motion.div>
         ) : null}

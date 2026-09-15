@@ -1,16 +1,21 @@
-import { Link } from 'react-router-dom'
-import { useProfile } from '../lib/i18n'
-import { buttonStyles } from '../components/ui/buttonStyles'
+import { useEffect } from 'react'
+import Button from '../components/ui/Button'
 
 export default function NotFound() {
-  const profile = useProfile()
+  useEffect(() => {
+    document.title = 'Siden finnes ikke — Firix'
+  }, [])
+
   return (
-    <div className="mx-auto w-full max-w-3xl px-6 pb-20 text-center">
-      <h1 className="text-3xl font-semibold text-white">{profile.labels.notFoundTitle}</h1>
-      <p className="mt-3 text-sm text-slate-400">{profile.labels.notFoundSubtitle}</p>
-      <Link to="/" className={buttonStyles({ variant: 'secondary', className: 'mt-6' })}>
-        {profile.labels.backHomeLabel}
-      </Link>
+    <div className="shell flex min-h-[70vh] flex-col items-center justify-center py-24 text-center">
+      <p className="text-eyebrow font-semibold uppercase tracking-[0.08em] text-brand-500">404</p>
+      <h1 className="mt-4 text-display font-semibold text-ink">Denne siden finnes ikke.</h1>
+      <p className="mx-auto mt-5 max-w-prose text-lead text-ink-faint">
+        Lenken kan være utdatert, eller så har siden blitt flyttet.
+      </p>
+      <Button to="/" size="lg" className="mt-9">
+        Tilbake til forsiden
+      </Button>
     </div>
   )
 }

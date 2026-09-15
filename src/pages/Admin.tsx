@@ -1,285 +1,531 @@
-import { useEffect, useRef, useState } from 'react'
-import { Eye, EyeOff, LayoutDashboard, LogOut, Package, BarChart2, Save, RotateCcw, ExternalLink, TrendingUp, Users, Activity } from 'lucide-react'
-import { isAuthenticated, login, logout } from '../lib/adminAuth'
-import { getAdminStore, patchProject, resetProject, type AdminProjectOverride } from '../lib/adminStore'
-import { cn } from '../lib/utils'
-import { fetchMergedRepos, createProjectMapper, type Project } from '../lib/projects'
-import { useProfile } from '../lib/i18n'
+import { useEffect, useMemo, useState } from 'react'
+import { emptyProject, type CuratedProject } from '../content/projects'
+import { clearToken, getToken, login, saveProjects } from '../lib/admin'
+import { fetchProjects } from '../lib/projects'
+import { cn, slugify } from '../lib/utils'
+import LivePreview from '../components/projects/LivePreview'
 
-type Tab = 'overview' | 'projects' | 'analytics'
+const input =
+  'w-full rounded-lg border border-line bg-surface px-3 py-2 text-[14px] text-ink outline-none transition-colors placeholder:text-ink-ghost focus:border-brand-500'
+const label = 'mb-1 block text-[12px] font-medium text-ink-faint'
 
-type AnalyticsData = {
-  configured: boolean
-  totalViews?: number
-  totalVisitors?: number
-  dailyViews?: { date: string; views: number; visitors: number }[]
-  recent?: { path: string; visitorId: string; referrer: string; ts: number }[]
-}
+function Login({ onDone }: { onDone: () => void }) {
+  const [password, setPassword] = useState('')
+  const [error, setError] = useState('')
+  const [busy, setBusy] = useState(false)
 
-function StatCard({ label, value, Icon, sub }: { label: string; value: string | number; Icon: React.ElementType; sub?: string }) {
-  return (
-    <div className="rounded-[8px] border border-[#1c1c28] bg-[#0e0e18] p-5">
-      <div className="flex items-start justify-between">
-        <div>
-          <p className="font-mono text-[0.6rem] uppercase tracking-[0.14em] text-slate-500">{label}</p>
-          <p className="mt-2 font-mono text-2xl font-bold text-white">{value}</p>
-          {sub ? <p className="mt-1 font-mono text-[0.62rem] text-slate-600">{sub}</p> : null}
-        </div>
-        <div className="rounded-[6px] bg-[#7fffb2]/10 p-2 text-[#7fffb2]"><Icon size={16} /></div>
-      </div>
-    </div>
-  )
-}
-function LoginScreen({ onLogin }: { onLogin: () => void }) {
-  const [pass, setPass] = useState('')
-  const [error, setError] = useState(false)
-  const [shake, setShake] = useState(false)
-  const ref = useRef<HTMLInputElement>(null)
-  function handleSubmit(e: React.FormEvent) {
-    e.preventDefault()
-    if (login(pass)) { onLogin() }
-    else { setError(true); setShake(true); setTimeout(() => setShake(false), 600); setTimeout(() => setError(false), 2500); setPass(''); ref.current?.focus() }
+  async function submit(event: React.FormEvent) {
+    event.preventDefault()
+    setBusy(true)
+    setError('')
+    const result = await login(password)
+    setBusy(false)
+    if (result.ok) onDone()
+    else {
+      setError(result.error)
+      setPassword('')
+    }
   }
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-[#09090e] px-4">
-      <div className={cn('w-full max-w-sm', shake && 'animate-[shake_0.5s_ease-in-out]')}>
-        <div className="mb-8 text-center">
-          <p className="font-mono text-[0.65rem] uppercase tracking-[0.3em] text-[#7fffb2]/60">Admin</p>
-          <h1 className="mt-2 font-mono text-2xl font-bold tracking-tight text-white">FIRIX.NO</h1>
-        </div>
-        <form onSubmit={handleSubmit} className="space-y-3">
-          <input ref={ref} type="password" value={pass} onChange={(e) => setPass(e.target.value)} placeholder="Password" autoFocus className={cn('w-full rounded-[6px] border bg-[#0e0e18] px-4 py-3 font-mono text-sm text-white outline-none transition-colors placeholder:text-slate-600', error ? 'border-rose-500/70 focus:border-rose-500' : 'border-[#1c1c28] focus:border-[#7fffb2]/50')} />
-          {error ? <p className="font-mono text-xs text-rose-400">Incorrect password.</p> : null}
-          <button type="submit" className="w-full rounded-[4px] bg-[#7fffb2] py-3 font-mono text-[0.75rem] font-bold uppercase tracking-[0.1em] text-[#09090e] transition hover:bg-[#a8ffcb]">Sign in</button>
-        </form>
-      </div>
+    <div className="flex min-h-screen items-center justify-center bg-muted px-6">
+      <form onSubmit={submit} className="w-full max-w-sm rounded-panel bg-surface p-8 shadow-card">
+        <h1 className="text-title font-semibold text-ink">Firix admin</h1>
+        <p className="mt-1.5 text-[13px] text-ink-faint">Logg inn for å styre prosjektene.</p>
+        <input
+          type="password"
+          autoFocus
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          placeholder="Passord"
+          className={cn(input, 'mt-6')}
+        />
+        {error ? <p className="mt-2 text-[13px] text-red-600">{error}</p> : null}
+        <button
+          type="submit"
+          disabled={busy || !password}
+          className="mt-4 w-full rounded-full bg-brand-500 py-2.5 text-[15px] font-medium text-white transition hover:bg-brand-600 disabled:opacity-50"
+        >
+          {busy ? 'Logger inn …' : 'Logg inn'}
+        </button>
+      </form>
     </div>
   )
 }
 
-function Sidebar({ active, onChange, onLogout }: { active: Tab; onChange: (t: Tab) => void; onLogout: () => void }) {
-  const items: { id: Tab; label: string; Icon: React.ElementType }[] = [
-    { id: 'overview', label: 'Overview', Icon: LayoutDashboard },
-    { id: 'projects', label: 'Projects', Icon: Package },
-    { id: 'analytics', label: 'Analytics', Icon: BarChart2 },
-  ]
+/** Én rad i listen. Bryteren her er «vises på firix.no». */
+function Row({
+  project,
+  active,
+  onSelect,
+  onToggle,
+  onMove,
+  isFirst,
+  isLast,
+}: {
+  project: CuratedProject
+  active: boolean
+  onSelect: () => void
+  onToggle: () => void
+  onMove: (direction: -1 | 1) => void
+  isFirst: boolean
+  isLast: boolean
+}) {
   return (
-    <aside className="flex h-screen w-52 flex-col border-r border-[#1c1c28] bg-[#0b0b14]">
-      <div className="border-b border-[#1c1c28] px-5 py-5">
-        <p className="font-mono text-[0.6rem] uppercase tracking-[0.25em] text-[#7fffb2]/60">Admin Panel</p>
-        <p className="mt-0.5 font-mono text-sm font-bold text-white">FIRIX.NO</p>
-      </div>
-      <nav className="flex-1 space-y-0.5 p-3">
-        {items.map(({ id, label, Icon }) => (
-          <button key={id} onClick={() => onChange(id)} className={cn('flex w-full items-center gap-3 rounded-[6px] px-3 py-2.5 font-mono text-[0.72rem] uppercase tracking-[0.08em] transition-colors', active === id ? 'bg-[#7fffb2]/10 text-[#7fffb2]' : 'text-slate-500 hover:bg-white/[0.03] hover:text-slate-300')}>
-            <Icon size={14} />{label}
-          </button>
-        ))}
-      </nav>
-      <div className="border-t border-[#1c1c28] p-3">
-        <button onClick={onLogout} className="flex w-full items-center gap-3 rounded-[6px] px-3 py-2.5 font-mono text-[0.72rem] uppercase tracking-[0.08em] text-slate-600 transition-colors hover:bg-white/[0.03] hover:text-slate-400">
-          <LogOut size={14} />Logout
+    <div
+      className={cn(
+        'flex items-center gap-3 border-b border-line-soft px-4 py-3 transition-colors',
+        active ? 'bg-brand-50' : 'hover:bg-muted',
+      )}
+    >
+      <div className="flex flex-col">
+        <button
+          type="button"
+          onClick={() => onMove(-1)}
+          disabled={isFirst}
+          aria-label="Flytt opp"
+          className="px-1 text-[10px] leading-none text-ink-ghost hover:text-ink disabled:opacity-25"
+        >
+          ▲
+        </button>
+        <button
+          type="button"
+          onClick={() => onMove(1)}
+          disabled={isLast}
+          aria-label="Flytt ned"
+          className="px-1 text-[10px] leading-none text-ink-ghost hover:text-ink disabled:opacity-25"
+        >
+          ▼
         </button>
       </div>
-    </aside>
-  )
-}
-function OverviewTab({ projects }: { projects: Project[] }) {
-  const store = getAdminStore()
-  const hidden = Object.values(store.projectOverrides).filter((o) => o.hidden).length
-  const customized = Object.keys(store.projectOverrides).filter((k) => { const o = store.projectOverrides[k]; return o.displayName || o.description || o.demoUrl || o.tags }).length
-  return (
-    <div className="space-y-6">
-      <div>
-        <h2 className="font-mono text-xs uppercase tracking-[0.2em] text-slate-500">Overview</h2>
-        <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <StatCard label="Total repos" value={projects.length} Icon={Package} />
-          <StatCard label="Hidden" value={hidden} Icon={EyeOff} sub="repos hidden from site" />
-          <StatCard label="Customized" value={customized} Icon={Save} sub="repos with overrides" />
-          <StatCard label="Visible" value={Math.max(0, projects.length - hidden)} Icon={Eye} sub="showing on site" />
-        </div>
-      </div>
-      <div>
-        <h2 className="font-mono text-xs uppercase tracking-[0.2em] text-slate-500">Projects</h2>
-        <div className="mt-4 overflow-hidden rounded-[8px] border border-[#1c1c28]">
-          {projects.slice(0, 10).map((project, i) => {
-            const override = store.projectOverrides[project.name] ?? {}
-            return (
-              <div key={project.name} className={cn('flex items-center justify-between px-4 py-3 text-sm', i > 0 && 'border-t border-[#1c1c28]')}>
-                <span className={cn('font-mono text-[0.75rem]', override.hidden ? 'text-slate-600 line-through' : 'text-slate-300')}>{project.displayName}</span>
-                <div className="flex items-center gap-3">
-                  {project.demoUrl ? <span className="font-mono text-[0.6rem] text-[#7fffb2]/60">demo</span> : null}
-                  <span className={cn('font-mono text-[0.62rem] uppercase tracking-[0.08em]', override.hidden ? 'text-rose-500/70' : 'text-[#1c1c28]')}>{override.hidden ? 'hidden' : ''}</span>
-                </div>
-              </div>
-            )
-          })}
-        </div>
-      </div>
-    </div>
-  )
-}
-function ProjectRow({ repo, override, onSave, onReset }: { repo: Project; override: AdminProjectOverride; onSave: (patch: AdminProjectOverride) => void; onReset: () => void }) {
-  const [expanded, setExpanded] = useState(false)
-  const [draft, setDraft] = useState<AdminProjectOverride>({ ...override })
-  const [saved, setSaved] = useState(false)
-  const hasOverride = Object.keys(override).length > 0
-  function handleSave() { onSave(draft); setSaved(true); setTimeout(() => setSaved(false), 1800) }
-  return (
-    <div className={cn('border-b border-[#1c1c28] last:border-0', draft.hidden && 'opacity-50')}>
-      <div className="flex cursor-pointer items-center justify-between px-5 py-3.5 hover:bg-white/[0.02]" onClick={() => setExpanded((v) => !v)}>
-        <div className="flex items-center gap-3">
-          <span className="font-mono text-[0.75rem] text-white">{draft.displayName ?? repo.name}</span>
-          {hasOverride ? <span className="rounded-[3px] bg-[#7fffb2]/10 px-1.5 py-0.5 font-mono text-[0.55rem] uppercase tracking-[0.1em] text-[#7fffb2]">custom</span> : null}
-          {draft.hidden ? <span className="rounded-[3px] bg-rose-500/10 px-1.5 py-0.5 font-mono text-[0.55rem] uppercase tracking-[0.1em] text-rose-400">hidden</span> : null}
-        </div>
-        <div className="flex items-center gap-3">
-          <span className="font-mono text-[0.62rem] text-slate-700">{repo.language ?? ''}</span>
-          <button onClick={(e) => { e.stopPropagation(); const next = !draft.hidden; setDraft((d) => ({ ...d, hidden: next })); onSave({ ...draft, hidden: next }) }} className={cn('rounded-[4px] border px-2.5 py-1 font-mono text-[0.6rem] uppercase tracking-[0.08em] transition-colors', draft.hidden ? 'border-rose-500/40 text-rose-400 hover:bg-rose-500/10' : 'border-[#1c1c28] text-slate-500 hover:border-[#7fffb2]/40 hover:text-[#7fffb2]')}>{draft.hidden ? 'Show' : 'Hide'}</button>
-          <span className="text-slate-700">{expanded ? '▲' : '▼'}</span>
-        </div>
-      </div>
-      {expanded ? (
-        <div className="border-t border-[#1c1c28] bg-[#0b0b14] px-5 py-4 space-y-3">
-          <div className="grid gap-3 sm:grid-cols-2">
-            <div>
-              <label className="mb-1 block font-mono text-[0.6rem] uppercase tracking-[0.1em] text-slate-600">Display name</label>
-              <input value={draft.displayName ?? ''} onChange={(e) => setDraft((d) => ({ ...d, displayName: e.target.value || undefined }))} placeholder={repo.name} className="w-full rounded-[4px] border border-[#1c1c28] bg-[#09090e] px-3 py-2 font-mono text-[0.75rem] text-white outline-none focus:border-[#7fffb2]/40" />
-            </div>
-            <div>
-              <label className="mb-1 block font-mono text-[0.6rem] uppercase tracking-[0.1em] text-slate-600">Demo URL</label>
-              <input value={draft.demoUrl ?? ''} onChange={(e) => setDraft((d) => ({ ...d, demoUrl: e.target.value || undefined }))} placeholder="https://..." className="w-full rounded-[4px] border border-[#1c1c28] bg-[#09090e] px-3 py-2 font-mono text-[0.75rem] text-white outline-none focus:border-[#7fffb2]/40" />
-            </div>
-          </div>
-          <div>
-            <label className="mb-1 block font-mono text-[0.6rem] uppercase tracking-[0.1em] text-slate-600">Description</label>
-            <textarea value={draft.description ?? ''} onChange={(e) => setDraft((d) => ({ ...d, description: e.target.value || undefined }))} placeholder={repo.description ?? ''} rows={2} className="w-full resize-none rounded-[4px] border border-[#1c1c28] bg-[#09090e] px-3 py-2 font-mono text-[0.75rem] text-white outline-none focus:border-[#7fffb2]/40" />
-          </div>
-          <div>
-            <label className="mb-1 block font-mono text-[0.6rem] uppercase tracking-[0.1em] text-slate-600">Tags (comma-separated)</label>
-            <input value={(draft.tags ?? []).join(', ')} onChange={(e) => setDraft((d) => ({ ...d, tags: e.target.value ? e.target.value.split(',').map((t) => t.trim()).filter(Boolean) : undefined }))} placeholder="React, TypeScript, ..." className="w-full rounded-[4px] border border-[#1c1c28] bg-[#09090e] px-3 py-2 font-mono text-[0.75rem] text-white outline-none focus:border-[#7fffb2]/40" />
-          </div>
-          <div className="flex items-center gap-3 pt-1">
-            <button onClick={handleSave} className={cn('flex items-center gap-2 rounded-[4px] px-4 py-2 font-mono text-[0.68rem] uppercase tracking-[0.08em] transition-all', saved ? 'bg-[#7fffb2]/20 text-[#7fffb2]' : 'bg-[#7fffb2] text-[#09090e] hover:bg-[#a8ffcb]')}><Save size={12} />{saved ? 'Saved' : 'Save'}</button>
-            {hasOverride ? <button onClick={() => { onReset(); setDraft({}) }} className="flex items-center gap-2 rounded-[4px] border border-[#1c1c28] px-4 py-2 font-mono text-[0.68rem] uppercase tracking-[0.08em] text-slate-500 transition-colors hover:border-rose-500/40 hover:text-rose-400"><RotateCcw size={12} />Reset</button> : null}
-            {draft.demoUrl ? <a href={draft.demoUrl} target="_blank" rel="noreferrer" className="ml-auto flex items-center gap-1 font-mono text-[0.65rem] text-slate-500 hover:text-[#7fffb2]"><ExternalLink size={11} />Preview demo</a> : null}
-          </div>
-        </div>
-      ) : null}
+
+      <button type="button" onClick={onSelect} className="min-w-0 flex-1 text-left">
+        <p
+          className={cn(
+            'truncate text-[14px] font-medium',
+            project.visible ? 'text-ink' : 'text-ink-ghost line-through',
+          )}
+        >
+          {project.name || 'Uten navn'}
+        </p>
+        <p className="truncate text-[12px] text-ink-ghost">
+          {project.featured ? '★ Fremhevet · ' : ''}
+          {project.url || 'ingen lenke'}
+        </p>
+      </button>
+
+      <button
+        type="button"
+        role="switch"
+        aria-checked={project.visible}
+        aria-label={`Vis ${project.name} på nettsiden`}
+        onClick={onToggle}
+        className={cn(
+          'relative h-6 w-10 shrink-0 rounded-full transition-colors',
+          project.visible ? 'bg-positive' : 'bg-line',
+        )}
+      >
+        <span
+          className={cn(
+            'absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform',
+            project.visible ? 'translate-x-[18px]' : 'translate-x-0.5',
+          )}
+        />
+      </button>
     </div>
   )
 }
 
-function ProjectsTab({ projects }: { projects: Project[] }) {
-  const [, forceUpdate] = useState(0)
-  const [search, setSearch] = useState('')
-  const store = getAdminStore()
-  const filtered = projects.filter((p) => p.name.toLowerCase().includes(search.toLowerCase()))
+function Editor({
+  project,
+  onChange,
+  onDelete,
+}: {
+  project: CuratedProject
+  onChange: (patch: Partial<CuratedProject>) => void
+  onDelete: () => void
+}) {
+  const list = (value: string) =>
+    value
+      .split(',')
+      .map((item) => item.trim())
+      .filter(Boolean)
+
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <h2 className="font-mono text-xs uppercase tracking-[0.2em] text-slate-500">Project overrides</h2>
-        <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search repos..." className="rounded-[4px] border border-[#1c1c28] bg-[#0e0e18] px-3 py-1.5 font-mono text-[0.72rem] text-white outline-none focus:border-[#7fffb2]/40 placeholder:text-slate-700" />
-      </div>
-      <p className="font-mono text-[0.65rem] text-slate-600">Changes save to localStorage and reflect on the site without a redeploy.</p>
-      <div className="overflow-hidden rounded-[8px] border border-[#1c1c28]">
-        {filtered.length === 0 ? <p className="px-5 py-6 font-mono text-[0.72rem] text-slate-600">No repos found.</p> : null}
-        {filtered.map((project) => (
-          <ProjectRow key={project.name} repo={project} override={store.projectOverrides[project.name] ?? {}} onSave={(patch) => { patchProject(project.name, patch); forceUpdate((n) => n + 1) }} onReset={() => { resetProject(project.name); forceUpdate((n) => n + 1) }} />
-        ))}
-      </div>
-    </div>
-  )
-}
-function AnalyticsTab() {
-  const [data, setData] = useState<AnalyticsData | null>(null)
-  const [loading, setLoading] = useState(true)
-  const password = import.meta.env.VITE_ADMIN_PASSWORD as string | undefined
-  useEffect(() => {
-    if (!password) { setLoading(false); return }
-    fetch('/api/analytics', { headers: { 'x-admin-token': password } })
-      .then((r) => r.json()).then((d) => setData(d as AnalyticsData)).catch(() => setData(null)).finally(() => setLoading(false))
-  }, [password])
-  if (loading) return <p className="font-mono text-[0.72rem] text-slate-600">Loading...</p>
-  if (!data?.configured) {
-    return (
-      <div className="space-y-6">
-        <h2 className="font-mono text-xs uppercase tracking-[0.2em] text-slate-500">Analytics</h2>
-        <div className="rounded-[8px] border border-[#1c1c28] bg-[#0e0e18] p-6 space-y-4">
-          <p className="font-mono text-sm font-semibold text-white">Analytics not configured</p>
-          <p className="font-mono text-[0.72rem] leading-relaxed text-slate-500">Connect a Vercel KV store to this project to enable visitor tracking. No cookies or third-party scripts.</p>
-          <ol className="space-y-1.5 font-mono text-[0.72rem] text-slate-500">
-            <li>1. <span className="text-[#7fffb2]">vercel.com → Storage → Create KV Store</span></li>
-            <li>2. Link the KV store to this project</li>
-            <li>3. Redeploy — tracking starts automatically</li>
-          </ol>
+    <div className="space-y-5">
+      <div className="grid gap-4 sm:grid-cols-2">
+        <div>
+          <span className={label}>Navn</span>
+          <input
+            value={project.name}
+            onChange={(e) => {
+              const name = e.target.value
+              // Slug følger navnet til man redigerer den manuelt.
+              const autoSlug = !project.slug || project.slug === slugify(project.name)
+              onChange(autoSlug ? { name, slug: slugify(name) } : { name })
+            }}
+            className={input}
+          />
         </div>
-      </div>
-    )
-  }
-  const maxViews = Math.max(...(data.dailyViews?.map((d) => d.views) ?? [1]), 1)
-  return (
-    <div className="space-y-6">
-      <h2 className="font-mono text-xs uppercase tracking-[0.2em] text-slate-500">Analytics</h2>
-      <div className="grid gap-4 sm:grid-cols-3">
-        <StatCard label="Total page views" value={data.totalViews ?? 0} Icon={TrendingUp} />
-        <StatCard label="Unique visitors" value={data.totalVisitors ?? 0} Icon={Users} sub="unique visitor IDs" />
-        <StatCard label="Today" value={data.dailyViews?.[data.dailyViews.length - 1]?.views ?? 0} Icon={Activity} sub="page views today" />
-      </div>
-      <div className="rounded-[8px] border border-[#1c1c28] bg-[#0e0e18] p-5">
-        <p className="mb-4 font-mono text-[0.6rem] uppercase tracking-[0.14em] text-slate-500">Views — last 7 days</p>
-        <div className="flex h-28 items-end gap-1">
-          {data.dailyViews?.map((d) => (
-            <div key={d.date} className="flex flex-1 flex-col items-center gap-1">
-              <div className="w-full rounded-t-[2px] bg-[#7fffb2]/30 transition-all hover:bg-[#7fffb2]/50" style={{ height: Math.max(4, (d.views / maxViews) * 96) + 'px' }} title={d.views + ' views'} />
-              <p className="font-mono text-[0.5rem] text-slate-700">{d.date.slice(5)}</p>
-            </div>
-          ))}
+        <div>
+          <span className={label}>Kunde</span>
+          <input
+            value={project.client}
+            onChange={(e) => onChange({ client: e.target.value })}
+            className={input}
+          />
         </div>
-      </div>
-      {data.recent && data.recent.length > 0 ? (
-        <div className="overflow-hidden rounded-[8px] border border-[#1c1c28]">
-          <div className="border-b border-[#1c1c28] bg-[#0e0e18] px-5 py-3">
-            <p className="font-mono text-[0.6rem] uppercase tracking-[0.14em] text-slate-500">Recent activity</p>
+        <div>
+          <span className={label}>URL til nettstedet</span>
+          <input
+            value={project.url}
+            onChange={(e) => onChange({ url: e.target.value })}
+            placeholder="https://..."
+            className={input}
+          />
+        </div>
+        <div>
+          <span className={label}>Adresse på firix.no</span>
+          <div className="flex items-center gap-1">
+            <span className="text-[13px] text-ink-ghost">/prosjekter/</span>
+            <input
+              value={project.slug}
+              onChange={(e) => onChange({ slug: slugify(e.target.value) })}
+              className={input}
+            />
           </div>
-          {data.recent.slice(0, 10).map((item, i) => (
-            <div key={i} className={cn('flex items-center justify-between px-5 py-2.5', i > 0 && 'border-t border-[#1c1c28]')}>
-              <span className="font-mono text-[0.72rem] text-slate-400">{item.path}</span>
-              <span className="font-mono text-[0.6rem] text-slate-700">{new Date(item.ts).toLocaleString()}</span>
-            </div>
+        </div>
+        <div>
+          <span className={label}>År</span>
+          <input
+            value={project.year}
+            onChange={(e) => onChange({ year: e.target.value })}
+            className={input}
+          />
+        </div>
+        <div>
+          <span className={label}>Kode-URL (valgfritt)</span>
+          <input
+            value={project.repoUrl}
+            onChange={(e) => onChange({ repoUrl: e.target.value })}
+            className={input}
+          />
+        </div>
+      </div>
+
+      <div>
+        <span className={label}>Kort beskrivelse (vises på kortet)</span>
+        <textarea
+          rows={2}
+          value={project.summary}
+          onChange={(e) => onChange({ summary: e.target.value })}
+          className={cn(input, 'resize-y')}
+        />
+      </div>
+
+      <div>
+        <span className={label}>Full beskrivelse (detaljsiden — blank linje gir nytt avsnitt)</span>
+        <textarea
+          rows={7}
+          value={project.description}
+          onChange={(e) => onChange({ description: e.target.value })}
+          className={cn(input, 'resize-y leading-relaxed')}
+        />
+      </div>
+
+      <div className="grid gap-4 sm:grid-cols-2">
+        <div>
+          <span className={label}>Stikkord (kommaseparert)</span>
+          <input
+            value={project.tags.join(', ')}
+            onChange={(e) => onChange({ tags: list(e.target.value) })}
+            className={input}
+          />
+        </div>
+        <div>
+          <span className={label}>Leveranse (kommaseparert)</span>
+          <input
+            value={project.services.join(', ')}
+            onChange={(e) => onChange({ services: list(e.target.value) })}
+            className={input}
+          />
+        </div>
+      </div>
+
+      <div className="rounded-xl border border-line-soft bg-muted p-4">
+        <p className="text-[13px] font-medium text-ink">Forhåndsvisning</p>
+        <div className="mt-3 flex flex-wrap gap-2">
+          {(['live', 'image'] as const).map((mode) => (
+            <button
+              key={mode}
+              type="button"
+              onClick={() => onChange({ previewMode: mode })}
+              className={cn(
+                'rounded-full border px-3 py-1.5 text-[13px] transition',
+                project.previewMode === mode
+                  ? 'border-brand-500 bg-brand-500 text-white'
+                  : 'border-line bg-surface text-ink-soft hover:border-ink-ghost',
+              )}
+            >
+              {mode === 'live' ? 'Live nettsted' : 'Bilde'}
+            </button>
           ))}
+        </div>
+        <p className="mt-2 text-[12px] leading-relaxed text-ink-faint">
+          «Live» laster det ekte nettstedet. Nekter nettstedet å bli vist i ramme, bytt til «Bilde»
+          og legg et skjermbilde i <code className="text-ink">/public/previews/</code>.
+        </p>
+        <div className="mt-3 grid gap-4 sm:grid-cols-2">
+          <div>
+            <span className={label}>Bilde-sti (også fallback)</span>
+            <input
+              value={project.posterImage}
+              onChange={(e) => onChange({ posterImage: e.target.value })}
+              placeholder="/previews/navn.jpg"
+              className={input}
+            />
+          </div>
+          <div>
+            <span className={label}>Egen preview-URL (valgfritt)</span>
+            <input
+              value={project.previewUrl}
+              onChange={(e) => onChange({ previewUrl: e.target.value })}
+              placeholder="Tom = bruker URL-en over"
+              className={input}
+            />
+          </div>
+        </div>
+      </div>
+
+      <div className="flex flex-wrap items-center justify-between gap-4 border-t border-line-soft pt-5">
+        <label className="flex items-center gap-2 text-[14px] text-ink-soft">
+          <input
+            type="checkbox"
+            checked={project.featured}
+            onChange={(e) => onChange({ featured: e.target.checked })}
+            className="h-4 w-4 accent-brand-500"
+          />
+          Fremhev øverst med stor forhåndsvisning
+        </label>
+        <button
+          type="button"
+          onClick={onDelete}
+          className="text-[13px] text-red-600 hover:underline"
+        >
+          Slett prosjektet
+        </button>
+      </div>
+
+      {project.url || project.posterImage ? (
+        <div>
+          <p className={label}>Slik ser det ut</p>
+          <LivePreview project={project} priority interactive={false} compact />
         </div>
       ) : null}
-    </div>
-  )
-}
-
-function AdminPanel({ onLogout }: { onLogout: () => void }) {
-  const [tab, setTab] = useState<Tab>('overview')
-  const [projects, setProjects] = useState<Project[]>([])
-  const profile = useProfile()
-  useEffect(() => {
-    let active = true
-    fetchMergedRepos(profile).then(({ repos }) => {
-      if (!active) return
-      const { mapRepo } = createProjectMapper(profile)
-      setProjects(repos.map(mapRepo))
-    }).catch(() => { if (active) setProjects([]) })
-    return () => { active = false }
-  }, [profile])
-  return (
-    <div className="flex h-screen bg-[#09090e] text-slate-100">
-      <Sidebar active={tab} onChange={setTab} onLogout={() => { logout(); onLogout() }} />
-      <main className="flex-1 overflow-y-auto p-8">
-        {tab === 'overview' && <OverviewTab projects={projects} />}
-        {tab === 'projects' && <ProjectsTab projects={projects} />}
-        {tab === 'analytics' && <AnalyticsTab />}
-      </main>
     </div>
   )
 }
 
 export default function Admin() {
-  const [authed, setAuthed] = useState(isAuthenticated())
-  return authed ? <AdminPanel onLogout={() => setAuthed(false)} /> : <LoginScreen onLogin={() => setAuthed(true)} />
+  const [authed, setAuthed] = useState(() => Boolean(getToken()))
+  const [projects, setProjects] = useState<CuratedProject[]>([])
+  const [selectedId, setSelectedId] = useState<string | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [dirty, setDirty] = useState(false)
+  const [message, setMessage] = useState<{ tone: 'ok' | 'bad'; text: string } | null>(null)
+  const [saving, setSaving] = useState(false)
+
+  useEffect(() => {
+    document.title = 'Admin — Firix'
+  }, [])
+
+  // Henter listen når man er logget inn. All setState skjer i løftets
+  // callback, ikke synkront i effekten.
+  useEffect(() => {
+    if (!authed) return
+    let active = true
+
+    void fetchProjects(getToken() ?? undefined).then(({ projects: loaded, isFallback }) => {
+      if (!active) return
+      setProjects(loaded)
+      setSelectedId(loaded[0]?.id ?? null)
+      setLoading(false)
+      if (isFallback) {
+        setMessage({
+          tone: 'bad',
+          text: 'Ingen lagret liste funnet — viser standardlisten fra koden. Trykk «Lagre» for å ta over styringen.',
+        })
+      }
+    })
+
+    return () => {
+      active = false
+    }
+  }, [authed])
+
+  // Advar før man mister ulagrede endringer.
+  useEffect(() => {
+    if (!dirty) return
+    const handler = (event: BeforeUnloadEvent) => event.preventDefault()
+    window.addEventListener('beforeunload', handler)
+    return () => window.removeEventListener('beforeunload', handler)
+  }, [dirty])
+
+  const selected = useMemo(
+    () => projects.find((project) => project.id === selectedId) ?? null,
+    [projects, selectedId],
+  )
+
+  function update(id: string, patch: Partial<CuratedProject>) {
+    setProjects((prev) => prev.map((p) => (p.id === id ? { ...p, ...patch } : p)))
+    setDirty(true)
+  }
+
+  function move(index: number, direction: -1 | 1) {
+    setProjects((prev) => {
+      const next = [...prev]
+      const target = index + direction
+      if (target < 0 || target >= next.length) return prev
+      ;[next[index], next[target]] = [next[target], next[index]]
+      return next.map((project, i) => ({ ...project, order: i }))
+    })
+    setDirty(true)
+  }
+
+  function add() {
+    const project = { ...emptyProject(`prosjekt-${Date.now()}`), order: projects.length }
+    setProjects((prev) => [...prev, project])
+    setSelectedId(project.id)
+    setDirty(true)
+  }
+
+  function remove(id: string) {
+    if (
+      !window.confirm(
+        'Slette dette prosjektet? Du må lagre for at det skal forsvinne fra nettsiden.',
+      )
+    )
+      return
+    setProjects((prev) => prev.filter((p) => p.id !== id))
+    setSelectedId(null)
+    setDirty(true)
+  }
+
+  async function save() {
+    setSaving(true)
+    setMessage(null)
+    const ordered = projects.map((project, index) => ({ ...project, order: index }))
+    const result = await saveProjects(ordered)
+    setSaving(false)
+    if (result.ok) {
+      setProjects(ordered)
+      setDirty(false)
+      setMessage({ tone: 'ok', text: 'Lagret. Endringene er live på firix.no.' })
+    } else {
+      setMessage({ tone: 'bad', text: result.error })
+      if (!getToken()) setAuthed(false)
+    }
+  }
+
+  if (!authed) return <Login onDone={() => setAuthed(true)} />
+
+  const visibleCount = projects.filter((p) => p.visible).length
+
+  return (
+    <div className="min-h-screen bg-muted">
+      <header className="sticky top-0 z-20 border-b border-line-soft bg-canvas/85 backdrop-blur-xl">
+        <div className="mx-auto flex max-w-[1280px] items-center justify-between gap-4 px-6 py-3">
+          <div>
+            <p className="text-[15px] font-semibold text-ink">Firix admin</p>
+            <p className="text-[12px] text-ink-ghost">
+              {visibleCount} av {projects.length} prosjekter vises på nettsiden
+            </p>
+          </div>
+          <div className="flex items-center gap-3">
+            {dirty ? (
+              <span className="text-[12px] font-medium text-amber-600">Ulagrede endringer</span>
+            ) : null}
+            <button
+              type="button"
+              onClick={add}
+              className="rounded-full border border-line bg-surface px-4 py-2 text-[13px] font-medium text-ink transition hover:border-ink-ghost"
+            >
+              Nytt prosjekt
+            </button>
+            <button
+              type="button"
+              onClick={save}
+              disabled={saving || !dirty}
+              className="rounded-full bg-brand-500 px-5 py-2 text-[13px] font-medium text-white transition hover:bg-brand-600 disabled:opacity-40"
+            >
+              {saving ? 'Lagrer …' : 'Lagre'}
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                clearToken()
+                setAuthed(false)
+              }}
+              className="text-[13px] text-ink-faint hover:text-ink"
+            >
+              Logg ut
+            </button>
+          </div>
+        </div>
+      </header>
+
+      {message ? (
+        <div className="mx-auto max-w-[1280px] px-6 pt-4">
+          <p
+            className={cn(
+              'rounded-xl px-4 py-3 text-[13px]',
+              message.tone === 'ok' ? 'bg-positive/10 text-positive' : 'bg-amber-50 text-amber-800',
+            )}
+          >
+            {message.text}
+          </p>
+        </div>
+      ) : null}
+
+      <div className="mx-auto grid max-w-[1280px] gap-6 px-6 py-6 lg:grid-cols-[340px_1fr]">
+        <aside className="h-fit overflow-hidden rounded-panel border border-line-soft bg-surface">
+          {loading ? (
+            <p className="p-6 text-[13px] text-ink-faint">Laster …</p>
+          ) : projects.length === 0 ? (
+            <p className="p-6 text-[13px] text-ink-faint">
+              Ingen prosjekter ennå. Trykk «Nytt prosjekt».
+            </p>
+          ) : (
+            projects.map((project, index) => (
+              <Row
+                key={project.id}
+                project={project}
+                active={project.id === selectedId}
+                isFirst={index === 0}
+                isLast={index === projects.length - 1}
+                onSelect={() => setSelectedId(project.id)}
+                onToggle={() => update(project.id, { visible: !project.visible })}
+                onMove={(direction) => move(index, direction)}
+              />
+            ))
+          )}
+        </aside>
+
+        <main className="rounded-panel border border-line-soft bg-surface p-6 sm:p-8">
+          {selected ? (
+            <Editor
+              key={selected.id}
+              project={selected}
+              onChange={(patch) => update(selected.id, patch)}
+              onDelete={() => remove(selected.id)}
+            />
+          ) : (
+            <p className="py-20 text-center text-[14px] text-ink-faint">
+              Velg et prosjekt til venstre, eller opprett et nytt.
+            </p>
+          )}
+        </main>
+      </div>
+    </div>
+  )
 }

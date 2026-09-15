@@ -1,13 +1,14 @@
 {
-  "name": "onyxportifolio",
+  "name": "firix-no",
   "private": true,
   "version": "0.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
-    "lint": "eslint .",
     "preview": "vite preview",
+    "lint": "eslint .",
+    "typecheck": "tsc -b",
     "format": "prettier --write ."
   },
   "dependencies": {
@@ -43,5 +44,6 @@
     "typescript": "~5.9.3",
     "typescript-eslint": "^8.46.4",
     "vite": "^7.2.4"
-  }
+  },
+  "description": "firix.no — nettsider og webapplikasjoner for norske bedrifter"
 }

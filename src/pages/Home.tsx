@@ -1,113 +1,27 @@
-import { Link } from 'react-router-dom'
-import { Layout, Server, Palette, Shield } from 'lucide-react'
-import { useProjects } from '../lib/projects'
-import { useProfile } from '../lib/i18n'
-import { buttonStyles } from '../components/ui/buttonStyles'
-import Card from '../components/ui/Card'
-import Badge from '../components/ui/Badge'
-import SectionHeader from '../components/ui/SectionHeader'
-import ProjectCard from '../components/projects/ProjectCard'
-import ProjectCardSkeleton from '../components/projects/ProjectCardSkeleton'
-import HeroShowcase from '../components/sections/HeroShowcase'
-import Reveal from '../components/sections/Reveal'
+import Hero from '../components/sections/Hero'
+import TrustBar from '../components/sections/TrustBar'
+import Services from '../components/sections/Services'
+import Work from '../components/sections/Work'
+import Pricing from '../components/sections/Pricing'
+import Process from '../components/sections/Process'
+import Faq from '../components/sections/Faq'
+import FinalCta from '../components/sections/FinalCta'
 
-const iconMap = { Layout, Server, Palette, Shield }
-
-type IconName = keyof typeof iconMap
-
+/**
+ * Én lang side som tar en bedriftskunde fra «hvem er dette» til «jeg tar
+ * kontakt» uten å kreve et eneste ekstra klikk.
+ */
 export default function Home() {
-  const profile = useProfile()
-  const { projects, status, source } = useProjects(profile)
-  const latestWorks = projects.slice(0, profile.home.latestWorksCount)
-
   return (
-    <div className="mx-auto flex w-full max-w-6xl flex-col gap-24 px-6 pb-20">
-      <section className="pt-10">
-        <HeroShowcase />
-        <div className="mt-6 flex flex-wrap gap-2">
-          {profile.skills.map((skill) => (
-            <Badge key={skill}>{skill}</Badge>
-          ))}
-        </div>
-      </section>
-
-      <Reveal>
-        <SectionHeader
-          title={profile.home.whatIDoTitle}
-          subtitle={profile.home.whatIDoSubtitle}
-        />
-        <div className="mt-8 overflow-hidden rounded-xl border border-[#1c1c28] grid grid-cols-1 gap-px bg-[#1c1c28] md:grid-cols-2">
-          {profile.whatIDo.map((item) => {
-            const Icon = iconMap[item.icon as IconName] ?? Layout
-            return (
-              <Card key={item.title} className="rounded-none border-0 shadow-none hover:-translate-y-0 hover:bg-base-800 transition-colors duration-200">
-                <div className="flex items-start gap-4">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-accent-400/10 text-accent-400">
-                    <Icon size={22} />
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-semibold text-white">{item.title}</h3>
-                    <p className="mt-2 text-sm text-slate-300">{item.description}</p>
-                  </div>
-                </div>
-              </Card>
-            )
-          })}
-        </div>
-      </Reveal>
-
-      <Reveal>
-        <SectionHeader
-          title={profile.home.latestWorksTitle}
-          subtitle={profile.home.latestWorksSubtitle}
-        />
-        {source === 'sample' ? (
-          <p className="mt-3 text-xs text-slate-400">{profile.projects.fallbackNotice}</p>
-        ) : null}
-        <div className="mt-8">
-          {status === 'loading' ? (
-            <ProjectCardSkeleton count={6} />
-          ) : (
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {latestWorks.map((project) => (
-                <ProjectCard
-                  key={project.id}
-                  project={project}
-                  variant={project.featured ? 'featured' : 'default'}
-                />
-              ))}
-            </div>
-          )}
-        </div>
-        <div className="mt-6">
-          <Link to="/projects" className={buttonStyles({ variant: 'ghost' })}>
-            {profile.labels.viewAll}
-          </Link>
-        </div>
-      </Reveal>
-
-      <Reveal>
-        <div className="-mx-6 border-y border-[#1c1c28] bg-[#111118] px-6 py-16">
-        <SectionHeader
-          title={profile.home.stackTitle}
-          subtitle={profile.home.stackSubtitle}
-        />
-        <div className="mt-6 flex flex-wrap gap-3">
-          {profile.stack.map((item) => (
-            <Badge key={item} className="rounded-[100px] border-[#242434] bg-transparent text-slate-500 hover:border-accent-400 hover:text-accent-400">
-              {item}
-            </Badge>
-          ))}
-        </div>
-        </div>
-      </Reveal>
-
-      <Reveal>
-        <SectionHeader title={profile.home.nowTitle} subtitle={profile.home.nowSubtitle} />
-        <div className="mt-6 max-w-[700px] rounded-[10px] border border-[#1c1c28] border-l-2 border-l-accent-400 bg-base-900 p-7">
-          <p className="text-[0.88rem] leading-[1.85] text-slate-500">{profile.now}</p>
-        </div>
-      </Reveal>
-    </div>
+    <>
+      <Hero />
+      <TrustBar />
+      <Services />
+      <Work limit={3} />
+      <Pricing />
+      <Process />
+      <Faq />
+      <FinalCta />
+    </>
   )
 }

@@ -1,67 +1,121 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
 import { Resend } from 'resend'
 
-const resend = new Resend(process.env.RESEND_API_KEY)
+const TO = 'michael@firix.no'
+const FROM = 'Firix <noreply@firix.no>'
+
+/** Innhold fra skjemaet havner i en HTML-e-post, så det må escapes. */
+function escapeHtml(value: string): string {
+  return value
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;')
+}
+
+function toParagraphs(value: string): string {
+  return escapeHtml(value).replace(/\r?\n/g, '<br>')
+}
+
+function row(label: string, value: string): string {
+  if (!value) return ''
+  return `<tr><td style="padding:6px 16px 6px 0;color:#6e6e73;font-size:13px;vertical-align:top">${escapeHtml(
+    label,
+  )}</td><td style="padding:6px 0;color:#1d1d1f;font-size:15px">${escapeHtml(value)}</td></tr>`
+}
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'POST') {
+    res.setHeader('Allow', 'POST')
     return res.status(405).json({ error: 'Method not allowed' })
   }
 
-  const { name, email, phone, message } = req.body as {
-    name?: string
-    email?: string
-    phone?: string
-    message?: string
+  const apiKey = process.env.RESEND_API_KEY
+  if (!apiKey) {
+    return res.status(503).json({ error: 'E-postutsending er ikke konfigurert.' })
   }
 
-  if (!name?.trim() || !email?.trim() || !message?.trim()) {
-    return res.status(400).json({ error: 'Name, email and message are required' })
+  const body = (req.body ?? {}) as Record<string, unknown>
+  const str = (key: string, max = 5000) => {
+    const value = body[key]
+    return typeof value === 'string' ? value.trim().slice(0, max) : ''
   }
 
-  const emailRegex = /^[^s@]+@[^s@]+.[^s@]+$/
-  if (!emailRegex.test(email)) {
-    return res.status(400).json({ error: 'Invalid email address' })
+  // Honeypot: ekte brukere ser aldri dette feltet. Svar 200 så boten ikke
+  // lærer at den ble stoppet.
+  if (str('website')) return res.status(200).json({ ok: true })
+
+  const name = str('name', 120)
+  const email = str('email', 200)
+  const company = str('company', 120)
+  const phone = str('phone', 60)
+  const budget = str('budget', 80)
+  const message = str('message', 5000)
+
+  if (!name || !email || !message) {
+    return res.status(400).json({ error: 'Navn, e-post og melding må fylles ut.' })
   }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) {
+    return res.status(400).json({ error: 'E-postadressen ser ikke gyldig ut.' })
+  }
+
+  const resend = new Resend(apiKey)
+
+  const ownerHtml = `
+    <div style="font-family:-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif;max-width:600px">
+      <h2 style="font-size:20px;color:#1d1d1f;margin:0 0 20px">Ny henvendelse fra ${escapeHtml(name)}</h2>
+      <table style="border-collapse:collapse;width:100%">
+        ${row('Navn', name)}${row('Bedrift', company)}${row('E-post', email)}
+        ${row('Telefon', phone)}${row('Budsjett', budget)}
+      </table>
+      <div style="margin-top:24px;padding-top:20px;border-top:1px solid #e8e8ed">
+        <p style="color:#6e6e73;font-size:13px;margin:0 0 8px">Melding</p>
+        <p style="color:#1d1d1f;font-size:15px;line-height:1.6;margin:0">${toParagraphs(message)}</p>
+      </div>
+    </div>`
+
+  const visitorHtml = `
+    <div style="font-family:-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif;max-width:600px">
+      <h2 style="font-size:20px;color:#1d1d1f;margin:0 0 16px">Takk for henvendelsen, ${escapeHtml(
+        name,
+      )}!</h2>
+      <p style="color:#424245;font-size:15px;line-height:1.6;margin:0 0 20px">
+        Jeg har mottatt meldingen din og svarer normalt innen 24 timer.
+      </p>
+      <div style="padding:16px 20px;background:#f5f5f7;border-radius:12px">
+        <p style="color:#6e6e73;font-size:13px;margin:0 0 8px">Dette sendte du:</p>
+        <p style="color:#1d1d1f;font-size:15px;line-height:1.6;margin:0">${toParagraphs(message)}</p>
+      </div>
+      <p style="color:#86868b;font-size:13px;margin:24px 0 0">— Michael, Firix</p>
+    </div>`
 
   try {
-    const ownerHtml =
-      '<h2 style="font-family:monospace;color:#7fffb2">New message from ' + name + '</h2>' +
-      '<p><strong>Name:</strong> ' + name + '</p>' +
-      '<p><strong>Email:</strong> ' + email + '</p>' +
-      (phone ? '<p><strong>Phone:</strong> ' + phone + '</p>' : '') +
-      '<p><strong>Message:</strong></p>' +
-      '<p>' + message.replace(/
-/g, '<br>') + '</p>'
-
-    const visitorHtml =
-      '<h2 style="font-family:monospace">Hey ' + name + ', got your message!</h2>' +
-      '<p>Thanks for reaching out. I’ll get back to you as soon as possible.</p>' +
-      '<hr>' +
-      '<p style="color:#666">Your message:</p>' +
-      '<blockquote style="border-left:3px solid #7fffb2;padding-left:1em;color:#444">' +
-      '<p>' + message.replace(/
-/g, '<br>') + '</p>' +
-      '</blockquote>' +
-      '<p style="font-size:0.85em;color:#888">— Michael @ FIRIX.NO</p>'
-
-    await resend.emails.send({
-      from: 'Portfolio <noreply@firix.no>',
-      to: 'michael@firix.no',
-      subject: 'New message from ' + name,
+    // Varselet til deg er det kritiske. Kvitteringen til kunden er hyggelig,
+    // men skal aldri velte hele forespørselen.
+    const owner = await resend.emails.send({
+      from: FROM,
+      to: TO,
+      replyTo: email,
+      subject: `Ny henvendelse: ${name}${company ? ` (${company})` : ''}`,
       html: ownerHtml,
     })
+    if (owner.error) throw new Error(owner.error.message)
 
-    await resend.emails.send({
-      from: 'Michael @ FIRIX.NO <noreply@firix.no>',
-      to: email,
-      subject: 'Got your message — FIRIX.NO',
-      html: visitorHtml,
-    })
+    void resend.emails
+      .send({
+        from: FROM,
+        to: email,
+        subject: 'Takk for henvendelsen — Firix',
+        html: visitorHtml,
+      })
+      .catch((err) => console.error('kvittering feilet', err))
 
-    return res.status(200).json({ success: true })
+    return res.status(200).json({ ok: true })
   } catch (error) {
-    console.error('Resend error:', error)
-    return res.status(500).json({ error: 'Failed to send message. Please try again.' })
+    console.error('contact', error)
+    return res
+      .status(500)
+      .json({ error: `Sendingen feilet. Send gjerne en e-post direkte til ${TO}.` })
   }
 }

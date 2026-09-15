@@ -1,199 +1,95 @@
-import { useEffect, useRef, useCallback } from 'react'
 import { Link } from 'react-router-dom'
-import { ExternalLink } from 'lucide-react'
-import { useReducedMotion } from 'framer-motion'
-import { useProfile } from '../../lib/i18n'
-import { type Project } from '../../lib/projects'
-import { getStatusTone } from '../../lib/badgeStyles'
+import type { CuratedProject } from '../../content/projects'
 import { cn } from '../../lib/utils'
-
-
-function useTilt(enabled: boolean) {
-  const ref = useRef<HTMLDivElement>(null)
-
-  useEffect(() => {
-    if (!enabled) return
-    const element = ref.current
-    if (!element) return
-
-    let raf = 0
-
-    const handleMove = (event: MouseEvent) => {
-      const rect = element.getBoundingClientRect()
-      const x = (event.clientX - rect.left) / rect.width - 0.5
-      const y = (event.clientY - rect.top) / rect.height - 0.5
-      const rotateX = y * -8
-      const rotateY = x * 10
-
-      cancelAnimationFrame(raf)
-      raf = requestAnimationFrame(() => {
-        element.style.transform = `perspective(900px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-4px)`
-      })
-    }
-
-    const handleLeave = () => {
-      cancelAnimationFrame(raf)
-      element.style.transform = 'perspective(900px) rotateX(0deg) rotateY(0deg) translateY(0)'
-    }
-
-    element.addEventListener('mousemove', handleMove)
-    element.addEventListener('mouseleave', handleLeave)
-
-    return () => {
-      element.removeEventListener('mousemove', handleMove)
-      element.removeEventListener('mouseleave', handleLeave)
-      cancelAnimationFrame(raf)
-    }
-  }, [enabled])
-
-  return ref
-}
-
-function getStatusClass(status: string) {
-  const tone = getStatusTone(status)
-  if (tone === 'success') return 'text-accent-400 border-accent-400/25'
-  return 'text-slate-500 border-[#242434]'
-}
-
-function SitePreview({ url, name }: { url: string; name: string }) {
-  const viewportRef = useRef<HTMLDivElement>(null)
-  const iframeRef = useRef<HTMLIFrameElement>(null)
-
-  const scale = useCallback(() => {
-    const vp = viewportRef.current
-    const iframe = iframeRef.current
-    if (!vp || !iframe) return
-    const w = vp.offsetWidth
-    if (!w) return
-    iframe.style.transform = `scale(${w / 1280})`
-  }, [])
-
-  useEffect(() => {
-    scale()
-    const ro = new ResizeObserver(scale)
-    if (viewportRef.current) ro.observe(viewportRef.current)
-    return () => ro.disconnect()
-  }, [scale])
-
-  let hostname = url
-  try { hostname = new URL(url).hostname } catch {}
-
-  return (
-    <div className="mb-4 overflow-hidden rounded-lg border border-white/5">
-      <div className="flex items-center gap-2 border-b border-white/5 bg-[#16161f] px-3 py-2">
-        <div className="flex gap-1 flex-shrink-0">
-          <span className="h-[7px] w-[7px] rounded-full bg-[#ff5f57]" />
-          <span className="h-[7px] w-[7px] rounded-full bg-[#febc2e]" />
-          <span className="h-[7px] w-[7px] rounded-full bg-[#28c840]" />
-        </div>
-        <span className="flex-1 truncate rounded bg-white/5 px-2 py-[2px] text-center font-mono text-[0.58rem] text-slate-500">
-          {hostname}
-        </span>
-      </div>
-      <div ref={viewportRef} className="relative h-40 overflow-hidden bg-[#f0ede8]">
-        <iframe
-          ref={iframeRef}
-          src={url}
-          title={`Preview of ${name}`}
-          loading="lazy"
-          className="absolute left-0 top-0 h-[900px] w-[1280px] origin-top-left border-none pointer-events-none"
-        />
-        <a
-          href={url}
-          target="_blank"
-          rel="noreferrer"
-          className="absolute inset-0 z-10"
-          aria-label={`Åpne ${name}`}
-        />
-      </div>
-    </div>
-  )
-}
+import LivePreview from './LivePreview'
 
 export default function ProjectCard({
   project,
-  variant: _variant = 'default',
+  featured = false,
+  priority = false,
 }: {
-  project: Project
-  variant?: 'default' | 'featured'
+  project: CuratedProject
+  featured?: boolean
+  priority?: boolean
 }) {
-  const profile = useProfile()
-  const shouldReduceMotion = useReducedMotion()
-  const tiltRef = useTilt(!shouldReduceMotion)
-
-  const langLabel = [project.language, project.category].filter(Boolean).join(' · ')
-
   return (
-    <div className="focus-ring group relative block rounded-2xl">
-      <div
-        ref={tiltRef}
+    <article
+      className={cn('group flex flex-col', featured && 'lg:flex-row lg:items-center lg:gap-14')}
+    >
+      <Link
+        to={`/prosjekter/${project.slug}`}
+        aria-label={`Se prosjektet ${project.name}`}
         className={cn(
-          'relative h-full overflow-hidden rounded-xl border border-[#1c1c28] bg-[#0e0e18] p-6 shadow-soft transition-all duration-300',
-          'before:absolute before:inset-x-0 before:top-0 before:h-[2px] before:bg-gradient-to-r before:from-accent-400 before:to-teal-400 before:opacity-0 before:transition-opacity before:duration-300',
-          'group-hover:-translate-y-[5px] group-hover:border-transparent group-hover:shadow-[0_20px_48px_rgba(0,0,0,0.45)] group-hover:before:opacity-100',
-
+          'block transition-transform duration-500 ease-apple hover:-translate-y-1',
+          featured ? 'lg:w-[58%]' : 'w-full',
         )}
       >
-        {/* Site preview */}
-        {project.previewUrl && (
-          <SitePreview url={project.previewUrl} name={project.displayName} />
-        )}
+        <LivePreview project={project} priority={priority} compact={!featured} />
+      </Link>
 
-        {/* Top row: language/category + status */}
-        <div className="mb-4 flex items-center justify-between gap-2">
-          {langLabel ? (
-            <span className="font-mono text-[0.62rem] uppercase tracking-[0.12em] text-[#5b8cff] bg-[rgba(91,140,255,0.1)] px-[0.6rem] py-[0.22rem] rounded-[4px]">
-              {langLabel}
-            </span>
-          ) : <span />}
-          <div className="flex items-center gap-2">
-            {project.status ? (
-              <span className={cn(
-                'font-mono text-[0.62rem] uppercase tracking-[0.1em] border px-[0.6rem] py-[0.2rem] rounded-[4px]',
-                getStatusClass(project.status)
-              )}>
-                {project.status}
-              </span>
-            ) : null}
-          </div>
-        </div>
+      <div className={cn('pt-6', featured && 'lg:w-[42%] lg:pt-0')}>
+        {project.client || project.year ? (
+          <p className="mb-2 flex items-center gap-2 text-[12px] font-medium uppercase tracking-[0.06em] text-ink-ghost">
+            {project.client ? <span>{project.client}</span> : null}
+            {project.client && project.year ? <span aria-hidden="true">·</span> : null}
+            {project.year ? <span>{project.year}</span> : null}
+          </p>
+        ) : null}
 
-        {/* Title */}
-        <Link
-          to={`/projects/${project.slug}`}
-          className="font-display text-[1.1rem] font-bold text-white before:absolute before:inset-0 before:z-0 leading-tight tracking-[-0.02em]"
+        <h3
+          className={cn(
+            'font-semibold tracking-[-0.02em] text-ink',
+            featured ? 'text-headline' : 'text-title',
+          )}
         >
-          {project.displayName}
-        </Link>
-        <p className="mt-2 text-[0.8rem] text-slate-500 line-clamp-2 leading-[1.75]">
-          {project.description}
-        </p>
+          <Link to={`/prosjekter/${project.slug}`} className="hover:text-brand-500">
+            {project.name}
+          </Link>
+        </h3>
 
-        {/* Tags */}
-        <div className="mt-4 flex flex-wrap gap-[0.4rem]">
-          {project.tags.map((tag) => (
-            <span key={tag} className="font-mono text-[0.62rem] px-[0.6rem] py-[0.2rem] rounded-[4px] bg-white/[0.04] text-slate-500 border border-[#1c1c28]">
-              {tag}
-            </span>
-          ))}
-        </div>
+        {project.summary ? (
+          <p
+            className={cn(
+              'mt-3 text-ink-faint',
+              featured ? 'text-lead' : 'text-[15px] leading-relaxed',
+            )}
+          >
+            {project.summary}
+          </p>
+        ) : null}
 
-        {/* Bottom: demo link + date */}
-        <div className="mt-5 flex items-center justify-between text-[0.7rem] text-slate-600">
-          <span className="font-mono">{project.updatedLabel}</span>
-          {project.demoUrl ? (
+        {project.tags.length > 0 ? (
+          <ul className="mt-5 flex flex-wrap gap-2">
+            {project.tags.map((tag) => (
+              <li
+                key={tag}
+                className="rounded-full border border-line-soft bg-surface px-3 py-1 text-[12px] text-ink-faint"
+              >
+                {tag}
+              </li>
+            ))}
+          </ul>
+        ) : null}
+
+        <div className="mt-6 flex flex-wrap items-center gap-5">
+          <Link
+            to={`/prosjekter/${project.slug}`}
+            className="text-[15px] font-medium text-brand-500 hover:underline"
+          >
+            Les mer →
+          </Link>
+          {project.url ? (
             <a
-              href={project.demoUrl}
+              href={project.url}
               target="_blank"
               rel="noreferrer"
-              className="relative z-10 inline-flex items-center gap-[0.35rem] font-mono text-[0.67rem] uppercase tracking-[0.08em] text-accent-400 transition-colors hover:text-accent-300"
+              className="text-[15px] text-ink-faint hover:text-ink"
             >
-              <ExternalLink size={11} />
-              {profile.labels.viewDemo}
+              Besøk nettstedet ↗
             </a>
           ) : null}
         </div>
       </div>
-    </div>
+    </article>
   )
 }
