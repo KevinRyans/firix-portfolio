@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { business, contactPage } from '../content/site'
 import { sendContact } from '../lib/contact'
+import { messagingChannels } from '../lib/messaging'
 import { cn } from '../lib/utils'
 import Reveal from '../components/ui/Reveal'
 
@@ -10,6 +11,7 @@ const field =
   'w-full rounded-xl border border-hairline-strong bg-elevated px-4 py-3 text-[16px] text-fg outline-none transition-colors placeholder:text-fg-faint focus:border-brand-500'
 
 export default function Contact() {
+  const channels = messagingChannels()
   const [status, setStatus] = useState<Status>('idle')
   const [error, setError] = useState('')
   const [mailto, setMailto] = useState('')
@@ -88,18 +90,24 @@ export default function Contact() {
                 </a>
               </dd>
             </div>
-            {business.phone ? (
+            {channels.length > 0 ? (
               <div>
                 <dt className="text-[12px] font-semibold uppercase tracking-[0.06em] text-fg-faint">
-                  Telefon
+                  Melding — raskest svar
                 </dt>
-                <dd className="mt-1">
-                  <a
-                    href={`tel:${business.phone.replace(/\s/g, '')}`}
-                    className="text-[17px] text-fg hover:text-accent"
-                  >
-                    {business.phone}
-                  </a>
+                <dd className="mt-1 text-[17px] text-fg">{business.mobileLabel}</dd>
+                <dd className="mt-3 flex flex-wrap gap-2">
+                  {channels.map((channel) => (
+                    <a
+                      key={channel.id}
+                      href={channel.href}
+                      target={channel.href.startsWith('http') ? '_blank' : undefined}
+                      rel={channel.href.startsWith('http') ? 'noreferrer' : undefined}
+                      className="rounded-full border border-hairline-strong px-3.5 py-1.5 text-[14px] text-fg-soft transition hover:border-fg-faint hover:text-fg"
+                    >
+                      {channel.label}
+                    </a>
+                  ))}
                 </dd>
               </div>
             ) : null}

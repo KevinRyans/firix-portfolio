@@ -18,10 +18,18 @@ export type Business = {
   vatRegistered: boolean
   city: string
   email: string
-  phone: string
+  /** Mobilnummer i internasjonalt format uten mellomrom. Tom = skjuler alle
+   *  meldingskanalene. */
+  mobile: string
+  /** Samme nummer, skrevet slik det leses. */
+  mobileLabel: string
+  /** Slå av en kanal du ikke bruker, så forsvinner knappen. */
+  messaging: { sms: boolean; whatsapp: boolean; telegram: boolean; discord: boolean }
   contactName: string
   linkedin: string
   github: string
+  discord: string
+  discordHandle: string
   responseTime: string
 }
 
@@ -34,12 +42,25 @@ export const business: Business = {
   vatRegistered: true,
   city: 'Tønsberg',
   email: 'michael@firix.no',
-  /** Tom streng = telefonnummer skjules. Bedrifter ringer — vurder å fylle inn. */
-  phone: '',
+  /**
+   * Nummeret brukes bevisst kun til melding, ikke til ringing — derfor er det
+   * ingen tel:-lenke noe sted. Det hindrer ikke at noen ringer likevel.
+   */
+  mobile: '+4793010275',
+  mobileLabel: '930 10 275',
+  /**
+   * Discord står på fordi du ba om det, men vurder den. Overfor et
+   * rørleggerfirma signaliserer Discord «gaming og hobby» — nettopp det
+   * inntrykket den gamle siden ga. Sett den til false for å skjule den.
+   */
+  messaging: { sms: true, whatsapp: true, telegram: true, discord: true },
   /** ⚠️ Utledet av LinkedIn-URL-en, ikke bekreftet. Rett opp hvis feil. */
   contactName: 'Michael Firing',
   linkedin: 'https://www.linkedin.com/in/michaelfiring/',
   github: 'https://github.com/KevinRyans',
+  /** Profil-URL med bruker-ID, og navnet slik det vises. */
+  discord: 'https://discord.com/users/337288161094795294',
+  discordHandle: 'onyxnor',
   /** Hvor raskt du realistisk svarer. Ikke lov noe du ikke holder. */
   responseTime: 'innen 24 timer',
 }
@@ -286,7 +307,7 @@ export const contactPage = {
     name: 'Navn',
     company: 'Bedrift',
     email: 'E-post',
-    phone: 'Telefon',
+    phone: 'Telefon (valgfritt)',
     budget: 'Omtrentlig budsjett',
     budgetOptions: [
       'Ikke avklart ennå',
@@ -301,7 +322,7 @@ export const contactPage = {
     submit: 'Send henvendelse',
     sending: 'Sender …',
     successTitle: 'Takk — henvendelsen er mottatt.',
-    successBody: `Jeg svarer ${business.responseTime}. Haster det, send en e-post direkte til ${business.email}.`,
+    successBody: `Jeg svarer ${business.responseTime}. Haster det, send meg en SMS på ${business.mobileLabel} — da er jeg vanligvis raskere.`,
     errorBody: `Noe gikk galt under sendingen. Send gjerne en e-post direkte til ${business.email} i stedet.`,
     consent: 'Opplysningene brukes kun til å besvare henvendelsen din og deles ikke videre.',
   },
