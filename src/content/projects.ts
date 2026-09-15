@@ -54,7 +54,7 @@ export function emptyProject(id: string): CuratedProject {
     description: '',
     url: '',
     repoUrl: '',
-    previewMode: 'live',
+    previewMode: 'image',
     previewUrl: '',
     posterImage: '',
     tags: [],
@@ -78,7 +78,10 @@ export const defaultProjects: CuratedProject[] = [
     description:
       'Privatsamleren kjøper løsøre, innbo og tar hånd om dødsbo, med kontant oppgjør for gull, sølv, klokker, kunst og militaria. Kundene deres er ofte i en krevende situasjon og trenger å finne riktig telefonnummer raskt.\n\nDerfor er hele siden bygget rundt ett mål: gjøre det åpenbart hva de kjøper, og gjøre det så enkelt som mulig å ta kontakt. Ingen unødvendige steg, tydelig kontaktinformasjon i hver seksjon, og en struktur som fungerer like godt for noen som leser på mobil som på desktop.',
     url: 'https://privatsamleren.no',
-    previewMode: 'live',
+    // privatsamleren.no nekter innramming, så live-preview viser bare
+    // nettleserens feilside. Legg et skjermbilde i /public/previews/ og
+    // pek på det i posterImage.
+    previewMode: 'image',
     posterImage: '',
     tags: ['Nettside', 'Design', 'SEO'],
     year: '2025',

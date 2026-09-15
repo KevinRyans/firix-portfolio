@@ -94,3 +94,27 @@ export async function saveProjects(
     return { ok: false, error: NO_BACKEND }
   }
 }
+
+export type PreviewCheck = { embeddable: boolean; reason: string }
+
+/**
+ * Spør serveren om et nettsted tillater innramming. Kan ikke gjøres i
+ * nettleseren — se kommentaren i api/preview-check.ts.
+ */
+export async function checkPreview(url: string): Promise<PreviewCheck | { error: string }> {
+  const token = getToken()
+  if (!token) return { error: 'Du er ikke logget inn.' }
+
+  try {
+    const res = await fetch(`/api/preview-check?url=${encodeURIComponent(url)}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+    if (!isJson(res)) return { error: NO_BACKEND }
+
+    const data = (await res.json()) as PreviewCheck & { error?: string }
+    if (!res.ok) return { error: data.error ?? 'Sjekken feilet.' }
+    return { embeddable: data.embeddable, reason: data.reason }
+  } catch {
+    return { error: NO_BACKEND }
+  }
+}

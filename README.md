@@ -81,28 +81,60 @@ Er KV ikke koblet til ennå, faller siden tilbake til listen i
 
 ---
 
-## Live forhåndsvisninger
+## Forhåndsvisninger av prosjektene
 
-Prosjektkortene laster det ekte nettstedet i en nedskalert iframe. Iframen
+Hvert prosjekt vises i en nettleserramme. Du velger i `/admin` mellom to
+måter å fylle den på:
+
+**«Bilde» (standard).** Et skjermbilde fra `public/previews/`. Virker alltid,
+laster raskt, og ser likt ut for alle.
+
+**«Live».** Nettstedet lastes i en iframe, skalert ned fra 1440px. Iframen
 monteres først når kortet nærmer seg skjermen, og er ikke klikkbar før
 brukeren trykker «Utforsk i kortet», slik at den ikke spiser scrollingen.
 
-**Noen nettsteder nekter å bli vist i ramme** (`X-Frame-Options` eller
-`Content-Security-Policy: frame-ancestors`). Sjekk et nettsted slik:
+### Hvorfor «live» må slås på manuelt
+
+Mange nettsteder nekter å bli vist i ramme, via `X-Frame-Options` eller
+`Content-Security-Policy: frame-ancestors`. **Dette kan ikke oppdages fra
+nettleseren.** Målt på en blokkert og en tillatt ramme side om side:
+
+| | Blokkert | Tillatt |
+|---|---|---|
+| `onload` fyrer | ja | ja |
+| `contentDocument` | `null` | `null` |
+| `contentWindow.origin` | SecurityError | SecurityError |
+| `contentWindow.location` | SecurityError | SecurityError |
+
+Signalene er identiske. En blokkert ramme tegner nettleserens grå feilside
+oppå alt annet, og det finnes ingen måte å fange det opp og bytte til et
+bilde i stedet. Derfor er `image` standard, og `live` noe du slår på bevisst.
+
+`privatsamleren.no` nekter innramming, og står derfor på «Bilde».
+
+### Sjekke et nettsted
+
+Er du på Vercel: trykk **«Kan nettstedet vises live?»** i `/admin`. Serveren
+leser svarhodene og slår automatisk av live-modus hvis nettstedet blokkerer.
+
+Uten backend gjør du det samme fra terminalen:
 
 ```bash
 curl -sI https://example.com | grep -i -E 'x-frame-options|content-security-policy'
 ```
 
-- Ingen treff → live forhåndsvisning fungerer.
-- `DENY` eller `SAMEORIGIN` → bytt prosjektet til **«Bilde»** i `/admin` og
-  legg et skjermbilde i `public/previews/`.
+Ingen treff betyr at live fungerer.
 
-Kortet faller uansett tilbake til bildet (eller en nøytral plate) hvis
-innlastingen feiler eller tar mer enn ni sekunder — en besøkende ser aldri en
-ødelagt ramme.
+### Legge til et skjermbilde
 
----
+Lagre bildet i `public/previews/` (1440 × 900, JPG eller WebP, under 300 kB)
+og skriv stien — for eksempel `/previews/privatsamleren.jpg` — i feltet
+**«Bilde-sti»** i `/admin`. Feltet brukes også som reserve hvis en
+live-visning ikke laster.
+
+Uten bilde viser kortet et formgitt kort med nettstedets navn og domene. Det
+ser bevisst ut, men det er ikke kundens forside — og det er forsiden som
+selger.
 
 ## Miljøvariabler
 

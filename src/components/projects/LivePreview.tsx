@@ -12,16 +12,32 @@ const LOAD_TIMEOUT_MS = 9000
 
 type Status = 'idle' | 'loading' | 'loaded' | 'failed'
 
-function Placeholder({ host }: { host: string }) {
+/**
+ * Vises når det ikke finnes et skjermbilde ennå.
+ *
+ * Dette er ikke en feilmelding — det er kortet en besøkende faktisk ser, så
+ * det er formgitt som et bevisst element: nettstedets navn stort, domenet
+ * under, på en rolig gradient som fungerer i begge toner.
+ */
+function Placeholder({ name, host }: { name: string; host: string }) {
   return (
-    <div className="flex h-full w-full flex-col items-center justify-center gap-3 bg-[linear-gradient(135deg,var(--ground),var(--elevated)_55%,rgba(41,151,255,0.12))] p-6 text-center">
-      <svg viewBox="0 0 24 24" className="h-7 w-7 text-fg-faint" aria-hidden="true">
-        <path
-          fill="currentColor"
-          d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm6.93 9h-2.95a15.6 15.6 0 0 0-1.2-5.42A8.03 8.03 0 0 1 18.93 11ZM12 4.04c.83 1.2 1.68 3.3 1.94 6.96h-3.88C10.32 7.34 11.17 5.24 12 4.04ZM4.26 13h2.95c.14 2.1.56 3.93 1.2 5.42A8.03 8.03 0 0 1 4.26 13Zm2.95-2H4.26a8.03 8.03 0 0 1 4.15-5.42A15.6 15.6 0 0 0 7.21 11ZM12 19.96c-.83-1.2-1.68-3.3-1.94-6.96h3.88c-.26 3.66-1.11 5.76-1.94 6.96Zm2.78-1.54c.64-1.49 1.06-3.32 1.2-5.42h2.95a8.03 8.03 0 0 1-4.15 5.42Z"
-        />
-      </svg>
-      <p className="text-sm font-medium text-fg-faint">{host}</p>
+    <div className="relative flex h-full w-full flex-col items-center justify-center overflow-hidden bg-[linear-gradient(140deg,var(--elevated),var(--ground)_58%,rgba(41,151,255,0.16))] p-8 text-center">
+      <div
+        aria-hidden="true"
+        className="absolute -right-16 -top-16 h-56 w-56 rounded-full bg-[radial-gradient(circle,rgba(41,151,255,0.22),transparent_70%)] blur-2xl"
+      />
+      <p className="relative text-balance text-[clamp(1.25rem,3.2cqw,2rem)] font-semibold tracking-[-0.02em] text-fg">
+        {name || host}
+      </p>
+      <p className="relative mt-2 flex items-center gap-1.5 text-[13px] text-fg-faint">
+        <svg viewBox="0 0 12 12" className="h-3 w-3" aria-hidden="true">
+          <path
+            fill="currentColor"
+            d="M6 1a2.5 2.5 0 0 0-2.5 2.5V5H3a1 1 0 0 0-1 1v4a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V6a1 1 0 0 0-1-1h-.5V3.5A2.5 2.5 0 0 0 6 1Zm1.5 4h-3V3.5a1.5 1.5 0 0 1 3 0V5Z"
+          />
+        </svg>
+        {host}
+      </p>
     </div>
   )
 }
@@ -127,7 +143,7 @@ export default function LivePreview({
     <BrowserFrame host={host} className={className} compact={compact}>
       <div
         ref={containerRef}
-        className="relative w-full overflow-hidden bg-elevated"
+        className="relative w-full overflow-hidden bg-elevated [container-type:inline-size]"
         style={{ aspectRatio: `${1 / ASPECT}` }}
       >
         {/* Basislag: plakatbilde hvis det finnes, ellers en nøytral flate. */}
@@ -140,7 +156,7 @@ export default function LivePreview({
           />
         ) : (
           <div className="absolute inset-0">
-            <Placeholder host={host} />
+            <Placeholder name={project.name} host={host} />
           </div>
         )}
 

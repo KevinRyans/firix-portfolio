@@ -5,8 +5,12 @@ Legg skjermbilder av prosjektene her, og pek på dem fra `/admin` i feltet
 
 Bildet brukes i to tilfeller:
 
-1. Når forhåndsvisningen står på **«Bilde»**.
-2. Som **fallback** når den står på «Live nettsted», men nettstedet nekter å bli
-   vist i ramme, eller bruker for lang tid på å laste.
+1. Når forhåndsvisningen står på **«Bilde»** (standard).
+2. Som **reserve** når den står på «Live», men nettstedet ikke laster i tide.
 
-Anbefalt: 1440 × 900 px (16:10), JPG eller WebP, under 300 kB.
+Anbefalt: 1440 × 900 px (16:10), JPG eller WebP, under 300 kB. Ta bildet med
+nettleservinduet på 1440px bredde, uten nettleserens egen ramme — kortet
+tegner sin egen.
+
+> Merk: `privatsamleren.no` sender hoder som nekter innramming, så det
+> prosjektet må bruke bilde. Se README i rot for detaljer.

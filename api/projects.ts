@@ -74,7 +74,7 @@ function sanitize(input: unknown): StoredProject[] {
       description: str(item.description, 8000),
       url: str(item.url, 500),
       repoUrl: str(item.repoUrl, 500),
-      previewMode: item.previewMode === 'image' ? 'image' : 'live',
+      previewMode: item.previewMode === 'live' ? 'live' : 'image',
       previewUrl: str(item.previewUrl, 500),
       posterImage: str(item.posterImage, 500),
       tags: strList(item.tags, 12),
