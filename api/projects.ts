@@ -1,5 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
 import { bearer, verifyToken } from './_auth'
+import { KV_TOKEN, KV_URL } from './_kv'
 
 /**
  * Prosjektlisten som vises på firix.no.
@@ -12,8 +13,6 @@ import { bearer, verifyToken } from './_auth'
  * src/content/projects.ts.
  */
 
-const KV_URL = process.env.KV_REST_API_URL
-const KV_TOKEN = process.env.KV_REST_API_TOKEN
 const KEY = 'firix:projects:v1'
 
 type StoredProject = Record<string, unknown> & { id?: unknown; visible?: unknown; order?: unknown }

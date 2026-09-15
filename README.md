@@ -166,8 +166,15 @@ Settes i Vercel under **Settings → Environment Variables**. Se `.env.example`.
 | `ADMIN_PASSWORD` | Innlogging på `/admin` | **Aldri** med `VITE_`-prefiks |
 | `ADMIN_SESSION_SECRET` | Valgfri | Signerer sesjonstokenet. Faller tilbake til `ADMIN_PASSWORD` |
 | `RESEND_API_KEY` | Kontaktskjemaet | Domenet må være verifisert hos Resend |
-| `KV_REST_API_URL` | Prosjektlisten + statistikk | Settes automatisk når KV kobles til |
-| `KV_REST_API_TOKEN` | Prosjektlisten + statistikk | Settes automatisk når KV kobles til |
+| `KV_REST_API_URL` | Prosjektlisten + statistikk | Settes automatisk av databasen |
+| `KV_REST_API_TOKEN` | Prosjektlisten + statistikk | Settes automatisk av databasen |
+
+> **Databasen:** Vercel har lagt ned «Vercel KV» som eget produkt. Opprett den
+> under **Storage → Marketplace → Upstash → Redis** — samme tjeneste som KV
+> alltid var. Koden snakker REST over HTTP, så en leverandør som kun gir en
+> `redis://`-streng (som «Redis — Official Redis for Vercel») fungerer ikke.
+> Avhengig av oppsettet heter variablene enten `KV_REST_API_*` eller
+> `UPSTASH_REDIS_REST_*`; koden leser begge, så du trenger ikke gjøre noe.
 
 > **Alt som starter med `VITE_` kompileres inn i den offentlige
 > JavaScript-bundlen og kan leses av hvem som helst i nettleserens
