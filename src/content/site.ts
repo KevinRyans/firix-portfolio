@@ -13,6 +13,15 @@
  * elementet på siden i stedet for å vise noe usant. Bytt ut og deploy.
  * ------------------------------------------------------------------ */
 export type Business = {
+  /** Navnet du selger under. Brukes overalt i grensesnittet. */
+  brandName: string
+  /**
+   * Navnet foretaket faktisk er registrert med i Brønnøysund.
+   *
+   * Dette MÅ stemme med org.nr. Slår en kunde opp nummeret og finner et
+   * annet navn, ser det ut som du oppgir feil. Selger du under et annet
+   * navn enn det registrerte, skal begge fram — ikke bare merkenavnet.
+   */
   legalName: string
   orgNumber: string
   vatRegistered: boolean
@@ -34,10 +43,10 @@ export type Business = {
 }
 
 export const business: Business = {
-  /** Juridisk navn slik det står i Brønnøysundregistrene. */
-  legalName: 'Firix',
-  /** 9 siffer. Tom streng = org.nr skjules i footer og tillitsraden. */
-  orgNumber: '',
+  brandName: 'Firix',
+  legalName: 'Privatsamleren Firing',
+  /** 9 siffer, gruppert slik Brønnøysund skriver det. Tom streng skjuler det. */
+  orgNumber: '936 634 567',
   /** true når du faktisk er MVA-registrert. Viser «MVA-registrert» som tillitssignal. */
   vatRegistered: true,
   city: 'Tønsberg',
