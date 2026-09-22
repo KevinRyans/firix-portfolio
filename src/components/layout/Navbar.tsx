@@ -43,8 +43,19 @@ export default function Navbar() {
       <nav className="shell flex h-[var(--nav-height)] items-center justify-between">
         <Link
           to="/"
+          onClick={() => {
+            setOpen(false)
+            // Står man allerede på forsiden, endres ikke ruten, og
+            // rutenullstillingen i App kjører aldri. Uten dette gjør
+            // logoen ingenting — som den ikke gjorde.
+            //
+            // Ingen `behavior` med vilje: da arver kallet `scroll-behavior`
+            // fra CSS, som er myk normalt og umiddelbar for dem som har
+            // bedt om redusert bevegelse.
+            window.scrollTo({ top: 0 })
+          }}
           className="text-[19px] font-semibold tracking-[-0.02em] text-fg transition-colors duration-500"
-          aria-label="Firix — til forsiden"
+          aria-label="Firix — til toppen"
         >
           Firix
         </Link>

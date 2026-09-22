@@ -83,11 +83,19 @@ export default function Footer() {
 
         <div className="mt-10 flex flex-col gap-2 border-t border-hairline-strong pt-6 text-[12px] text-fg-faint sm:flex-row sm:items-center sm:justify-between">
           <p>
-            © {year} {business.legalName}. {footer.rights}
+            © {year} {business.brandName}. {footer.rights}
           </p>
           {/* Org.nr og MVA er de sterkeste tillitssignalene en liten aktør har
               overfor bedriftskunder — men kun hvis de faktisk er utfylt. */}
           <p className="flex flex-wrap items-center gap-x-3 gap-y-1">
+            {/* Det registrerte navnet står sammen med org.nr, ikke merkenavnet.
+                Slår kunden opp nummeret, skal de finne akkurat dette. */}
+            {business.orgNumber && business.legalName !== business.brandName ? (
+              <span>{business.legalName}</span>
+            ) : null}
+            {business.orgNumber && business.legalName !== business.brandName ? (
+              <span aria-hidden="true">·</span>
+            ) : null}
             {business.orgNumber ? <span>Org.nr {business.orgNumber}</span> : null}
             {business.orgNumber && business.vatRegistered ? (
               <span aria-hidden="true">·</span>
