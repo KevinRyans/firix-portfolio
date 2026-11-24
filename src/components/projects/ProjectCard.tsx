@@ -24,7 +24,9 @@ export default function ProjectCard({
           featured ? 'lg:w-[58%]' : 'w-full',
         )}
       >
-        <LivePreview project={project} priority={priority} compact={!featured} />
+        <div className="crop">
+          <LivePreview project={project} priority={priority} compact={!featured} />
+        </div>
       </Link>
 
       <div className={cn('pt-6', featured && 'lg:w-[42%] lg:pt-0')}>
@@ -56,7 +58,7 @@ export default function ProjectCard({
             {project.tags.map((tag) => (
               <li
                 key={tag}
-                className="rounded-full border border-hairline bg-elevated px-3 py-1 text-[12px] text-fg-faint"
+                className="rounded-[2px] border border-hairline-strong px-2.5 py-1 text-[12px] text-fg-soft"
               >
                 {tag}
               </li>

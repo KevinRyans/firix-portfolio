@@ -65,7 +65,9 @@ export default function ProjectDetail() {
         </Reveal>
 
         <Reveal className="mt-14">
-          <LivePreview project={project} priority />
+          <div className="crop">
+            <LivePreview project={project} priority />
+          </div>
         </Reveal>
 
         <div className="mt-16 grid gap-14 lg:grid-cols-[1.4fr_0.6fr]">
@@ -84,10 +86,10 @@ export default function ProjectDetail() {
           </Reveal>
 
           <Reveal delay={0.1}>
-            <div className="rounded-panel border border-hairline bg-elevated p-7">
+            <div className="border-[1.5px] border-rule bg-elevated p-7">
               {project.services.length > 0 ? (
                 <>
-                  <p className="text-[14px] font-semibold text-fg-faint">Leveranse</p>
+                  <p className="text-[13px] font-semibold text-accent">Leveranse</p>
                   <ul className="mt-3 space-y-1.5">
                     {project.services.map((service) => (
                       <li key={service} className="text-[15px] text-fg-soft">
@@ -100,12 +102,12 @@ export default function ProjectDetail() {
 
               {project.tags.length > 0 ? (
                 <>
-                  <p className="mt-7 text-[14px] font-semibold text-fg-faint">Teknologi</p>
+                  <p className="mt-7 text-[13px] font-semibold text-accent">Teknologi</p>
                   <ul className="mt-3 flex flex-wrap gap-2">
                     {project.tags.map((tag) => (
                       <li
                         key={tag}
-                        className="rounded-full border border-hairline bg-elevated px-3 py-1 text-[12px] text-fg-faint"
+                        className="rounded-[2px] border border-hairline-strong px-2.5 py-1 text-[12px] text-fg-soft"
                       >
                         {tag}
                       </li>
@@ -117,7 +119,7 @@ export default function ProjectDetail() {
               {/* Resultater vises kun når det finnes ekte tall å vise. */}
               {project.results.length > 0 ? (
                 <>
-                  <p className="mt-7 text-[14px] font-semibold text-fg-faint">Resultat</p>
+                  <p className="mt-7 text-[13px] font-semibold text-accent">Resultat</p>
                   <dl className="mt-3 space-y-3">
                     {project.results.map((result) => (
                       <div key={result.label}>

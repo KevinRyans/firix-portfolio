@@ -6,23 +6,24 @@ type Variant = 'primary' | 'secondary' | 'quiet'
 type Size = 'md' | 'lg'
 
 const base =
-  'inline-flex items-center justify-center gap-2 rounded-md font-semibold tracking-[-0.01em] transition duration-300 ease-apple disabled:cursor-not-allowed disabled:opacity-45'
+  'inline-flex items-center justify-center gap-2 rounded-[2px] font-semibold tracking-[-0.01em] transition duration-300 ease-apple disabled:cursor-not-allowed disabled:opacity-45'
 
 /**
- * Primærknappen er signaloransje med blekk-farget tekst (5.4:1), på alle
- * toner. Sekundær er en rolig kontur som arver tonens tekstfarge.
+ * Primærknappen er strekblå med hvit tekst (6.7:1) på papir, og hvit med blå
+ * tekst på blåkopi. Sekundær er en kontur i tonens tekstfarge. Rette hjørner:
+ * det er en tegning, ikke en app.
  */
 const variants: Record<Variant, string> = {
   primary:
-    'bg-accent-solid text-blekk shadow-[0_1px_0_rgba(16,32,28,0.25)] hover:-translate-y-px hover:bg-[#ff6d38] active:translate-y-0',
+    'bg-accent-solid text-accent-on hover:-translate-y-px hover:shadow-[3px_3px_0_var(--fg)] active:translate-y-0 active:shadow-none',
   secondary:
-    'border border-hairline-strong text-fg hover:border-fg hover:-translate-y-px active:translate-y-0',
+    'border-[1.5px] border-fg text-fg hover:-translate-y-px hover:shadow-[3px_3px_0_var(--fg)] active:translate-y-0 active:shadow-none',
   quiet: 'text-accent underline decoration-1 underline-offset-4 hover:decoration-2',
 }
 
 const sizes: Record<Size, string> = {
   md: 'px-5 py-3 text-[15px]',
-  lg: 'px-7 py-4 text-[17px]',
+  lg: 'px-6 py-4 text-[17px]',
 }
 
 type Props = {

@@ -9,9 +9,9 @@ export default function Faq() {
 
   return (
     <Section id="sporsmal">
-      <div className="grid gap-12 lg:grid-cols-[0.8fr_1.2fr] lg:gap-20">
-        <SectionHeading title={faq.title} />
+      <SectionHeading sheet={6} title={faq.title} />
 
+      <div className="mt-12 lg:ml-auto lg:w-[62%]">
         <div>
           <dl className="border-t border-hairline-strong">
             {faq.items.map((item, index) => {

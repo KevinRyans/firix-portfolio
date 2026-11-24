@@ -1,11 +1,11 @@
 /**
- * Familjen Grotesk, selvhostet.
+ * Schibsted Grotesk, selvhostet.
  *
  * Google Fonts ville sendt hver besøkendes IP-adresse til Google, noe som er
  * slått ned på som GDPR-brudd i EU. Filen ligger i vårt eget bygg: ingen
  * tredjepart, ingen render-blokkerende forespørsel til et annet domene.
  */
-@import '@fontsource-variable/familjen-grotesk';
+@import '@fontsource-variable/schibsted-grotesk';
 
 @tailwind base;
 @tailwind components;
@@ -17,63 +17,77 @@
    *
    * Hver seksjon setter `data-tone`, og alt innhold i den leser fargene
    * herfra. Kontrastene er målt mot bakgrunnen de står på (WCAG AA):
-   * brødtekst ≥ 7:1, dempet tekst ≥ 4.5:1, aksenttekst ≥ 4.5:1.
+   * brødtekst ≥ 9:1, dempet tekst ≥ 5.5:1, strekfarge som tekst ≥ 6:1.
    *
-   * `--accent` er aksenten brukt som TEKST. `--accent-solid` er flaten på
-   * knapper, som alltid har blekk-farget tekst oppå seg.
+   * `--accent` er strekfargen brukt som tekst og linjer. `--accent-solid` er
+   * flaten på primærknapper, og `--accent-on` er teksten oppå den.
+   * `--rule` er den kraftige linjen som deler arkene, som på en tegning.
    */
   :root,
   [data-tone='light'] {
-    --fg: #10201c;
-    --fg-soft: #2e3e39;
-    --fg-faint: #53625d;
-    --ground: #e9ede8;
-    --elevated: #f7f9f5;
-    --hairline: #d3dbd5;
-    --hairline-strong: #b4c0b9;
-    --accent: #a8360a;
-    --accent-solid: #ff5a1f;
+    --fg: #0b1020;
+    --fg-soft: #3b4257;
+    --fg-faint: #596075;
+    --ground: #f2f4f6;
+    --elevated: #fafbfc;
+    --hairline: #d8dce5;
+    --hairline-strong: #b9bfcd;
+    --rule: #0b1020;
+    --accent: #2b3ff5;
+    --accent-solid: #2b3ff5;
+    --accent-on: #ffffff;
+    --grid: rgba(43, 63, 245, 0.06);
   }
 
   [data-tone='muted'] {
-    --fg: #10201c;
-    --fg-soft: #2e3e39;
-    --fg-faint: #4f5e59;
-    --ground: #f7f9f5;
+    --fg: #0b1020;
+    --fg-soft: #3b4257;
+    --fg-faint: #596075;
+    --ground: #fafbfc;
     --elevated: #ffffff;
-    --hairline: #dbe2dd;
-    --hairline-strong: #b4c0b9;
-    --accent: #a8360a;
-    --accent-solid: #ff5a1f;
+    --hairline: #dde1ea;
+    --hairline-strong: #b9bfcd;
+    --rule: #0b1020;
+    --accent: #2b3ff5;
+    --accent-solid: #2b3ff5;
+    --accent-on: #ffffff;
+    --grid: rgba(43, 63, 245, 0.05);
   }
 
+  /* Blåkopi: hvit strek på dyp blå. */
   [data-tone='dark'] {
-    --fg: #eef3ef;
-    --fg-soft: #cfdcd6;
-    --fg-faint: #a3bab2;
-    --ground: #0f4542;
-    --elevated: #14524e;
-    --hairline: rgba(238, 243, 239, 0.14);
-    --hairline-strong: rgba(238, 243, 239, 0.28);
-    --accent: #ff9466;
-    --accent-solid: #ff5a1f;
+    --fg: #f2f4f6;
+    --fg-soft: #d4d9ff;
+    --fg-faint: #b3bbeb;
+    --ground: #14207a;
+    --elevated: #1b2a8c;
+    --hairline: rgba(242, 244, 246, 0.16);
+    --hairline-strong: rgba(242, 244, 246, 0.32);
+    --rule: rgba(242, 244, 246, 0.85);
+    --accent: #ffffff;
+    --accent-solid: #ffffff;
+    --accent-on: #14207a;
+    --grid: rgba(242, 244, 246, 0.055);
   }
 
   [data-tone='ink'] {
-    --fg: #eef3ef;
-    --fg-soft: #cfd8d4;
-    --fg-faint: #9fb0aa;
-    --ground: #10201c;
-    --elevated: #1a2e29;
-    --hairline: rgba(238, 243, 239, 0.12);
-    --hairline-strong: rgba(238, 243, 239, 0.26);
-    --accent: #ff9466;
-    --accent-solid: #ff5a1f;
+    --fg: #f2f4f6;
+    --fg-soft: #c9cee0;
+    --fg-faint: #8f97ad;
+    --ground: #0b1020;
+    --elevated: #141a2e;
+    --hairline: rgba(242, 244, 246, 0.12);
+    --hairline-strong: rgba(242, 244, 246, 0.26);
+    --rule: rgba(242, 244, 246, 0.7);
+    --accent: #aab3ff;
+    --accent-solid: #2b3ff5;
+    --accent-on: #ffffff;
+    --grid: rgba(170, 179, 255, 0.05);
   }
 
   :root {
     color-scheme: light;
-    --nav-height: 68px;
+    --nav-height: 72px;
   }
 
   html {
@@ -91,25 +105,24 @@
   body {
     @apply bg-ground font-sans text-fg antialiased;
     margin: 0;
-    font-feature-settings: 'ss01' on;
     text-rendering: optimizeLegibility;
   }
 
   h1,
   h2,
   h3 {
-    font-weight: 620;
+    font-weight: 700;
   }
 
   ::selection {
-    color: #10201c;
-    background: #ffb08f;
+    color: #ffffff;
+    background: #2b3ff5;
   }
 
   :focus-visible {
     outline: 2px solid var(--accent);
     outline-offset: 3px;
-    border-radius: 4px;
+    border-radius: 2px;
   }
 
   img {
@@ -119,103 +132,47 @@
 
 @layer components {
   .shell {
-    @apply mx-auto w-full max-w-page px-5 sm:px-8;
+    @apply mx-auto w-full max-w-page px-5 sm:px-10;
+  }
+
+  /* Rutepapir. Ruten følger tonen, så den også synes på blåkopi og blekk. */
+  .grid-paper {
+    background-image:
+      linear-gradient(var(--grid) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+    background-size: 24px 24px;
+    background-position: -1px -1px;
   }
 
   /**
-   * Stabelen i hero.
-   *
-   * Tre plater i ekte 3D (CSS `preserve-3d`), vinklet isometrisk. Platene
-   * har tykkelse: en topp og to synlige sidekanter, så de leses som
-   * gjenstander og ikke som skrå bilder. Posisjonen på Z-aksen styres av
-   * scroll fra React via `--spread`.
+   * Skjæremerker i hjørnene, som på et trykkark. Brukes rundt bilder og
+   * skjermbilder for å vise at de er «montert» på tegningen.
    */
-  .stack-scene {
-    --w: min(340px, 74vw);
-    --d: calc(var(--w) * 0.78);
-    --t: 18px;
-    perspective: 1800px;
-    perspective-origin: 50% 30%;
-  }
-
-  .stack-rig {
+  .crop {
     position: relative;
-    width: 100%;
-    height: 100%;
-    transform-style: preserve-3d;
   }
 
-  .slab {
+  .crop::before,
+  .crop::after {
+    content: '';
     position: absolute;
-    left: 50%;
-    top: 50%;
-    width: var(--w);
-    height: var(--d);
-    margin-left: calc(var(--w) / -2);
-    margin-top: calc(var(--d) / -2);
-    transform-style: preserve-3d;
+    width: 14px;
+    height: 14px;
+    pointer-events: none;
+    border-color: var(--accent);
   }
 
-  .slab-face {
-    position: absolute;
-    inset: 0;
-    border-radius: 10px;
-    overflow: hidden;
-    backface-visibility: hidden;
-    transform: translateZ(calc(var(--t) / 2));
+  .crop::before {
+    top: -9px;
+    left: -9px;
+    border-top: 1.5px solid;
+    border-left: 1.5px solid;
   }
 
-  .slab-edge-front,
-  .slab-edge-side {
-    position: absolute;
-    backface-visibility: hidden;
-  }
-
-  .slab-edge-front {
-    left: 6px;
-    right: 6px;
-    bottom: 0;
-    height: var(--t);
-    transform-origin: bottom center;
-    transform: translateZ(calc(var(--t) / -2)) rotateX(-90deg);
-    border-radius: 0 0 6px 6px;
-  }
-
-  .slab-edge-side {
-    top: 6px;
-    bottom: 6px;
-    right: 0;
-    width: var(--t);
-    transform-origin: right center;
-    transform: translateZ(calc(var(--t) / -2)) rotateY(90deg);
-    border-radius: 0 6px 6px 0;
-  }
-
-  /* Etikettene står i 2D ved siden av platenes høyre hjørne, og følger
-     platenes høyde når stabelen åpner seg. */
-  .slab-label {
-    position: absolute;
-    left: calc(50% + var(--w) * 0.66);
-    top: calc(50% - var(--w) * 0.08);
-    white-space: nowrap;
-  }
-
-  @media (min-width: 640px) {
-    .stack-scene {
-      --w: 360px;
-      --t: 22px;
-    }
-  }
-
-  @media (min-width: 1024px) {
-    .stack-scene {
-      --w: 330px;
-    }
-  }
-
-  @media (min-width: 1280px) {
-    .stack-scene {
-      --w: 370px;
-    }
+  .crop::after {
+    bottom: -9px;
+    right: -9px;
+    border-bottom: 1.5px solid;
+    border-right: 1.5px solid;
   }
 }

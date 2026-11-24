@@ -15,8 +15,8 @@ export default function Process() {
   const fill = useSpring(scrollYProgress, { stiffness: 90, damping: 24 })
 
   return (
-    <Section id="prosess" tone="muted">
-      <SectionHeading title={process.title} lead={process.lead} />
+    <Section id="prosess" tone="muted" paper>
+      <SectionHeading sheet={5} title={process.title} lead={process.lead} />
 
       <ol
         ref={ref}
@@ -33,12 +33,12 @@ export default function Process() {
         />
         <motion.span
           aria-hidden="true"
-          className="absolute bottom-2 left-[11px] top-2 w-[2px] origin-top bg-accent-solid lg:hidden"
+          className="absolute bottom-2 left-[11px] top-2 w-[2px] origin-top bg-accent lg:hidden"
           style={reduce ? undefined : { scaleY: fill }}
         />
         <motion.span
           aria-hidden="true"
-          className="absolute left-0 right-0 top-[11px] hidden h-[2px] origin-left bg-accent-solid lg:block"
+          className="absolute left-0 right-0 top-[11px] hidden h-[2px] origin-left bg-accent lg:block"
           style={reduce ? undefined : { scaleX: fill }}
         />
 
@@ -46,11 +46,11 @@ export default function Process() {
           <li key={step.title} className="relative">
             <span
               aria-hidden="true"
-              className="absolute -left-10 top-0 flex h-6 w-6 items-center justify-center rounded-full border-2 border-accent-solid bg-ground text-[12px] font-bold text-fg lg:-top-12 lg:left-0"
+              className="absolute -left-10 top-0 flex h-6 w-6 items-center justify-center rounded-[2px] border-[1.5px] border-accent bg-ground text-[12px] font-bold text-accent lg:-top-12 lg:left-0"
             >
               {index + 1}
             </span>
-            <h3 className="text-[21px] font-semibold tracking-[-0.02em] text-fg">
+            <h3 className="text-[22px] font-bold tracking-[-0.02em] text-fg">
               <span className="sr-only">Steg {index + 1}: </span>
               {step.title}
             </h3>

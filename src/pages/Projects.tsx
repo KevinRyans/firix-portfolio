@@ -21,7 +21,7 @@ export default function Projects() {
         </Reveal>
 
         {status === 'ready' && projects.length === 0 ? (
-          <p className="mt-16 rounded-panel border border-dashed border-hairline-strong bg-elevated p-10 text-center text-[15px] text-fg-faint">
+          <p className="mt-16 rounded-[2px] border border-dashed border-hairline-strong bg-elevated p-10 text-center text-[15px] text-fg-faint">
             {work.emptyState}
           </p>
         ) : null}

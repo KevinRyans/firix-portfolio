@@ -13,9 +13,8 @@ export default function Footer() {
       <div className="shell py-14">
         <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
           <div className="lg:col-span-2">
-            <p className="flex items-center gap-2.5 text-[24px] font-bold leading-none tracking-[-0.05em] text-fg">
-              <img src="/favicon.svg" alt="" width={30} height={30} className="rounded-[7px]" />
-              firix
+            <p className="text-[25px] font-extrabold leading-none tracking-[-0.05em] text-fg">
+              firix<span className="text-accent">.</span>
             </p>
             <p className="mt-4 max-w-xs text-[15px] leading-relaxed text-fg-faint">
               {footer.tagline}
@@ -23,7 +22,7 @@ export default function Footer() {
           </div>
 
           <nav aria-label="Bunnmeny">
-            <h2 className="text-[14px] font-semibold text-fg-faint">Innhold</h2>
+            <h2 className="text-[13px] font-semibold text-accent">Innhold</h2>
             <ul className="mt-4 space-y-2.5">
               {nav.map((item) => (
                 <li key={item.to}>
@@ -41,7 +40,7 @@ export default function Footer() {
           </nav>
 
           <div>
-            <h2 className="text-[14px] font-semibold text-fg-faint">Kontakt</h2>
+            <h2 className="text-[13px] font-semibold text-accent">Kontakt</h2>
             <ul className="mt-4 space-y-2.5">
               <li>
                 <a href={`mailto:${business.email}`} className={link}>

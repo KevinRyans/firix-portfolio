@@ -16,9 +16,9 @@ function PreviewSkeleton() {
 }
 
 /**
- * Arbeid-seksjonen står på fjordgrønt. Kundenettstedene er lyse, så de lyser
- * mot bakgrunnen. Hvert prosjekt vippes opp på plass mens du scroller, som en
- * skjerm som reises — den andre av sidens to store bevegelser.
+ * Ark 03, på blåkopi. Ferdig arbeid står på det samme blå som tegninger
+ * kopieres på, montert med skjæremerker. Hvert prosjekt vippes opp på plass
+ * mens du scroller — sidens andre store bevegelse etter tegningen i hero.
  */
 export default function Work({ limit = 3 }: { limit?: number }) {
   const { status, projects } = useProjects()
@@ -26,10 +26,10 @@ export default function Work({ limit = 3 }: { limit?: number }) {
   const [first, ...rest] = shown
 
   return (
-    <Section id="arbeid" tone="dark">
-      <SectionHeading title={work.title} lead={work.lead} />
+    <Section id="arbeid" tone="dark" paper>
+      <SectionHeading sheet={3} title={work.title} lead={work.lead} />
 
-      <div className="mt-14 space-y-20">
+      <div className="mt-16 space-y-24">
         {status === 'loading' ? (
           <div className="grid gap-10 sm:grid-cols-2">
             <PreviewSkeleton />
@@ -39,7 +39,7 @@ export default function Work({ limit = 3 }: { limit?: number }) {
 
         {status === 'ready' && shown.length === 0 ? (
           <Reveal>
-            <p className="rounded-panel border border-dashed border-hairline-strong p-10 text-center text-[15px] text-fg-faint">
+            <p className="rounded-[2px] border border-dashed border-hairline-strong p-10 text-center text-[15px] text-fg-faint">
               {work.emptyState}
             </p>
           </Reveal>
@@ -52,7 +52,7 @@ export default function Work({ limit = 3 }: { limit?: number }) {
         ) : null}
 
         {rest.length > 0 ? (
-          <div className="grid gap-14 sm:grid-cols-2">
+          <div className="grid gap-20 sm:grid-cols-2 sm:gap-14">
             {rest.map((project) => (
               <ScrollScale key={project.id} from={0.96} lift={40} tilt={14}>
                 <ProjectCard project={project} />
@@ -66,7 +66,7 @@ export default function Work({ limit = 3 }: { limit?: number }) {
         <Reveal className="mt-14 text-center">
           <Link
             to="/prosjekter"
-            className="inline-flex rounded-md border border-hairline-strong px-6 py-3.5 text-[16px] font-semibold text-fg transition hover:border-fg"
+            className="inline-flex rounded-[2px] border-[1.5px] border-fg px-6 py-3.5 text-[16px] font-semibold text-fg transition hover:-translate-y-px hover:shadow-[3px_3px_0_var(--fg)]"
           >
             {work.seeAll}
           </Link>

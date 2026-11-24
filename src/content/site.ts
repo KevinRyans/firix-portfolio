@@ -69,24 +69,31 @@ export const nav = [
 ]
 
 /**
- * Lagene i stabelen øverst på forsiden. Rekkefølgen er ovenfra og ned:
- * det kunden ser, det som driver det, og det det kjører på. Samme lag
- * går igjen i tjenestelisten, så illustrasjonen og teksten forklarer
- * hverandre.
+ * Lagene i tegningen øverst på forsiden, ovenfra og ned: det kunden ser, det
+ * som driver det, og det det kjører på. Samme lag og samme bokstaver går
+ * igjen i tjenestelisten, så tegningen og teksten forklarer hverandre.
  */
 export type Layer = 'site' | 'app' | 'server'
 
+export const layers: { id: Layer; mark: string; label: string; note: string }[] = [
+  { id: 'site', mark: 'A', label: 'Nettside', note: 'Det kundene dine ser' },
+  { id: 'app', mark: 'B', label: 'Applikasjon', note: 'Det de ansatte bruker' },
+  { id: 'server', mark: 'C', label: 'Server', note: 'Det alt kjører på' },
+]
+
 export const hero = {
-  byline: 'Michael Firing, utvikler i Tønsberg',
-  title: ['Nettsider, webapper', 'og teknisk drift.'],
-  lead: 'Jeg bygger nettsider og verktøy for bedrifter, og tar hånd om serverne de kjører på. Hva trenger du hjelp med?',
+  /** Linjene brytes slik på store skjermer. På mobil flyter teksten fritt. */
+  title: ['Jeg tegner,', 'bygger og drifter', 'nettløsninger', 'for bedrifter.'],
+  lead: 'Arkitekturen først, så designet, så koden. Og etter lansering er det fortsatt meg som holder det i gang.',
   primaryCta: { label: 'Send en forespørsel', to: '/kontakt' },
-  secondaryCta: { label: 'Se prosjekter', to: '/#arbeid' },
-  layers: [
-    { id: 'site', label: 'Nettsiden', note: 'Det kundene dine ser' },
-    { id: 'app', label: 'Appen', note: 'Det de ansatte bruker' },
-    { id: 'server', label: 'Serveren', note: 'Det alt kjører på' },
-  ] satisfies { id: Layer; label: string; note: string }[],
+  secondaryCta: { label: 'Se arbeidet', to: '/#arbeid' },
+  /** Tegningshodet nederst til høyre for tegningen. */
+  titleBlock: [
+    { label: 'Prosjekt', value: 'Din bedrift på nett' },
+    { label: 'Ark', value: '01 / 07' },
+    { label: 'Tegnet og bygget av', value: 'Michael Firing' },
+    { label: 'Sted', value: 'Tønsberg' },
+  ],
 }
 
 export const services = {
