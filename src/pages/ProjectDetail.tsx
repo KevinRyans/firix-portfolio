@@ -26,7 +26,7 @@ export default function ProjectDetail() {
   if (!project) {
     return (
       <div className="shell pb-32 pt-[calc(var(--nav-height)+120px)] text-center">
-        <h1 className="text-headline font-semibold text-fg">Fant ikke prosjektet</h1>
+        <h1 className="text-headline text-fg">Fant ikke prosjektet</h1>
         <p className="mx-auto mt-4 max-w-prose text-[15px] text-fg-faint">
           Prosjektet finnes ikke lenger, eller lenken er feil.
         </p>
@@ -46,18 +46,16 @@ export default function ProjectDetail() {
 
         <Reveal className="mt-8 max-w-narrow">
           {project.client || project.year ? (
-            <p className="flex items-center gap-2 text-[13px] font-medium uppercase tracking-[0.06em] text-fg-faint">
-              {project.client ? <span>{project.client}</span> : null}
-              {project.client && project.year ? <span aria-hidden="true">·</span> : null}
-              {project.year ? <span>{project.year}</span> : null}
+            <p className="text-[15px] text-fg-faint">
+              {[project.client, project.year].filter(Boolean).join(', ')}
             </p>
           ) : null}
-          <h1 className="mt-3 text-display font-semibold text-fg">{project.name}</h1>
+          <h1 className="mt-3 text-display text-fg">{project.name}</h1>
           {project.summary ? (
             <p className="mt-5 text-lead text-fg-faint">{project.summary}</p>
           ) : null}
           <div className="mt-8 flex flex-wrap items-center gap-4">
-            {project.url ? <Button href={project.url}>Åpne {project.name} ↗</Button> : null}
+            {project.url ? <Button href={project.url}>Åpne {project.name}</Button> : null}
             {project.repoUrl ? (
               <Button href={project.repoUrl} variant="secondary">
                 Se koden
@@ -89,9 +87,7 @@ export default function ProjectDetail() {
             <div className="rounded-panel border border-hairline bg-elevated p-7">
               {project.services.length > 0 ? (
                 <>
-                  <p className="text-[12px] font-semibold uppercase tracking-[0.06em] text-fg-faint">
-                    Leveranse
-                  </p>
+                  <p className="text-[14px] font-semibold text-fg-faint">Leveranse</p>
                   <ul className="mt-3 space-y-1.5">
                     {project.services.map((service) => (
                       <li key={service} className="text-[15px] text-fg-soft">
@@ -104,9 +100,7 @@ export default function ProjectDetail() {
 
               {project.tags.length > 0 ? (
                 <>
-                  <p className="mt-7 text-[12px] font-semibold uppercase tracking-[0.06em] text-fg-faint">
-                    Teknologi
-                  </p>
+                  <p className="mt-7 text-[14px] font-semibold text-fg-faint">Teknologi</p>
                   <ul className="mt-3 flex flex-wrap gap-2">
                     {project.tags.map((tag) => (
                       <li
@@ -123,9 +117,7 @@ export default function ProjectDetail() {
               {/* Resultater vises kun når det finnes ekte tall å vise. */}
               {project.results.length > 0 ? (
                 <>
-                  <p className="mt-7 text-[12px] font-semibold uppercase tracking-[0.06em] text-fg-faint">
-                    Resultat
-                  </p>
+                  <p className="mt-7 text-[14px] font-semibold text-fg-faint">Resultat</p>
                   <dl className="mt-3 space-y-3">
                     {project.results.map((result) => (
                       <div key={result.label}>

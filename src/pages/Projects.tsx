@@ -16,10 +16,7 @@ export default function Projects() {
     <>
       <div className="shell pb-20 pt-[calc(var(--nav-height)+80px)]">
         <Reveal className="max-w-narrow">
-          <p className="text-eyebrow font-semibold uppercase tracking-[0.08em] text-accent">
-            {work.eyebrow}
-          </p>
-          <h1 className="mt-4 text-display font-semibold text-fg">{work.title}</h1>
+          <h1 className="text-display text-fg">{work.title}</h1>
           <p className="mt-5 text-lead text-fg-faint">{work.lead}</p>
         </Reveal>
 

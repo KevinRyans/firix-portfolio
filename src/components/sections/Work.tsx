@@ -16,9 +16,9 @@ function PreviewSkeleton() {
 }
 
 /**
- * Arbeid-seksjonen er kullsvart. Kundenettstedene er lyse, så de lyser mot
- * bakgrunnen i stedet for å gli inn i den — samme grep Apple bruker når de
- * viser skjermer.
+ * Arbeid-seksjonen står på fjordgrønt. Kundenettstedene er lyse, så de lyser
+ * mot bakgrunnen. Hvert prosjekt vippes opp på plass mens du scroller, som en
+ * skjerm som reises — den andre av sidens to store bevegelser.
  */
 export default function Work({ limit = 3 }: { limit?: number }) {
   const { status, projects } = useProjects()
@@ -27,7 +27,7 @@ export default function Work({ limit = 3 }: { limit?: number }) {
 
   return (
     <Section id="arbeid" tone="dark">
-      <SectionHeading eyebrow={work.eyebrow} title={work.title} lead={work.lead} />
+      <SectionHeading title={work.title} lead={work.lead} />
 
       <div className="mt-14 space-y-20">
         {status === 'loading' ? (
@@ -46,7 +46,7 @@ export default function Work({ limit = 3 }: { limit?: number }) {
         ) : null}
 
         {first ? (
-          <ScrollScale from={0.92} lift={56}>
+          <ScrollScale from={0.94} lift={56} tilt={18}>
             <ProjectCard project={first} featured priority />
           </ScrollScale>
         ) : null}
@@ -54,7 +54,7 @@ export default function Work({ limit = 3 }: { limit?: number }) {
         {rest.length > 0 ? (
           <div className="grid gap-14 sm:grid-cols-2">
             {rest.map((project) => (
-              <ScrollScale key={project.id} from={0.95} lift={40}>
+              <ScrollScale key={project.id} from={0.96} lift={40} tilt={14}>
                 <ProjectCard project={project} />
               </ScrollScale>
             ))}
@@ -64,8 +64,11 @@ export default function Work({ limit = 3 }: { limit?: number }) {
 
       {projects.length > limit ? (
         <Reveal className="mt-14 text-center">
-          <Link to="/prosjekter" className="text-[17px] font-medium text-accent hover:underline">
-            {work.seeAll} →
+          <Link
+            to="/prosjekter"
+            className="inline-flex rounded-md border border-hairline-strong px-6 py-3.5 text-[16px] font-semibold text-fg transition hover:border-fg"
+          >
+            {work.seeAll}
           </Link>
         </Reveal>
       ) : null}

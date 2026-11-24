@@ -8,8 +8,8 @@ export default function NotFound() {
 
   return (
     <div className="shell flex min-h-[70vh] flex-col items-center justify-center py-24 text-center">
-      <p className="text-eyebrow font-semibold uppercase tracking-[0.08em] text-accent">404</p>
-      <h1 className="mt-4 text-display font-semibold text-fg">Denne siden finnes ikke.</h1>
+      <p className="text-[15px] font-medium text-fg-faint">Feil 404</p>
+      <h1 className="mt-4 text-display text-fg">Denne siden finnes ikke.</h1>
       <p className="mx-auto mt-5 max-w-prose text-lead text-fg-faint">
         Lenken kan være utdatert, eller så har siden blitt flyttet.
       </p>

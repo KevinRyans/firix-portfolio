@@ -1,49 +1,62 @@
 import type { Config } from 'tailwindcss'
 
 /**
- * Apple-inspired design tokens.
+ * Designtokens for Firix.
  *
- * Colour and type values are modelled on apple.com's public marketing pages:
- * a near-white canvas, a single strong blue for action, and a very tight
- * negative tracking on large display type.
+ * Paletten er hentet fra kysten utenfor Tønsberg: lys, kjølig fjellgrå som
+ * flate, dyp fjordgrønn som mørk tone, og signaloransje — fargen på bøyer og
+ * redningsvester — som den ene fargen som betyr «gjør noe her».
  *
- * Typografien er Inter, selvhostet. Systemfonten sto først tidligere, som ga
- * ekte SF Pro på Apple-enheter — men da så siden ulik ut avhengig av hvem som
- * besøkte den. Inter er tegnet i samme tradisjon, så uttrykket består, og nå
- * ser alle det samme.
+ * Typografien er Familjen Grotesk, selvhostet. Én familie for alt; vekt og
+ * størrelse bærer hierarkiet.
+ *
+ * Toneavhengige farger (`fg`, `ground`, `accent` …) leser CSS-variabler, så
+ * samme komponent fungerer både på lys og mørk seksjon. Se `[data-tone]` i
+ * index.css.
  */
 const config: Config = {
   content: ['./index.html', './src/**/*.{ts,tsx}'],
   theme: {
     extend: {
       colors: {
-        canvas: '#fbfbfd',
+        // Faste merkefarger.
+        fjell: '#E9EDE8',
+        papir: '#F7F9F5',
+        blekk: '#10201C',
+        fjord: {
+          DEFAULT: '#0F4542',
+          deep: '#0A302E',
+        },
+        signal: {
+          DEFAULT: '#FF5A1F',
+          deep: '#B23A0B',
+        },
+        positive: '#1F7A4D',
+
+        // Eldre navn som /admin fortsatt bruker.
+        canvas: '#F7F9F5',
         surface: '#ffffff',
-        muted: '#f5f5f7',
+        muted: '#E9EDE8',
         ink: {
-          DEFAULT: '#1d1d1f',
-          soft: '#424245',
-          faint: '#6e6e73',
-          ghost: '#86868b',
+          DEFAULT: '#10201C',
+          soft: '#33433E',
+          faint: '#5A6863',
+          ghost: '#7C8A85',
         },
         line: {
-          DEFAULT: '#d2d2d7',
-          soft: '#e8e8ed',
+          DEFAULT: '#C9D2CC',
+          soft: '#DDE3DE',
         },
         brand: {
-          50: '#eef6ff',
-          100: '#d9ecff',
-          400: '#2b8bf2',
-          500: '#0071e3',
-          600: '#0066cc',
-          700: '#0055b0',
+          50: '#FFF1EB',
+          100: '#FFDCCB',
+          400: '#FF7A47',
+          500: '#C9410E',
+          600: '#A3340B',
+          700: '#A3340B',
         },
-        positive: '#00875a',
-        /**
-         * Toneavhengige farger. Verdiene bytter når en seksjon merkes som
-         * mørk (se `[data-tone]` i index.css), slik at komponenter som brukes
-         * både på lys og mørk bakgrunn ikke trenger egne varianter.
-         */
+
+        // Toneavhengige.
         fg: {
           DEFAULT: 'var(--fg)',
           soft: 'var(--fg-soft)',
@@ -62,55 +75,60 @@ const config: Config = {
       },
       fontFamily: {
         sans: [
-          'Inter Variable',
-          'Inter',
-          '-apple-system',
-          'BlinkMacSystemFont',
+          'Familjen Grotesk Variable',
+          'Familjen Grotesk',
           'system-ui',
+          '-apple-system',
           'Segoe UI',
           'Roboto',
-          'Helvetica Neue',
           'sans-serif',
         ],
         mono: ['ui-monospace', 'SFMono-Regular', 'Menlo', 'monospace'],
       },
       fontSize: {
-        hero: ['clamp(2.375rem, 7vw, 5.5rem)', { lineHeight: '1.04', letterSpacing: '-0.035em' }],
-        display: ['clamp(2rem, 5vw, 3.75rem)', { lineHeight: '1.07', letterSpacing: '-0.03em' }],
+        // Skala med forhold ~1.25, med en hero som får lov til å være stor.
+        hero: ['clamp(2.75rem, 7.6vw, 6.5rem)', { lineHeight: '0.95', letterSpacing: '-0.04em' }],
+        display: ['clamp(2.125rem, 5vw, 4rem)', { lineHeight: '1', letterSpacing: '-0.035em' }],
         headline: [
-          'clamp(1.75rem, 3.4vw, 2.75rem)',
-          { lineHeight: '1.1', letterSpacing: '-0.025em' },
+          'clamp(1.75rem, 3.4vw, 2.625rem)',
+          { lineHeight: '1.05', letterSpacing: '-0.03em' },
         ],
-        title: ['clamp(1.25rem, 2vw, 1.6rem)', { lineHeight: '1.2', letterSpacing: '-0.015em' }],
-        lead: ['clamp(1.0625rem, 1.6vw, 1.4rem)', { lineHeight: '1.45', letterSpacing: '-0.01em' }],
-        eyebrow: ['0.8125rem', { lineHeight: '1.3', letterSpacing: '0.01em' }],
+        title: [
+          'clamp(1.375rem, 2.2vw, 1.75rem)',
+          { lineHeight: '1.15', letterSpacing: '-0.02em' },
+        ],
+        lead: [
+          'clamp(1.125rem, 1.6vw, 1.375rem)',
+          { lineHeight: '1.45', letterSpacing: '-0.005em' },
+        ],
+        eyebrow: ['0.9375rem', { lineHeight: '1.35' }],
       },
       maxWidth: {
-        page: '1120px',
-        prose: '720px',
-        narrow: '880px',
+        page: '1240px',
+        prose: '680px',
+        narrow: '860px',
       },
       borderRadius: {
-        card: '18px',
-        panel: '28px',
+        card: '10px',
+        panel: '14px',
       },
       boxShadow: {
-        card: '0 2px 10px rgba(0,0,0,0.045), 0 12px 32px -18px rgba(0,0,0,0.18)',
-        lift: '0 8px 24px rgba(0,0,0,0.07), 0 28px 60px -28px rgba(0,0,0,0.26)',
-        chrome: '0 1px 2px rgba(0,0,0,0.06), 0 18px 44px -20px rgba(0,0,0,0.3)',
+        // Skygger er farget av fjorden, ikke grå.
+        card: '0 1px 2px rgba(10,48,46,0.08), 0 16px 36px -20px rgba(10,48,46,0.35)',
+        lift: '0 2px 6px rgba(10,48,46,0.1), 0 30px 60px -30px rgba(10,48,46,0.5)',
+        chrome: '0 1px 2px rgba(10,48,46,0.1), 0 24px 48px -24px rgba(10,48,46,0.45)',
       },
       transitionTimingFunction: {
-        apple: 'cubic-bezier(0.28, 0.11, 0.32, 1)',
+        apple: 'cubic-bezier(0.22, 1, 0.36, 1)',
       },
       keyframes: {
-        // Langsom, nesten umerkelig bevegelse i glødene på mørke seksjoner.
-        drift: {
-          '0%, 100%': { transform: 'translate3d(0, 0, 0) scale(1)' },
-          '50%': { transform: 'translate3d(0, -18px, 0) scale(1.06)' },
+        blink: {
+          '0%, 92%, 100%': { opacity: '1' },
+          '96%': { opacity: '0.25' },
         },
       },
       animation: {
-        drift: 'drift 16s ease-in-out infinite',
+        blink: 'blink 3.2s steps(1, end) infinite',
       },
     },
   },

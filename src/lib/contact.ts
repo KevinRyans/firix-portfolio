@@ -3,7 +3,6 @@ export type ContactPayload = {
   company: string
   email: string
   phone: string
-  budget: string
   message: string
   /** Honeypot. Fylles kun ut av bots. */
   website: string
@@ -27,10 +26,9 @@ function mailtoDraft(payload: ContactPayload): string {
     payload.company ? `Bedrift: ${payload.company}` : '',
     `E-post: ${payload.email}`,
     payload.phone ? `Telefon: ${payload.phone}` : '',
-    payload.budget ? `Budsjett: ${payload.budget}` : '',
     '',
     payload.message,
-  ].filter((linje, index) => linje !== '' || index === 5)
+  ].filter((linje, index) => linje !== '' || index === 4)
 
   const emne = `Henvendelse fra ${payload.name}${payload.company ? ` (${payload.company})` : ''}`
   return `mailto:${FALLBACK_EMAIL}?subject=${encodeURIComponent(emne)}&body=${encodeURIComponent(
@@ -42,9 +40,7 @@ function mailtoDraft(payload: ContactPayload): string {
  * Hva vårt eget API gjorde med forespørselen.
  *
  * `unavailable` dekker både «ruten finnes ikke» og «ruten finnes, men
- * feilet». De to er like for en reserveløsning, men ikke for deg:
- * `serverError` tar vare på serverens egen forklaring, så den kan vises hvis
- * reserven heller ikke kommer fram.
+ * feilet». `serverError` tar vare på serverens egen forklaring.
  */
 type ApiOutcome =
   | { kind: 'sent' }
@@ -85,65 +81,18 @@ async function viaApi(payload: ContactPayload): Promise<ApiOutcome> {
     return { kind: 'rejected', error: data.error }
   }
 
-  // Alt annet kan reserven kanskje redde, men vi tar vare på beskjeden. En
-  // 503 «ikke konfigurert» er nettopp det som må fram hvis den ikke gjør det.
+  // En 503 «ikke konfigurert» er nettopp det som må fram til den besøkende.
   return {
     kind: 'unavailable',
     serverError: typeof data.error === 'string' ? data.error : undefined,
   }
 }
 
-/** Reserveløsning på hosting uten backend (GitHub Pages). */
-async function viaWeb3Forms(payload: ContactPayload): Promise<SendResult> {
-  const key = import.meta.env.VITE_WEB3FORMS_KEY
-  if (!key) {
-    return {
-      ok: false,
-      error: `Skjemaet er ikke satt opp riktig. Send gjerne en e-post direkte til ${FALLBACK_EMAIL}.`,
-    }
-  }
-
-  try {
-    const res = await fetch('https://api.web3forms.com/submit', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-      body: JSON.stringify({
-        access_key: key,
-        subject: `Ny henvendelse: ${payload.name}${payload.company ? ` (${payload.company})` : ''}`,
-        name: payload.name,
-        email: payload.email,
-        ...(payload.company ? { bedrift: payload.company } : {}),
-        ...(payload.phone ? { telefon: payload.phone } : {}),
-        ...(payload.budget ? { budsjett: payload.budget } : {}),
-        message: payload.message,
-        botcheck: payload.website ? 'true' : '',
-      }),
-    })
-    const data = (await res.json()) as { success?: boolean; message?: string }
-    if (data.success) return { ok: true }
-    return {
-      ok: false,
-      error: `Sendingen feilet. Send gjerne en e-post direkte til ${FALLBACK_EMAIL}.`,
-    }
-  } catch {
-    return {
-      ok: false,
-      error: `Fikk ikke kontakt med serveren. Send gjerne en e-post direkte til ${FALLBACK_EMAIL}.`,
-    }
-  }
-}
-
 /**
- * Sender henvendelsen uavhengig av hvor siden er hostet.
+ * Sender henvendelsen via /api/contact (Resend).
  *
- * Kjører siden på Vercel går den via vår egen /api/contact med Resend.
- * Kjører den på GitHub Pages — som ikke kan kjøre kode — faller den
- * automatisk tilbake til Web3Forms. En besøkende skal aldri møte et skjema
- * som feiler fordi hostingen mangler en backend.
- *
- * Kommer ingen av veiene fram, vises serverens egen forklaring framfor
- * reservens generiske melding. Ellers skjuler «skjemaet er ikke satt opp»
- * den faktiske årsaken, som gjerne er en manglende miljøvariabel.
+ * Kommer den ikke fram, får den besøkende serverens egen forklaring og et
+ * ferdig utfylt e-postutkast, framfor en blindvei.
  */
 export async function sendContact(payload: ContactPayload): Promise<SendResult> {
   // Honeypot: lat som alt gikk bra, ikke lær boten at den ble stoppet.
@@ -153,14 +102,11 @@ export async function sendContact(payload: ContactPayload): Promise<SendResult> 
   if (api.kind === 'sent') return { ok: true }
   if (api.kind === 'rejected') return { ok: false, error: api.error }
 
-  const fallback = await viaWeb3Forms(payload)
-  if (fallback.ok) return fallback
-
-  // Ingen av veiene kom fram. Serverens egen forklaring er mer presis enn
-  // reservens generiske melding, så den vinner når vi har den.
   return {
     ok: false,
-    error: api.serverError ? `${api.serverError}` : fallback.error,
+    error:
+      api.serverError ??
+      `Skjemaet er ikke satt opp riktig. Send gjerne en e-post direkte til ${FALLBACK_EMAIL}.`,
     mailto: mailtoDraft(payload),
   }
 }

@@ -2,56 +2,49 @@ import { Link } from 'react-router-dom'
 import { business, footer, nav } from '../../content/site'
 import { messagingChannels } from '../../lib/messaging'
 
+const link = 'text-[15px] text-fg-soft transition-colors hover:text-fg'
+
 export default function Footer() {
   const year = new Date().getFullYear()
   const channels = messagingChannels()
 
   return (
-    <footer data-tone="muted" className="border-t border-hairline bg-ground text-fg">
-      <div className="shell py-12">
+    <footer data-tone="ink" className="border-t border-hairline bg-ground text-fg">
+      <div className="shell py-14">
         <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
           <div className="lg:col-span-2">
-            <p className="text-[17px] font-semibold tracking-[-0.02em] text-fg">Firix</p>
-            <p className="mt-2 max-w-xs text-[13px] leading-relaxed text-fg-faint">
+            <p className="flex items-center gap-2.5 text-[24px] font-bold leading-none tracking-[-0.05em] text-fg">
+              <img src="/favicon.svg" alt="" width={30} height={30} className="rounded-[7px]" />
+              firix
+            </p>
+            <p className="mt-4 max-w-xs text-[15px] leading-relaxed text-fg-faint">
               {footer.tagline}
             </p>
           </div>
 
-          <div>
-            <p className="text-[12px] font-semibold uppercase tracking-[0.06em] text-fg-faint">
-              Innhold
-            </p>
-            <ul className="mt-3 space-y-2">
+          <nav aria-label="Bunnmeny">
+            <h2 className="text-[14px] font-semibold text-fg-faint">Innhold</h2>
+            <ul className="mt-4 space-y-2.5">
               {nav.map((item) => (
                 <li key={item.to}>
-                  <a href={item.to} className="text-[13px] text-fg-soft hover:text-fg">
+                  <a href={item.to} className={link}>
                     {item.label}
                   </a>
                 </li>
               ))}
               <li>
-                <Link to="/prosjekter" className="text-[13px] text-fg-soft hover:text-fg">
-                  Prosjekter
-                </Link>
-              </li>
-              <li>
-                <Link to="/kontakt" className="text-[13px] text-fg-soft hover:text-fg">
+                <Link to="/kontakt" className={link}>
                   Kontakt
                 </Link>
               </li>
             </ul>
-          </div>
+          </nav>
 
           <div>
-            <p className="text-[12px] font-semibold uppercase tracking-[0.06em] text-fg-faint">
-              Kontakt
-            </p>
-            <ul className="mt-3 space-y-2">
+            <h2 className="text-[14px] font-semibold text-fg-faint">Kontakt</h2>
+            <ul className="mt-4 space-y-2.5">
               <li>
-                <a
-                  href={`mailto:${business.email}`}
-                  className="text-[13px] text-fg-soft hover:text-fg"
-                >
+                <a href={`mailto:${business.email}`} className={link}>
                   {business.email}
                 </a>
               </li>
@@ -61,19 +54,14 @@ export default function Footer() {
                     href={channel.href}
                     target={channel.href.startsWith('http') ? '_blank' : undefined}
                     rel={channel.href.startsWith('http') ? 'noreferrer' : undefined}
-                    className="text-[13px] text-fg-soft hover:text-fg"
+                    className={link}
                   >
-                    {channel.label} {channel.hint}
+                    {channel.label} <span className="text-fg-faint">{channel.hint}</span>
                   </a>
                 </li>
               ))}
               <li>
-                <a
-                  href={business.linkedin}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="text-[13px] text-fg-soft hover:text-fg"
-                >
+                <a href={business.linkedin} target="_blank" rel="noreferrer" className={link}>
                   LinkedIn
                 </a>
               </li>
@@ -81,20 +69,18 @@ export default function Footer() {
           </div>
         </div>
 
-        <div className="mt-10 flex flex-col gap-2 border-t border-hairline-strong pt-6 text-[12px] text-fg-faint sm:flex-row sm:items-center sm:justify-between">
+        <div className="mt-12 flex flex-col gap-2 border-t border-hairline pt-6 text-[13px] text-fg-faint sm:flex-row sm:items-center sm:justify-between">
           <p>
             © {year} {business.legalName}. {footer.rights}
           </p>
-          {/* Org.nr og MVA er de sterkeste tillitssignalene en liten aktør har
-              overfor bedriftskunder — men kun hvis de faktisk er utfylt. */}
-          <p className="flex flex-wrap items-center gap-x-3 gap-y-1">
-            {business.orgNumber ? <span>Org.nr {business.orgNumber}</span> : null}
-            {business.orgNumber && business.vatRegistered ? (
-              <span aria-hidden="true">·</span>
-            ) : null}
-            {business.vatRegistered ? <span>MVA-registrert</span> : null}
-            {business.city ? <span aria-hidden="true">·</span> : null}
-            {business.city ? <span>{business.city}</span> : null}
+          {/* Org.nr er det sterkeste tillitssignalet en liten aktør har overfor
+              bedriftskunder, men kun når det faktisk er utfylt. «MVA» skrives
+              etter nummeret, slik Brønnøysund-konvensjonen er. */}
+          <p>
+            {business.orgNumber
+              ? `Org.nr. ${business.orgNumber}${business.vatRegistered ? ' MVA' : ''}, `
+              : ''}
+            {business.city}
           </p>
         </div>
       </div>

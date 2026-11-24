@@ -8,7 +8,7 @@ import Reveal from '../components/ui/Reveal'
 type Status = 'idle' | 'sending' | 'success' | 'error'
 
 const field =
-  'w-full rounded-xl border border-hairline-strong bg-elevated px-4 py-3 text-[16px] text-fg outline-none transition-colors placeholder:text-fg-faint focus:border-brand-500'
+  'w-full rounded-md border border-hairline-strong bg-elevated px-4 py-3 text-[16px] text-fg outline-none transition-colors placeholder:text-fg-faint focus:border-fg'
 
 export default function Contact() {
   const channels = messagingChannels()
@@ -20,7 +20,6 @@ export default function Contact() {
     company: '',
     email: '',
     phone: '',
-    budget: contactPage.form.budgetOptions[0],
     message: '',
     // Honeypot: skjult for mennesker, utfylt av enkle bots.
     website: '',
@@ -56,9 +55,7 @@ export default function Contact() {
             <path fill="currentColor" d="M9.3 17.6 4 12.3l1.6-1.6 3.7 3.7L18.4 5l1.6 1.6z" />
           </svg>
         </div>
-        <h1 className="mt-7 text-headline font-semibold text-fg">
-          {contactPage.form.successTitle}
-        </h1>
+        <h1 className="mt-7 text-headline text-fg">{contactPage.form.successTitle}</h1>
         <p className="mx-auto mt-4 max-w-prose text-[17px] leading-relaxed text-fg-faint">
           {contactPage.form.successBody}
         </p>
@@ -70,17 +67,12 @@ export default function Contact() {
     <div className="shell pb-28 pt-[calc(var(--nav-height)+80px)]">
       <div className="grid gap-16 lg:grid-cols-[0.85fr_1.15fr]">
         <Reveal>
-          <p className="text-eyebrow font-semibold uppercase tracking-[0.08em] text-accent">
-            {contactPage.eyebrow}
-          </p>
-          <h1 className="mt-4 text-display font-semibold text-fg">{contactPage.title}</h1>
+          <h1 className="text-display text-fg">{contactPage.title}</h1>
           <p className="mt-5 text-lead text-fg-faint">{contactPage.lead}</p>
 
           <dl className="mt-10 space-y-5 border-t border-hairline pt-8">
             <div>
-              <dt className="text-[12px] font-semibold uppercase tracking-[0.06em] text-fg-faint">
-                E-post
-              </dt>
+              <dt className="text-[14px] font-semibold text-fg-faint">E-post</dt>
               <dd className="mt-1">
                 <a
                   href={`mailto:${business.email}`}
@@ -92,9 +84,7 @@ export default function Contact() {
             </div>
             {channels.length > 0 ? (
               <div>
-                <dt className="text-[12px] font-semibold uppercase tracking-[0.06em] text-fg-faint">
-                  Melding — raskest svar
-                </dt>
+                <dt className="text-[14px] font-semibold text-fg-faint">Melding (raskest svar)</dt>
                 <dd className="mt-1 text-[17px] text-fg">{business.mobileLabel}</dd>
                 <dd className="mt-3 flex flex-wrap gap-2">
                   {channels.map((channel) => (
@@ -103,7 +93,7 @@ export default function Contact() {
                       href={channel.href}
                       target={channel.href.startsWith('http') ? '_blank' : undefined}
                       rel={channel.href.startsWith('http') ? 'noreferrer' : undefined}
-                      className="rounded-full border border-hairline-strong px-3.5 py-1.5 text-[14px] text-fg-soft transition hover:border-fg-faint hover:text-fg"
+                      className="rounded-md border border-hairline-strong px-3.5 py-2 text-[14px] font-medium text-fg-soft transition hover:border-fg hover:text-fg"
                     >
                       {channel.label}
                     </a>
@@ -112,9 +102,7 @@ export default function Contact() {
               </div>
             ) : null}
             <div>
-              <dt className="text-[12px] font-semibold uppercase tracking-[0.06em] text-fg-faint">
-                Sted
-              </dt>
+              <dt className="text-[14px] font-semibold text-fg-faint">Sted</dt>
               <dd className="mt-1 text-[17px] text-fg">{business.city}, Norge</dd>
             </div>
           </dl>
@@ -123,11 +111,11 @@ export default function Contact() {
         <Reveal delay={0.1}>
           <form
             onSubmit={handleSubmit}
-            className="rounded-panel border border-hairline bg-elevated p-7 shadow-card sm:p-9"
+            className="rounded-panel border border-hairline bg-elevated p-6 shadow-card sm:p-9"
           >
             <div className="grid gap-5 sm:grid-cols-2">
               <label className="block">
-                <span className="mb-1.5 block text-[13px] font-medium text-fg-soft">
+                <span className="mb-1.5 block text-[14px] font-medium text-fg-soft">
                   {contactPage.form.name} *
                 </span>
                 <input
@@ -139,7 +127,7 @@ export default function Contact() {
                 />
               </label>
               <label className="block">
-                <span className="mb-1.5 block text-[13px] font-medium text-fg-soft">
+                <span className="mb-1.5 block text-[14px] font-medium text-fg-soft">
                   {contactPage.form.company}
                 </span>
                 <input
@@ -150,7 +138,7 @@ export default function Contact() {
                 />
               </label>
               <label className="block">
-                <span className="mb-1.5 block text-[13px] font-medium text-fg-soft">
+                <span className="mb-1.5 block text-[14px] font-medium text-fg-soft">
                   {contactPage.form.email} *
                 </span>
                 <input
@@ -163,7 +151,7 @@ export default function Contact() {
                 />
               </label>
               <label className="block">
-                <span className="mb-1.5 block text-[13px] font-medium text-fg-soft">
+                <span className="mb-1.5 block text-[14px] font-medium text-fg-soft">
                   {contactPage.form.phone}
                 </span>
                 <input
@@ -177,24 +165,7 @@ export default function Contact() {
             </div>
 
             <label className="mt-5 block">
-              <span className="mb-1.5 block text-[13px] font-medium text-fg-soft">
-                {contactPage.form.budget}
-              </span>
-              <select
-                value={form.budget}
-                onChange={(e) => set('budget')(e.target.value)}
-                className={cn(field, 'appearance-none bg-elevated')}
-              >
-                {contactPage.form.budgetOptions.map((option) => (
-                  <option key={option} value={option}>
-                    {option}
-                  </option>
-                ))}
-              </select>
-            </label>
-
-            <label className="mt-5 block">
-              <span className="mb-1.5 block text-[13px] font-medium text-fg-soft">
+              <span className="mb-1.5 block text-[14px] font-medium text-fg-soft">
                 {contactPage.form.message} *
               </span>
               <textarea
@@ -221,16 +192,19 @@ export default function Contact() {
             </div>
 
             {status === 'error' ? (
-              <div className="mt-5 rounded-xl bg-red-50 px-4 py-3 text-[14px] text-red-700">
+              <div
+                role="alert"
+                className="mt-5 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-[14px] text-red-800"
+              >
                 <p>{error}</p>
                 {/* Siste utvei: gi den besøkende teksten sin tilbake i et
                     ferdig utfylt e-postutkast, framfor en blindvei. */}
                 {mailto ? (
                   <a
                     href={mailto}
-                    className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-red-700 px-4 py-2 text-[13px] font-medium text-white transition hover:bg-red-800"
+                    className="mt-3 inline-flex items-center gap-1.5 rounded-md bg-red-800 px-4 py-2 text-[13px] font-semibold text-white transition hover:bg-red-900"
                   >
-                    Åpne meldingen i e-postprogrammet ditt →
+                    Åpne meldingen i e-postprogrammet ditt
                   </a>
                 ) : null}
               </div>
@@ -239,12 +213,12 @@ export default function Contact() {
             <button
               type="submit"
               disabled={status === 'sending'}
-              className="mt-7 w-full rounded-full bg-brand-500 px-7 py-3.5 text-[17px] font-medium text-white transition hover:bg-brand-600 disabled:opacity-50"
+              className="mt-7 w-full rounded-md bg-accent-solid px-7 py-4 text-[17px] font-semibold text-blekk transition hover:bg-[#ff6d38] disabled:opacity-50"
             >
               {status === 'sending' ? contactPage.form.sending : contactPage.form.submit}
             </button>
 
-            <p className="mt-4 text-center text-[12px] text-fg-faint">{contactPage.form.consent}</p>
+            <p className="mt-4 text-center text-[13px] text-fg-faint">{contactPage.form.consent}</p>
           </form>
         </Reveal>
       </div>

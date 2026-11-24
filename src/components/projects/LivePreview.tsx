@@ -22,10 +22,10 @@ type Status = 'idle' | 'loading' | 'loaded' | 'failed'
  */
 function Placeholder({ name, host }: { name: string; host: string }) {
   return (
-    <div className="relative flex h-full w-full flex-col items-center justify-center overflow-hidden bg-[linear-gradient(140deg,var(--elevated),var(--ground)_58%,rgba(41,151,255,0.16))] p-8 text-center">
+    <div className="relative flex h-full w-full flex-col items-center justify-center overflow-hidden bg-[linear-gradient(140deg,var(--elevated),var(--ground)_58%,rgba(255,90,31,0.14))] p-8 text-center">
       <div
         aria-hidden="true"
-        className="absolute -right-16 -top-16 h-56 w-56 rounded-full bg-[radial-gradient(circle,rgba(41,151,255,0.22),transparent_70%)] blur-2xl"
+        className="absolute -right-16 -top-16 h-56 w-56 rounded-full bg-[radial-gradient(circle,rgba(255,90,31,0.2),transparent_70%)] blur-2xl"
       />
       <p className="relative text-balance text-[clamp(1.25rem,3.2cqw,2rem)] font-semibold tracking-[-0.02em] text-fg">
         {name || host}

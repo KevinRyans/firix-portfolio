@@ -11,43 +11,44 @@ import { Section, SectionHeading } from '../ui/Section'
  */
 export default function About() {
   return (
-    <Section id="om" tone="muted">
-      <div>
+    <Section id="om">
+      <div className="grid gap-12 lg:grid-cols-[0.8fr_1.2fr] lg:gap-20">
         <div>
-          {/* Avataren står ved overskriften framfor å fylle en egen kolonne.
-              Den er tegnet, ikke fotografert, og tåler ikke stort format uten
-              å dra seksjonen mot spillprofil. */}
+          {/* Avataren er tegnet, ikke fotografert, og tåler ikke stort format. */}
           {about.portrait ? (
             <Reveal>
               <img
                 src={about.portrait}
                 alt={about.portraitAlt}
-                width={88}
-                height={88}
+                width={96}
+                height={96}
                 loading="lazy"
-                className="mb-6 h-[88px] w-[88px] rounded-full object-cover shadow-card ring-1 ring-hairline"
+                className="mb-8 h-24 w-24 rounded-full object-cover ring-1 ring-hairline-strong"
               />
             </Reveal>
           ) : null}
+          <SectionHeading title={about.title} />
+        </div>
 
-          <SectionHeading eyebrow={about.eyebrow} title={about.title} />
-
-          <div className="mt-6 max-w-prose space-y-5">
+        <div>
+          <div className="max-w-prose space-y-5">
             {about.body.map((paragraph) => (
               <Reveal key={paragraph.slice(0, 32)}>
-                <p className="text-[17px] leading-[1.6] text-fg-soft">{paragraph}</p>
+                <p className="text-[18px] leading-[1.6] text-fg-soft">{paragraph}</p>
               </Reveal>
             ))}
           </div>
 
-          <dl className="mt-10 grid gap-8 border-t border-hairline pt-8 sm:grid-cols-3">
-            {about.facts.map((fact, index) => (
-              <Reveal key={fact.label} delay={index * 0.07}>
-                <dd className="text-[26px] font-semibold tracking-[-0.02em] text-fg">
+          <dl className="mt-12 grid gap-6 border-t border-hairline-strong pt-8 sm:grid-cols-3">
+            {about.facts.map((fact) => (
+              <div key={fact.label} className="flex flex-col">
+                <dt className="order-2 mt-1 text-[14px] leading-snug text-fg-faint">
+                  {fact.label}
+                </dt>
+                <dd className="order-1 text-[26px] font-semibold tracking-[-0.03em] text-fg">
                   {fact.value}
                 </dd>
-                <dt className="mt-1 text-[13px] leading-relaxed text-fg-faint">{fact.label}</dt>
-              </Reveal>
+              </div>
             ))}
           </dl>
         </div>

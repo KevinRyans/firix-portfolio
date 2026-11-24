@@ -20,7 +20,7 @@ export default function ProjectCard({
         to={`/prosjekter/${project.slug}`}
         aria-label={`Se prosjektet ${project.name}`}
         className={cn(
-          'block transition-transform duration-500 ease-apple hover:-translate-y-1',
+          'block transition-transform duration-500 ease-apple hover:-translate-y-1.5',
           featured ? 'lg:w-[58%]' : 'w-full',
         )}
       >
@@ -29,19 +29,12 @@ export default function ProjectCard({
 
       <div className={cn('pt-6', featured && 'lg:w-[42%] lg:pt-0')}>
         {project.client || project.year ? (
-          <p className="mb-2 flex items-center gap-2 text-[12px] font-medium uppercase tracking-[0.06em] text-fg-faint">
-            {project.client ? <span>{project.client}</span> : null}
-            {project.client && project.year ? <span aria-hidden="true">·</span> : null}
-            {project.year ? <span>{project.year}</span> : null}
+          <p className="mb-2 text-[14px] text-fg-faint">
+            {[project.client, project.year].filter(Boolean).join(', ')}
           </p>
         ) : null}
 
-        <h3
-          className={cn(
-            'font-semibold tracking-[-0.02em] text-fg',
-            featured ? 'text-headline' : 'text-title',
-          )}
-        >
+        <h3 className={cn('text-fg', featured ? 'text-headline' : 'text-title')}>
           <Link to={`/prosjekter/${project.slug}`} className="hover:text-accent">
             {project.name}
           </Link>
@@ -74,9 +67,9 @@ export default function ProjectCard({
         <div className="mt-6 flex flex-wrap items-center gap-5">
           <Link
             to={`/prosjekter/${project.slug}`}
-            className="text-[15px] font-medium text-accent hover:underline"
+            className="text-[15px] font-semibold text-accent underline decoration-1 underline-offset-4 hover:decoration-2"
           >
-            Les mer →
+            Les om prosjektet
           </Link>
           {project.url ? (
             <a
@@ -85,7 +78,7 @@ export default function ProjectCard({
               rel="noreferrer"
               className="text-[15px] text-fg-faint hover:text-fg"
             >
-              Besøk nettstedet ↗
+              Besøk nettstedet
             </a>
           ) : null}
         </div>

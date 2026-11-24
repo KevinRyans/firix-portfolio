@@ -6,8 +6,8 @@ import { useDarkSectionUnderNav } from '../../lib/useToneUnderNav'
 import { cn } from '../../lib/utils'
 
 /**
- * Apple-stil global nav: 52px høy, gjennomsiktig med kraftig blur, og en
- * hårfin linje som først dukker opp når man har scrollet.
+ * Fast navigasjon. Halvgjennomsiktig med blur, og bytter til mørk tone når en
+ * mørk seksjon ligger under den. Den eneste fargen er kontaktknappen.
  */
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false)
@@ -33,7 +33,7 @@ export default function Navbar() {
       data-tone={overDark && !open ? 'dark' : 'light'}
       className={cn(
         'fixed inset-x-0 top-0 z-50 transition-colors duration-500 ease-apple',
-        overDark && !open ? 'bg-black/70' : 'bg-canvas/70',
+        overDark && !open ? 'bg-fjord-deep/80' : 'bg-fjell/80',
         scrolled || open
           ? 'border-b border-hairline backdrop-blur-xl backdrop-saturate-150'
           : 'border-b border-transparent backdrop-blur-md',
@@ -43,10 +43,11 @@ export default function Navbar() {
       <nav className="shell flex h-[var(--nav-height)] items-center justify-between">
         <Link
           to="/"
-          className="text-[19px] font-semibold tracking-[-0.02em] text-fg transition-colors duration-500"
-          aria-label="Firix — til forsiden"
+          className="flex items-center gap-2.5 text-[24px] font-bold leading-none tracking-[-0.05em] text-fg transition-colors duration-500"
+          aria-label="Firix, til forsiden"
         >
-          Firix
+          <img src="/favicon.svg" alt="" width={30} height={30} className="rounded-[7px]" />
+          firix
         </Link>
 
         <div className="hidden items-center gap-8 md:flex">
@@ -54,16 +55,16 @@ export default function Navbar() {
             <a
               key={item.to}
               href={item.to}
-              className="text-[13px] text-fg-soft transition-colors duration-500 hover:text-fg"
+              className="text-[15px] text-fg-soft transition-colors duration-500 hover:text-fg"
             >
               {item.label}
             </a>
           ))}
           <Link
             to="/kontakt"
-            className="rounded-full bg-accent-solid px-4 py-1.5 text-[13px] font-medium text-white transition duration-300 hover:brightness-110"
+            className="rounded-md bg-accent-solid px-4 py-2.5 text-[14px] font-semibold text-blekk transition duration-300 hover:bg-[#ff6d38]"
           >
-            Få et tilbud
+            Send en forespørsel
           </Link>
         </div>
 
@@ -72,18 +73,18 @@ export default function Navbar() {
           onClick={() => setOpen((prev) => !prev)}
           aria-expanded={open}
           aria-label={open ? 'Lukk meny' : 'Åpne meny'}
-          className="-mr-2 flex h-10 w-10 items-center justify-center md:hidden"
+          className="-mr-2 flex h-11 w-11 items-center justify-center md:hidden"
         >
-          <span className="relative block h-3 w-4">
+          <span className="relative block h-3 w-5">
             <span
               className={cn(
-                'absolute left-0 h-[1.5px] w-4 bg-fg transition-all duration-300 ease-apple',
+                'absolute left-0 h-[2px] w-5 bg-fg transition-all duration-300 ease-apple',
                 open ? 'top-1.5 rotate-45' : 'top-0',
               )}
             />
             <span
               className={cn(
-                'absolute left-0 h-[1.5px] w-4 bg-fg transition-all duration-300 ease-apple',
+                'absolute left-0 h-[2px] w-5 bg-fg transition-all duration-300 ease-apple',
                 open ? 'top-1.5 -rotate-45' : 'top-3',
               )}
             />
@@ -97,7 +98,7 @@ export default function Navbar() {
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.3, ease: [0.28, 0.11, 0.32, 1] }}
+            transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
             className="overflow-hidden md:hidden"
           >
             <div className="shell flex flex-col gap-1 pb-6 pt-2">
@@ -114,9 +115,9 @@ export default function Navbar() {
               <Link
                 to="/kontakt"
                 onClick={() => setOpen(false)}
-                className="mt-4 rounded-full bg-accent-solid px-5 py-3 text-center text-[16px] font-medium text-white"
+                className="mt-4 rounded-md bg-accent-solid px-5 py-3.5 text-center text-[16px] font-semibold text-blekk"
               >
-                Få et tilbud
+                Send en forespørsel
               </Link>
             </div>
           </motion.div>

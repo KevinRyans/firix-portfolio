@@ -2,7 +2,6 @@ import { useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { faq } from '../../content/site'
 import { cn } from '../../lib/utils'
-import Reveal from '../ui/Reveal'
 import { Section, SectionHeading } from '../ui/Section'
 
 export default function Faq() {
@@ -10,15 +9,15 @@ export default function Faq() {
 
   return (
     <Section id="sporsmal">
-      <SectionHeading eyebrow={faq.eyebrow} title={faq.title} />
+      <div className="grid gap-12 lg:grid-cols-[0.8fr_1.2fr] lg:gap-20">
+        <SectionHeading title={faq.title} />
 
-      <div className="mt-12 max-w-narrow">
-        <dl className="border-t border-hairline">
-          {faq.items.map((item, index) => {
-            const isOpen = open === index
-            return (
-              <Reveal key={item.q} delay={index * 0.04}>
-                <div className="border-b border-hairline">
+        <div>
+          <dl className="border-t border-hairline-strong">
+            {faq.items.map((item, index) => {
+              const isOpen = open === index
+              return (
+                <div key={item.q} className="border-b border-hairline">
                   <dt>
                     <button
                       type="button"
@@ -26,7 +25,7 @@ export default function Faq() {
                       aria-expanded={isOpen}
                       className="flex w-full items-center justify-between gap-6 py-5 text-left"
                     >
-                      <span className="text-[17px] font-medium tracking-[-0.01em] text-fg">
+                      <span className="text-[18px] font-medium tracking-[-0.015em] text-fg">
                         {item.q}
                       </span>
                       <span
@@ -50,17 +49,17 @@ export default function Faq() {
                         transition={{ duration: 0.32, ease: [0.28, 0.11, 0.32, 1] }}
                         className="overflow-hidden"
                       >
-                        <p className="max-w-prose pb-6 pr-10 text-[15px] leading-relaxed text-fg-faint">
+                        <p className="max-w-prose pb-6 pr-10 text-[16px] leading-relaxed text-fg-soft">
                           {item.a}
                         </p>
                       </motion.dd>
                     ) : null}
                   </AnimatePresence>
                 </div>
-              </Reveal>
-            )
-          })}
-        </dl>
+              )
+            })}
+          </dl>
+        </div>
       </div>
     </Section>
   )

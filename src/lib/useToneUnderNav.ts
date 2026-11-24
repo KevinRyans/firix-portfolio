@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
  * Sier fra når en mørk seksjon ligger rett under den faste navigasjonen.
  *
  * Uten dette blir den lyse navlinjen stående som en hvit stripe oppå de
- * kullsvarte seksjonene. Apple bytter nav-fargen på samme måte.
+ * kullsvarte seksjonene.
  *
  * Teknikken: en IntersectionObserver med negative marger, slik at «roten»
  * krymper til et tynt bånd rett under navlinjen. Treffer en mørk seksjon
@@ -38,7 +38,9 @@ export function useDarkSectionUnderNav(): boolean {
       )
 
       dark.clear()
-      document.querySelectorAll('[data-tone="dark"]').forEach((node) => observer?.observe(node))
+      document
+        .querySelectorAll('[data-tone="dark"], [data-tone="ink"]')
+        .forEach((node) => observer?.observe(node))
     }
 
     connect()

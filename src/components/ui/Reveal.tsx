@@ -2,11 +2,12 @@ import { useRef, type ReactNode } from 'react'
 import { motion, useReducedMotion, useScroll, useSpring, useTransform } from 'framer-motion'
 import { cn } from '../../lib/utils'
 
-const EASE = [0.28, 0.11, 0.32, 1] as const
+const EASE = [0.22, 1, 0.36, 1] as const
 
 /**
- * Rolig innfasing ved scroll. Apple bruker korte, myke bevegelser — ikke
- * sprett. Respekterer «reduser bevegelse» i operativsystemet.
+ * Diskret innfasing ved scroll. Bevisst liten: de store bevegelsene på siden
+ * er stabelen i hero og prosjektene som vippes på plass, og denne skal ikke
+ * konkurrere med dem. Respekterer «reduser bevegelse».
  */
 export default function Reveal({
   children,
@@ -24,10 +25,10 @@ export default function Reveal({
   return (
     <motion.div
       className={cn(className)}
-      initial={{ opacity: 0, y: 24 }}
+      initial={{ opacity: 0, y: 10 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: '-80px' }}
-      transition={{ duration: 0.7, delay, ease: EASE }}
+      transition={{ duration: 0.6, delay, ease: EASE }}
     >
       {children}
     </motion.div>
@@ -44,6 +45,7 @@ export function ScrollScale({
   className,
   from = 0.94,
   lift = 48,
+  tilt = 0,
 }: {
   children: ReactNode
   className?: string
@@ -51,6 +53,8 @@ export function ScrollScale({
   from?: number
   /** Hvor mange piksler elementet løftes underveis. */
   lift?: number
+  /** Grader elementet vippes bakover fra start, som en skjerm som reises opp. */
+  tilt?: number
 }) {
   const reduce = useReducedMotion()
   const ref = useRef<HTMLDivElement>(null)
@@ -64,6 +68,7 @@ export function ScrollScale({
   const scale = useTransform(eased, [0, 1], [from, 1])
   const y = useTransform(eased, [0, 1], [lift, 0])
   const opacity = useTransform(eased, [0, 0.6], [0, 1])
+  const rotateX = useTransform(eased, [0, 1], [tilt, 0])
 
   if (reduce) {
     return (
@@ -74,9 +79,11 @@ export function ScrollScale({
   }
 
   return (
-    <motion.div ref={ref} className={className} style={{ scale, y, opacity }}>
-      {children}
-    </motion.div>
+    <div ref={ref} className={className} style={tilt ? { perspective: 1400 } : undefined}>
+      <motion.div style={{ scale, y, opacity, rotateX, transformOrigin: '50% 100%' }}>
+        {children}
+      </motion.div>
+    </div>
   )
 }
 

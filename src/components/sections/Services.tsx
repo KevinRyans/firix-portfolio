@@ -1,36 +1,49 @@
 import { services } from '../../content/site'
+import LayerGlyph from '../hero/LayerGlyph'
 import Reveal from '../ui/Reveal'
 import { Section, SectionHeading } from '../ui/Section'
 
+/**
+ * Tjenestene i samme rekkefølge som stabelen i hero, ovenfra og ned. Hver
+ * rad viser hvilket lag den gjelder, så illustrasjonen og listen leses som
+ * én forklaring.
+ */
 export default function Services() {
   return (
-    <Section id="tjenester">
-      <SectionHeading eyebrow={services.eyebrow} title={services.title} lead={services.lead} />
+    <Section id="tjenester" tone="muted">
+      <div className="grid gap-6 lg:grid-cols-[1fr_1fr] lg:items-end">
+        <SectionHeading title={services.title} />
+        <Reveal>
+          <p className="max-w-[44ch] text-lead text-fg-faint lg:justify-self-end">
+            {services.lead}
+          </p>
+        </Reveal>
+      </div>
 
-      <div className="mt-14 grid gap-6 lg:grid-cols-3">
-        {services.items.map((item, index) => (
-          <Reveal key={item.title} delay={index * 0.08}>
-            <div className="group flex h-full flex-col rounded-panel border border-hairline bg-elevated p-8 shadow-card transition-all duration-500 ease-apple hover:-translate-y-1.5 hover:shadow-lift">
-              <h3 className="text-title font-semibold text-fg">{item.title}</h3>
-              <p className="mt-4 flex-1 text-[15px] leading-relaxed text-fg-faint">{item.body}</p>
-              <ul className="mt-6 space-y-2 border-t border-hairline pt-6">
+      <ul className="mt-14 border-t border-hairline-strong">
+        {services.items.map((item) => (
+          <li key={item.title} className="border-b border-hairline">
+            <Reveal className="grid grid-cols-[52px_1fr] items-center gap-x-5 gap-y-5 py-10 sm:grid-cols-[72px_1fr] lg:grid-cols-[72px_minmax(0,0.8fr)_minmax(0,1.2fr)_minmax(0,0.7fr)] lg:items-start lg:gap-10">
+              <LayerGlyph layer={item.layer} className="h-12 w-12 sm:h-14 sm:w-14" />
+              <h3 className="text-title text-fg">{item.title}</h3>
+              <p className="max-w-prose col-span-2 text-[17px] leading-[1.6] text-fg-soft sm:col-span-1 sm:col-start-2 lg:col-start-auto">
+                {item.body}
+              </p>
+              <ul className="col-span-2 space-y-2 sm:col-span-1 sm:col-start-2 lg:col-start-auto">
                 {item.points.map((point) => (
-                  <li key={point} className="flex items-start gap-2.5 text-[14px] text-fg-soft">
-                    <svg
-                      viewBox="0 0 16 16"
-                      className="mt-[3px] h-3.5 w-3.5 shrink-0 text-accent"
+                  <li key={point} className="flex gap-3 text-[15px] text-fg-soft">
+                    <span
+                      className="mt-[0.6em] h-[2px] w-3 shrink-0 bg-accent-solid"
                       aria-hidden="true"
-                    >
-                      <path fill="currentColor" d="M6.2 11.8 3 8.6l1.1-1.1 2.1 2.1 5.7-5.7L13 5z" />
-                    </svg>
+                    />
                     {point}
                   </li>
                 ))}
               </ul>
-            </div>
-          </Reveal>
+            </Reveal>
+          </li>
         ))}
-      </div>
+      </ul>
     </Section>
   )
 }
